@@ -6,6 +6,7 @@ Task: KAIRO Production Deploy & Smoke Test V1
 ## Deployment status
 
 - Worker redeployed to production.
+- Replacement Worker `kairo-api-prod` was created and deployed, but its hostname also timed out at TCP connect stage.
 - Production D1 database created and bound in `wrangler.toml`.
 - Remote D1 migration did not complete because Cloudflare D1 returned platform error `7500`.
 - Remote seed did not complete because the schema migration did not create tables.
@@ -15,7 +16,9 @@ Task: KAIRO Production Deploy & Smoke Test V1
 
 - D1 database name: `kairo-prod`
 - D1 database id: `b7b521f5-96d2-4cf9-9c73-6ff1245f9d35`
-- Worker URL: `https://kairo-worker-prod.348421501.workers.dev`
+- Worker URLs:
+  - `https://kairo-worker-prod.348421501.workers.dev`
+  - `https://kairo-api-prod.348421501.workers.dev`
 - Pages URLs:
   - `https://f828a223.kairo-5vg.pages.dev`
   - `https://6f92ba0d.kairo-5vg.pages.dev`
@@ -62,6 +65,7 @@ Task: KAIRO Production Deploy & Smoke Test V1
 
 - Cloudflare D1 migration platform failure blocks data-backed API routes.
 - Production Worker edge requests are timing out from shell and browser probes, even after a fresh redeploy.
+- Replacement Worker `kairo-api-prod` exhibits the same TCP timeout, so this appears to be a Cloudflare edge/path issue rather than a project-name issue.
 - Pages renders the loading shell because the Worker fetches never complete.
 
 ## Rollback notes
