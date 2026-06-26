@@ -62,6 +62,7 @@ export function bidToSubmissionRecord(bid: Bid): SubmissionRecord {
           : bid.status === 'Declined'
             ? 'declined'
             : 'submitted',
+    deliveryStatus: 'not_started',
     boostCount: bid.votes,
     momentumScore: bid.votes * 10,
     createdAt,
