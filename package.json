@@ -12,7 +12,8 @@
     "lint": "tsc --noEmit",
     "db:migrate:local": "wrangler d1 migrations apply kairo-local --local",
     "db:migrate:remote": "wrangler d1 migrations apply kairo-prod --remote",
-    "deploy:worker": "wrangler deploy"
+    "deploy:worker": "wrangler deploy",
+    "db:seed:local": "wrangler d1 execute kairo-local --local --file=worker/db/seed.sql"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
