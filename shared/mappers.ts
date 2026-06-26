@@ -22,7 +22,7 @@ export function catalystToBountyRecord(catalyst: Catalyst): BountyRecord {
     description: catalyst.description,
     rewardText: `${catalyst.rewardPool.amount.toLocaleString()} ${catalyst.rewardPool.tokenSymbol}`,
     rewardType: 'token',
-    fundingStatus: catalyst.isEscrowed ? 'kairo_confirmed' : 'unverified',
+    fundingStatus: catalyst.isEscrowed ? 'escrowed' : 'unverified',
     deadline: catalyst.deadline,
     status:
       catalyst.status === 'Active'
@@ -60,8 +60,9 @@ export function bidToSubmissionRecord(bid: Bid): SubmissionRecord {
         : bid.status === 'Winner'
           ? 'winner'
           : bid.status === 'Declined'
-            ? 'declined'
+            ? 'rejected'
             : 'submitted',
+    deliveryStatus: bid.status === 'Winner' ? 'completed' : bid.status === 'Approved' ? 'approved' : 'not_started',
     boostCount: bid.votes,
     momentumScore: bid.votes * 10,
     createdAt,
