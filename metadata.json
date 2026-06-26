@@ -1,0 +1,6 @@
+{
+  "name": "KAIRO",
+  "description": "A premium Web3 hub connecting dormant coin projects with builders to reignite token momentum and community engagement.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
