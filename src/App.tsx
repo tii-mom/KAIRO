@@ -47,7 +47,7 @@ const INITIAL_USER: UserState = {
 
 export default function App({ initialTab = 'arena', initialCatalystId = null, onRouteBack }: AppProps) {
   const [activeTab, setActiveTab] = useState<string>(initialTab);
-  const [roleMode, setRoleMode] = useState<'investor' | 'developer'>('investor');
+  const [roleMode, setRoleMode] = useState<'supporter' | 'developer'>('supporter');
   const [selectedCatalystId, setSelectedCatalystId] = useState<string | null>(initialCatalystId);
   const [catalysts, setCatalysts] = useState<Catalyst[]>(INITIAL_CATALYSTS);
   const [bids, setBids] = useState<Bid[]>(INITIAL_BIDS);
@@ -310,7 +310,7 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
           setActiveTab(tab);
           setSelectedCatalystId(null); // Close detail view on tab switch
           if (['arena', 'leaderboard'].includes(tab)) {
-            setRoleMode('investor');
+            setRoleMode('supporter');
           } else if (['catalysts', 'builderHub'].includes(tab)) {
             setRoleMode('developer');
           }
@@ -318,7 +318,7 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
         roleMode={roleMode}
         setRoleMode={(mode) => {
           setRoleMode(mode);
-          if (mode === 'investor') {
+          if (mode === 'supporter') {
             if (!['arena', 'leaderboard'].includes(activeTab)) {
               setActiveTab('arena');
             }
@@ -369,7 +369,7 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
           <div className="flex p-1 rounded-xl bg-[#07090e] border border-white/5">
             <button
               onClick={() => {
-                setRoleMode('investor');
+                setRoleMode('supporter');
                 if (!['arena', 'leaderboard'].includes(activeTab)) {
                   setActiveTab('arena');
                 }
@@ -377,13 +377,13 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
                 addNotification('进入：支持者视角', '已加载 Catalyst 势能、Proof of Support 与排行榜', 'info');
               }}
               className={`flex-1 md:flex-initial rounded-lg px-5 py-2.5 text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
-                roleMode === 'investor'
+                roleMode === 'supporter'
                   ? 'bg-gradient-to-r from-[#ffd285] to-[#f52329] text-black shadow-md'
                   : 'text-white/40 hover:text-white/80'
               }`}
             >
               <Flame className="h-3.5 w-3.5 animate-pulse" />
-              <span>投资与治理模式</span>
+              <span>支持者模式</span>
             </button>
             <button
               onClick={() => {
@@ -408,7 +408,7 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
           <div className="flex items-center space-x-2 px-3 text-xs text-white/50">
             <span className={`h-2 w-2 rounded-full animate-pulse ${roleMode === 'developer' ? 'bg-cyan-400' : 'bg-amber-400'}`} />
             <span className="font-sans font-medium text-white/70">
-              {roleMode === 'investor' 
+              {roleMode === 'supporter' 
                 ? '当前视角：Catalyst 势能、Proof of Support、排行榜' 
                 : '当前视角：资助任务、提案投票、Builder沙箱'
               }
@@ -433,7 +433,7 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
                 <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider font-mono ${
                   roleMode === 'developer' ? 'bg-cyan-500/20 text-cyan-300' : 'bg-[#ffd285]/20 text-[#ffd285]'
                 }`}>
-                  {roleMode === 'developer' ? 'Builder Node Active' : 'Investor Gateway'}
+                  {roleMode === 'developer' ? 'Builder Node Active' : 'Supporter Gateway'}
                 </span>
                 <span className="text-white/30 text-xs">|</span>
                 <span className="text-xs text-white/50">当前版本 v1.4 (Beta)</span>
@@ -441,7 +441,7 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
               <h2 className={`text-lg font-bold tracking-tight ${
                 roleMode === 'developer' ? 'text-white' : 'text-[#ffd285]'
               }`}>
-                {roleMode === 'developer' ? '💻 Kairo 催化开发终端' : '🚀 Kairo 投资与治理视窗'}
+                {roleMode === 'developer' ? '💻 Kairo 催化开发终端' : '🚀 Kairo 支持者协作视窗'}
               </h2>
               <p className="text-xs text-white/60 leading-relaxed">
                 {roleMode === 'developer' 
@@ -464,7 +464,7 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
                     <span className="text-base font-extrabold text-cyan-300 font-mono mt-1">38 份</span>
                   </div>
                   <div className="rounded-xl border border-cyan-500/10 bg-[#07090e]/60 p-3 flex flex-col justify-between">
-                    <span className="text-[10px] text-white/40 block">开发分红</span>
+                    <span className="text-[10px] text-white/40 block">交付记录</span>
                     <span className="text-base font-extrabold text-emerald-400 font-mono mt-1">180k KAI</span>
                   </div>
                 </>
@@ -475,7 +475,7 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
                     <span className="text-base font-extrabold text-[#ffd285] font-mono mt-1">1.24M Bt</span>
                   </div>
                   <div className="rounded-xl border border-[#ffd285]/10 bg-[#07090e]/60 p-3 flex flex-col justify-between">
-                    <span className="text-[10px] text-white/40 block">24H 交易量</span>
+                    <span className="text-[10px] text-white/40 block">24H 支持事件</span>
                     <span className="text-base font-extrabold text-emerald-400 font-mono mt-1">$1.42B</span>
                   </div>
                   <div className="rounded-xl border border-[#ffd285]/10 bg-[#07090e]/60 p-3 flex flex-col justify-between">

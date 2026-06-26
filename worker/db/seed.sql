@@ -1,97 +1,101 @@
--- KAIRO local demo seed data.
--- Run with: wrangler d1 execute kairo-local --local --file=worker/db/seed.sql
+-- KAIRO Phase 0 launch demo seed data.
+-- Public copy uses Catalyst, Builder Submission, Boost, Momentum, Funding Status, Reward Records, and Proof of Support wording.
 
-INSERT OR REPLACE INTO users (
-  id, email, display_name, avatar_url, role, wallet_address,
-  twitter_handle, telegram_handle, created_at, updated_at
-) VALUES
-  ('user-demo-supporter', 'supporter@demo.kairo.local', 'Demo Supporter', 'https://api.dicebear.com/9.x/shapes/svg?seed=kairo-supporter', 'supporter', '0x1000000000000000000000000000000000000001', '@kairo_supporter', '@kairo_supporter', '2026-06-20T10:00:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('user-demo-builder', 'builder@demo.kairo.local', 'Demo Builder', 'https://api.dicebear.com/9.x/shapes/svg?seed=kairo-builder', 'builder', '0x2000000000000000000000000000000000000002', '@kairo_builder', '@kairo_builder', '2026-06-20T10:05:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('user-demo-admin', 'admin@demo.kairo.local', 'Demo Admin', 'https://api.dicebear.com/9.x/shapes/svg?seed=kairo-admin', 'admin', '0x3000000000000000000000000000000000000003', '@kairo_admin', '@kairo_admin', '2026-06-20T10:10:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('user-builder-mira', 'mira@demo.kairo.local', 'Mira Protocols', 'https://api.dicebear.com/9.x/shapes/svg?seed=mira', 'builder', '0x4000000000000000000000000000000000000004', '@mira_protocols', '@mira_protocols', '2026-06-21T09:00:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('user-builder-orion', 'orion@demo.kairo.local', 'Orion Labs', 'https://api.dicebear.com/9.x/shapes/svg?seed=orion', 'builder', '0x5000000000000000000000000000000000000005', '@orion_labs', '@orion_labs', '2026-06-21T09:30:00.000Z', '2026-06-26T10:00:00.000Z');
+INSERT OR REPLACE INTO users (id,email,display_name,avatar_url,role,wallet_address,twitter_handle,telegram_handle,created_at,updated_at) VALUES
+('user-demo-supporter','supporter@demo.kairo.local','Demo Supporter','https://api.dicebear.com/9.x/shapes/svg?seed=supporter','supporter','0x1000000000000000000000000000000000000001','@kairo_supporter','@kairo_supporter','2026-06-20T10:00:00.000Z','2026-06-26T10:00:00.000Z'),
+('user-demo-builder','builder@demo.kairo.local','Demo Builder','https://api.dicebear.com/9.x/shapes/svg?seed=builder','builder','0x2000000000000000000000000000000000000002','@kairo_builder','@kairo_builder','2026-06-20T10:05:00.000Z','2026-06-26T10:00:00.000Z'),
+('user-demo-admin','admin@demo.kairo.local','Demo Admin','https://api.dicebear.com/9.x/shapes/svg?seed=admin','admin','0x3000000000000000000000000000000000000003','@kairo_admin','@kairo_admin','2026-06-20T10:10:00.000Z','2026-06-26T10:00:00.000Z'),
+('user-builder-mira','mira@demo.kairo.local','Mira Protocols','https://api.dicebear.com/9.x/shapes/svg?seed=mira','builder','0x4000000000000000000000000000000000000004','@mira_protocols','@mira_protocols','2026-06-21T09:00:00.000Z','2026-06-26T10:00:00.000Z'),
+('user-builder-orion','orion@demo.kairo.local','Orion Labs','https://api.dicebear.com/9.x/shapes/svg?seed=orion','builder','0x5000000000000000000000000000000000000005','@orion_labs','@orion_labs','2026-06-21T09:30:00.000Z','2026-06-26T10:00:00.000Z');
 
-INSERT OR REPLACE INTO tokens (
-  id, name, symbol, chain, contract_address, logo_url, website_url,
-  twitter_url, telegram_url, status, created_at, updated_at
-) VALUES
-  ('token-dorm', 'Dormant Yields', 'DORM', 'Arbitrum', '0xd000000000000000000000000000000000000001', 'https://api.dicebear.com/9.x/shapes/svg?seed=dorm', 'https://demo.kairo.local/tokens/dorm', 'https://x.com/dormantyields', 'https://t.me/dormantyields', 'sleeping', '2026-06-20T11:00:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('token-ember', 'Ember DAO', 'EMBER', 'Base', '0xe000000000000000000000000000000000000002', 'https://api.dicebear.com/9.x/shapes/svg?seed=ember', 'https://demo.kairo.local/tokens/ember', 'https://x.com/emberdao', 'https://t.me/emberdao', 'reviving', '2026-06-20T11:05:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('token-atlas', 'Atlas Mesh', 'ATLAS', 'Ethereum', '0xa000000000000000000000000000000000000003', 'https://api.dicebear.com/9.x/shapes/svg?seed=atlas', 'https://demo.kairo.local/tokens/atlas', 'https://x.com/atlasmesh', 'https://t.me/atlasmesh', 'sleeping', '2026-06-20T11:10:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('token-pixel', 'Pixel Grove', 'PXG', 'Polygon', '0x9000000000000000000000000000000000000004', 'https://api.dicebear.com/9.x/shapes/svg?seed=pxg', 'https://demo.kairo.local/tokens/pxg', 'https://x.com/pixelgrove', 'https://t.me/pixelgrove', 'reviving', '2026-06-20T11:15:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('token-neon', 'Neon Keepers', 'NEON', 'Optimism', '0x7000000000000000000000000000000000000005', 'https://api.dicebear.com/9.x/shapes/svg?seed=neon', 'https://demo.kairo.local/tokens/neon', 'https://x.com/neonkeepers', 'https://t.me/neonkeepers', 'sleeping', '2026-06-20T11:20:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('token-lumen', 'Lumen Vault', 'LUMEN', 'Solana', 'So11111111111111111111111111111111111111115', 'https://api.dicebear.com/9.x/shapes/svg?seed=lumen', 'https://demo.kairo.local/tokens/lumen', 'https://x.com/lumenvault', 'https://t.me/lumenvault', 'sleeping', '2026-06-20T11:25:00.000Z', '2026-06-26T10:00:00.000Z');
+INSERT OR REPLACE INTO tokens (id,name,symbol,chain,contract_address,logo_url,website_url,twitter_url,telegram_url,status,created_at,updated_at) VALUES
+('token-dorm','Dormant Signals','DORM','Arbitrum','0xd000000000000000000000000000000000000001','https://api.dicebear.com/9.x/shapes/svg?seed=dorm','https://demo.kairo.local/tokens/dorm','https://x.com/dormantsignals','https://t.me/dormantsignals','sleeping','2026-06-20T11:00:00.000Z','2026-06-26T10:00:00.000Z'),
+('token-ember','Ember DAO','EMBER','Base','0xe000000000000000000000000000000000000002','https://api.dicebear.com/9.x/shapes/svg?seed=ember','https://demo.kairo.local/tokens/ember','https://x.com/emberdao','https://t.me/emberdao','reviving','2026-06-20T11:05:00.000Z','2026-06-26T10:00:00.000Z'),
+('token-atlas','Atlas Mesh','ATLAS','Ethereum','0xa000000000000000000000000000000000000003','https://api.dicebear.com/9.x/shapes/svg?seed=atlas','https://demo.kairo.local/tokens/atlas','https://x.com/atlasmesh','https://t.me/atlasmesh','sleeping','2026-06-20T11:10:00.000Z','2026-06-26T10:00:00.000Z'),
+('token-pixel','Pixel Grove','PXG','Polygon','0x9000000000000000000000000000000000000004','https://api.dicebear.com/9.x/shapes/svg?seed=pxg','https://demo.kairo.local/tokens/pxg','https://x.com/pixelgrove','https://t.me/pixelgrove','reviving','2026-06-20T11:15:00.000Z','2026-06-26T10:00:00.000Z'),
+('token-neon','Neon Keepers','NEON','Optimism','0x7000000000000000000000000000000000000005','https://api.dicebear.com/9.x/shapes/svg?seed=neon','https://demo.kairo.local/tokens/neon','https://x.com/neonkeepers','https://t.me/neonkeepers','sleeping','2026-06-20T11:20:00.000Z','2026-06-26T10:00:00.000Z'),
+('token-lumen','Lumen Trust','LUMEN','Solana','So11111111111111111111111111111111111111115','https://api.dicebear.com/9.x/shapes/svg?seed=lumen','https://demo.kairo.local/tokens/lumen','https://x.com/lumentrust','https://t.me/lumentrust','sleeping','2026-06-20T11:25:00.000Z','2026-06-26T10:00:00.000Z'),
+('token-harbor','Harbor Index','HARBOR','Base','0x8000000000000000000000000000000000000006','https://api.dicebear.com/9.x/shapes/svg?seed=harbor','https://demo.kairo.local/tokens/harbor','https://x.com/harborindex','https://t.me/harborindex','sleeping','2026-06-20T11:30:00.000Z','2026-06-26T10:00:00.000Z'),
+('token-arcade','Arcade Commons','ARCA','Polygon','0x6000000000000000000000000000000000000007','https://api.dicebear.com/9.x/shapes/svg?seed=arca','https://demo.kairo.local/tokens/arca','https://x.com/arcadecommons','https://t.me/arcadecommons','reviving','2026-06-20T11:35:00.000Z','2026-06-26T10:00:00.000Z');
 
-INSERT OR REPLACE INTO bounties (
-  id, token_id, created_by, title, description, reward_text, reward_type,
-  funding_status, contact_info, deadline, status, boost_count,
-  momentum_score, submission_count, featured, created_at, updated_at
-) VALUES
-  ('bounty-dorm-miniapp', 'token-dorm', 'user-demo-admin', 'Build the DORM Telegram Yield Mini App', 'Create a Telegram Mini App that helps Dormant Yields holders discover revived vault strategies and claim reactivation quests.', '35,000 DORM + 2,500 USDC', 'token', 'escrowed', 'admin@demo.kairo.local', '2026-07-20T23:59:59.000Z', 'active', 142, 18650, 2, 1, '2026-06-21T12:00:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('bounty-ember-reputation', 'token-ember', 'user-demo-admin', 'Ember DAO Contributor Reputation Dashboard', 'Ship a contributor reputation dashboard that turns old governance activity into visible proof for new working groups.', '18,000 EMBER', 'token', 'pledged', 'ops@ember.demo', '2026-07-18T23:59:59.000Z', 'active', 96, 14300, 1, 1, '2026-06-21T12:20:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('bounty-atlas-indexer', 'token-atlas', 'user-demo-admin', 'Atlas Mesh Dormant Wallet Indexer', 'Index dormant Atlas wallets and surface reactivation cohorts for targeted community campaigns.', '4,000 USDC', 'offchain', 'escrowed', 'revival@atlas.demo', '2026-07-25T23:59:59.000Z', 'active', 78, 12100, 1, 0, '2026-06-21T12:40:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('bounty-pxg-ugc', 'token-pixel', 'user-demo-admin', 'Pixel Grove UGC Quest Engine', 'Prototype a quest engine that rewards holders for remixing Pixel Grove assets and posting verified creations.', '12,500 PXG + merch pool', 'token', 'pledged', 'quests@pixel.demo', '2026-07-30T23:59:59.000Z', 'active', 88, 13450, 1, 1, '2026-06-21T13:00:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('bounty-neon-genesis', 'token-neon', 'user-demo-admin', 'Neon Keepers Genesis Catalyst Kit', 'Design the landing page, waitlist mechanics, and social proof feed for a potential Neon Keepers genesis round.', '8,000 USDC', 'offchain', 'unverified', 'genesis@neon.demo', '2026-08-02T23:59:59.000Z', 'pending_review', 52, 8200, 0, 0, '2026-06-21T13:20:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('bounty-lumen-audit', 'token-lumen', 'user-demo-admin', 'Lumen Vault Proof-of-Reserve Audit Widget', 'Build an embeddable widget that explains Lumen Vault reserves and monitors proof freshness for community trust.', '6,500 USDC', 'offchain', 'escrowed', 'security@lumen.demo', '2026-08-05T23:59:59.000Z', 'active', 61, 9700, 0, 0, '2026-06-21T13:40:00.000Z', '2026-06-26T10:00:00.000Z');
+INSERT OR REPLACE INTO bounties (id,token_id,created_by,title,description,reward_text,reward_type,funding_status,contact_info,deadline,status,boost_count,momentum_score,submission_count,featured,created_at,updated_at) VALUES
+('bounty-dorm-miniapp','token-dorm','user-demo-admin','Build the DORM Telegram Signal Mini App','Create a Telegram Mini App for active workstreams, support quests, and shareable proof cards.','35,000 DORM + 2,500 USDC sponsor reward','token','escrowed','admin@demo.kairo.local','2026-07-20T23:59:59.000Z','active',6,18650,2,1,'2026-06-21T12:00:00.000Z','2026-06-26T10:00:00.000Z'),
+('bounty-ember-reputation','token-ember','user-demo-admin','Ember DAO Contributor Reputation Dashboard','Turn old governance activity into visible contributor proof for new working groups.','18,000 EMBER sponsor reward','token','pledged','ops@ember.demo','2026-07-18T23:59:59.000Z','active',3,14300,1,1,'2026-06-21T12:20:00.000Z','2026-06-26T10:00:00.000Z'),
+('bounty-atlas-indexer','token-atlas','user-demo-admin','Atlas Mesh Dormant Wallet Indexer','Index quiet Atlas wallets and surface reactivation cohorts for community campaigns.','4,000 USDC sponsor reward','offchain','escrowed','revival@atlas.demo','2026-07-25T23:59:59.000Z','active',3,12100,1,0,'2026-06-21T12:40:00.000Z','2026-06-26T10:00:00.000Z'),
+('bounty-pxg-ugc','token-pixel','user-demo-admin','Pixel Grove UGC Quest Engine','Prototype a quest engine for asset remixes, creation review, and public contribution records.','12,500 PXG + merch sponsor reward','token','paid','quests@pixel.demo','2026-07-30T23:59:59.000Z','active',4,13450,1,1,'2026-06-21T13:00:00.000Z','2026-06-26T10:00:00.000Z'),
+('bounty-neon-genesis','token-neon','user-demo-admin','Neon Keepers Genesis Catalyst Kit','Design a landing page, waitlist flow, and social proof feed for a community restart.','8,000 USDC sponsor reward','offchain','unverified','genesis@neon.demo','2026-08-02T23:59:59.000Z','active',2,8200,1,0,'2026-06-21T13:20:00.000Z','2026-06-26T10:00:00.000Z'),
+('bounty-lumen-proof','token-lumen','user-demo-admin','Lumen Trust Proof Freshness Widget','Build a widget that explains reporting cadence and proof freshness for community confidence.','6,500 USDC sponsor reward','offchain','escrowed','security@lumen.demo','2026-08-05T23:59:59.000Z','active',2,9700,1,0,'2026-06-21T13:40:00.000Z','2026-06-26T10:00:00.000Z'),
+('bounty-harbor-briefs','token-harbor','user-demo-admin','Harbor Index Community Brief Generator','Create a weekly brief generator for ecosystem updates and share cards.','5,000 USDC sponsor reward','offchain','pledged','briefs@harbor.demo','2026-08-08T23:59:59.000Z','active',2,7600,1,0,'2026-06-21T14:00:00.000Z','2026-06-26T10:00:00.000Z'),
+('bounty-arcade-retention','token-arcade','user-demo-admin','Arcade Commons Player Return Loop','Prototype a return loop for old players with missions, badges, and support events.','20,000 ARCA sponsor reward','token','pledged','games@arcade.demo','2026-08-10T23:59:59.000Z','active',2,6900,0,0,'2026-06-21T14:20:00.000Z','2026-06-26T10:00:00.000Z');
 
-INSERT OR REPLACE INTO submissions (
-  id, bounty_id, builder_id, name, tagline, demo_url, github_url, video_url,
-  screenshot_url, description, status, boost_count, momentum_score,
-  delivery_status, created_at, updated_at
-) VALUES
-  ('submission-dorm-pulsebot', 'bounty-dorm-miniapp', 'user-demo-builder', 'DORM PulseBot', 'Telegram-first vault discovery with support quests.', 'https://demo.kairo.local/submissions/dorm-pulsebot', 'https://github.com/kairo-demo/dorm-pulsebot', 'https://demo.kairo.local/video/dorm-pulsebot', 'https://images.unsplash.com/photo-1551288049-bebda4e38f71', 'A Mini App that maps dormant wallets to revived vaults, guides claims, and emits shareable proof cards.', 'shortlisted', 47, 7100, 'submitted_for_review', '2026-06-23T09:00:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('submission-dorm-vaultlens', 'bounty-dorm-miniapp', 'user-builder-mira', 'VaultLens Reactivation', 'Holder segmentation and vault recommender.', 'https://demo.kairo.local/submissions/vaultlens', 'https://github.com/kairo-demo/vaultlens', NULL, 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31', 'Segment dormant holders by historical yield behavior and recommend the safest re-entry journey.', 'submitted', 29, 4300, 'building', '2026-06-23T10:00:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('submission-ember-forge', 'bounty-ember-reputation', 'user-builder-orion', 'Ember Forge', 'Governance reputation from old votes to new squads.', 'https://demo.kairo.local/submissions/ember-forge', 'https://github.com/kairo-demo/ember-forge', 'https://demo.kairo.local/video/ember-forge', 'https://images.unsplash.com/photo-1451187580459-43490279c0fa', 'Transforms old Snapshot and forum activity into contributor badges and squad matching.', 'submitted', 35, 5400, 'submitted_for_review', '2026-06-23T11:00:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('submission-atlas-radar', 'bounty-atlas-indexer', 'user-demo-builder', 'Atlas Radar', 'Dormant wallet cohorts with campaign exports.', 'https://demo.kairo.local/submissions/atlas-radar', 'https://github.com/kairo-demo/atlas-radar', NULL, 'https://images.unsplash.com/photo-1460925895917-afdab827c52f', 'Indexes holder inactivity, labels whale clusters, and exports privacy-safe activation lists.', 'submitted', 24, 3900, 'building', '2026-06-24T09:00:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('submission-pxg-remix', 'bounty-pxg-ugc', 'user-builder-mira', 'PXG Remix Quests', 'UGC quests with proof cards for Pixel Grove holders.', 'https://demo.kairo.local/submissions/pxg-remix', 'https://github.com/kairo-demo/pxg-remix', 'https://demo.kairo.local/video/pxg-remix', 'https://images.unsplash.com/photo-1518005020951-eccb494ad742', 'A creative challenge engine with asset packs, verification queues, and holder reward proofs.', 'winner', 58, 8900, 'completed', '2026-06-24T11:00:00.000Z', '2026-06-26T10:00:00.000Z');
+INSERT OR REPLACE INTO submissions (id,bounty_id,builder_id,name,tagline,demo_url,github_url,video_url,screenshot_url,description,status,boost_count,momentum_score,delivery_status,created_at,updated_at) VALUES
+('submission-dorm-pulsebot','bounty-dorm-miniapp','user-demo-builder','DORM PulseBot','Telegram-first catalyst discovery with support quests.','https://demo.kairo.local/submissions/dorm-pulsebot','https://github.com/kairo-demo/dorm-pulsebot','https://demo.kairo.local/video/dorm-pulsebot','https://images.unsplash.com/photo-1551288049-bebda4e38f71','Maps community segments to workstreams and proof cards.','shortlisted',4,7100,'submitted_for_review','2026-06-23T09:00:00.000Z','2026-06-26T10:00:00.000Z'),
+('submission-dorm-lens','bounty-dorm-miniapp','user-builder-mira','SignalLens Reactivation','Holder segmentation and workstream recommender.','https://demo.kairo.local/submissions/signallens','https://github.com/kairo-demo/signallens',NULL,'https://images.unsplash.com/photo-1558494949-ef010cbdcc31','Recommends the clearest comeback journey for quiet community members.','submitted',2,4300,'building','2026-06-23T10:00:00.000Z','2026-06-26T10:00:00.000Z'),
+('submission-ember-forge','bounty-ember-reputation','user-builder-orion','Ember Forge','Governance reputation from old votes to new squads.','https://demo.kairo.local/submissions/ember-forge','https://github.com/kairo-demo/ember-forge','https://demo.kairo.local/video/ember-forge','https://images.unsplash.com/photo-1451187580459-43490279c0fa','Transforms old Snapshot and forum activity into contributor badges.','submitted',3,5400,'submitted_for_review','2026-06-23T11:00:00.000Z','2026-06-26T10:00:00.000Z'),
+('submission-atlas-radar','bounty-atlas-indexer','user-demo-builder','Atlas Radar','Dormant wallet cohorts with campaign exports.','https://demo.kairo.local/submissions/atlas-radar','https://github.com/kairo-demo/atlas-radar',NULL,'https://images.unsplash.com/photo-1460925895917-afdab827c52f','Labels community cohorts and exports privacy-safe activation lists.','submitted',2,3900,'building','2026-06-24T09:00:00.000Z','2026-06-26T10:00:00.000Z'),
+('submission-pxg-remix','bounty-pxg-ugc','user-builder-mira','PXG Remix Quests','UGC quests with proof cards for Pixel Grove holders.','https://demo.kairo.local/submissions/pxg-remix','https://github.com/kairo-demo/pxg-remix','https://demo.kairo.local/video/pxg-remix','https://images.unsplash.com/photo-1518005020951-eccb494ad742','Creative challenge engine with asset packs and review queues.','winner',4,8900,'completed','2026-06-24T11:00:00.000Z','2026-06-26T10:00:00.000Z'),
+('submission-neon-rally','bounty-neon-genesis','user-builder-orion','Neon Rally Page','Waitlist and social proof feed for a community restart.','https://demo.kairo.local/submissions/neon-rally','https://github.com/kairo-demo/neon-rally',NULL,'https://images.unsplash.com/photo-1519608487953-e999c86e7455','Combines a restart brief, public tracker, and supporter wall.','submitted',2,3100,'building','2026-06-24T12:00:00.000Z','2026-06-26T10:00:00.000Z'),
+('submission-lumen-fresh','bounty-lumen-proof','user-demo-builder','Lumen Freshness Badge','Embeddable proof freshness badge and status panel.','https://demo.kairo.local/submissions/lumen-fresh','https://github.com/kairo-demo/lumen-fresh','https://demo.kairo.local/video/lumen-fresh','https://images.unsplash.com/photo-1554224155-6726b3ff858f','Shows proof age and plain-language confidence signals.','submitted',2,3300,'submitted_for_review','2026-06-24T13:00:00.000Z','2026-06-26T10:00:00.000Z'),
+('submission-harbor-briefly','bounty-harbor-briefs','user-builder-mira','Harbor Briefly','Weekly ecosystem brief writer and share card studio.','https://demo.kairo.local/submissions/harbor-briefly','https://github.com/kairo-demo/harbor-briefly',NULL,'https://images.unsplash.com/photo-1497366754035-f200968a6e72','Turns updates into concise explainers and community visuals.','submitted',1,2600,'building','2026-06-24T14:00:00.000Z','2026-06-26T10:00:00.000Z');
 
-INSERT OR REPLACE INTO support_points (
-  user_id, total_points, boost_points, referral_points, share_points,
-  valid_boost_count, updated_at
-) VALUES
-  ('user-demo-supporter', 1260, 1080, 120, 60, 72, '2026-06-26T10:00:00.000Z'),
-  ('user-demo-builder', 540, 420, 60, 60, 28, '2026-06-26T10:00:00.000Z'),
-  ('user-demo-admin', 230, 200, 0, 30, 12, '2026-06-26T10:00:00.000Z');
+INSERT OR REPLACE INTO boosts (id,user_id,bounty_id,submission_id,referrer_id,ip_hash,user_agent_hash,source,validity_status,created_at) VALUES
+('boost-001','user-demo-supporter','bounty-dorm-miniapp',NULL,NULL,'ip-001','ua-001','homepage_banner','valid','2026-06-25T08:00:00.000Z'),
+('boost-002','user-demo-supporter','bounty-dorm-miniapp','submission-dorm-pulsebot',NULL,'ip-002','ua-002','submission_card','valid','2026-06-25T08:10:00.000Z'),
+('boost-003','user-demo-supporter','bounty-pxg-ugc',NULL,NULL,'ip-003','ua-003','share_button','valid','2026-06-25T08:20:00.000Z'),
+('boost-004','user-demo-builder','bounty-ember-reputation',NULL,'user-demo-supporter','ip-004','ua-004','referral','valid','2026-06-25T09:00:00.000Z'),
+('boost-005','user-demo-admin','bounty-pxg-ugc','submission-pxg-remix',NULL,'ip-005','ua-005','admin_review','valid','2026-06-25T09:30:00.000Z'),
+('boost-006','user-demo-supporter','bounty-atlas-indexer',NULL,NULL,'ip-006','ua-006','dormant_giant','valid','2026-06-25T10:00:00.000Z'),
+('boost-007','user-demo-builder','bounty-atlas-indexer','submission-atlas-radar',NULL,'ip-007','ua-007','builder_hub','valid','2026-06-25T10:30:00.000Z'),
+('boost-008','user-builder-mira','bounty-dorm-miniapp','submission-dorm-lens',NULL,'ip-008','ua-008','catalyst_detail','valid','2026-06-25T11:00:00.000Z'),
+('boost-009','user-builder-orion','bounty-ember-reputation','submission-ember-forge',NULL,'ip-009','ua-009','leaderboard','valid','2026-06-25T11:30:00.000Z'),
+('boost-010','user-demo-supporter','bounty-neon-genesis',NULL,NULL,'ip-010','ua-010','genesis_candidate','valid','2026-06-25T12:00:00.000Z'),
+('boost-011','user-demo-builder','bounty-lumen-proof',NULL,NULL,'ip-011','ua-011','confirmed_rewards','valid','2026-06-25T12:30:00.000Z'),
+('boost-012','user-builder-mira','bounty-pxg-ugc','submission-pxg-remix','user-demo-supporter','ip-012','ua-012','referral','valid','2026-06-25T13:00:00.000Z'),
+('boost-013','user-builder-orion','bounty-harbor-briefs',NULL,NULL,'ip-013','ua-013','sponsor_campaign','valid','2026-06-25T13:30:00.000Z'),
+('boost-014','user-demo-admin','bounty-arcade-retention',NULL,NULL,'ip-014','ua-014','admin_review','valid','2026-06-25T14:00:00.000Z'),
+('boost-015','user-demo-supporter','bounty-lumen-proof','submission-lumen-fresh',NULL,'ip-015','ua-015','proof_page','valid','2026-06-25T14:30:00.000Z'),
+('boost-016','user-demo-builder','bounty-neon-genesis','submission-neon-rally',NULL,'ip-016','ua-016','catalyst_detail','valid','2026-06-25T15:00:00.000Z'),
+('boost-017','user-builder-mira','bounty-dorm-miniapp',NULL,NULL,'ip-017','ua-017','homepage_banner','valid','2026-06-25T15:30:00.000Z'),
+('boost-018','user-builder-orion','bounty-atlas-indexer',NULL,NULL,'ip-018','ua-018','dormant_giant','valid','2026-06-25T16:00:00.000Z'),
+('boost-019','user-demo-supporter','bounty-ember-reputation','submission-ember-forge',NULL,'ip-019','ua-019','submission_card','valid','2026-06-25T16:30:00.000Z'),
+('boost-020','user-demo-builder','bounty-pxg-ugc','submission-pxg-remix',NULL,'ip-020','ua-020','breakout_story','valid','2026-06-25T17:00:00.000Z');
 
-INSERT OR REPLACE INTO support_events (
-  id, user_id, event_type, target_type, target_id, bounty_id,
-  submission_id, referrer_id, points_delta, validity_status, source,
-  metadata_json, created_at
-) VALUES
-  ('support-event-001', 'user-demo-supporter', 'boost_bounty', 'bounty', 'bounty-dorm-miniapp', 'bounty-dorm-miniapp', NULL, NULL, 10, 'valid', 'homepage_banner', '{"label":"Banner boost"}', '2026-06-25T08:00:00.000Z'),
-  ('support-event-002', 'user-demo-supporter', 'boost_submission', 'submission', 'submission-dorm-pulsebot', 'bounty-dorm-miniapp', 'submission-dorm-pulsebot', NULL, 15, 'valid', 'submission_card', '{"label":"Builder support"}', '2026-06-25T08:10:00.000Z'),
-  ('support-event-003', 'user-demo-supporter', 'share', 'bounty', 'bounty-pxg-ugc', 'bounty-pxg-ugc', NULL, NULL, 30, 'valid', 'share_button', '{"network":"x"}', '2026-06-25T08:20:00.000Z'),
-  ('support-event-004', 'user-demo-builder', 'boost_bounty', 'bounty', 'bounty-ember-reputation', 'bounty-ember-reputation', NULL, 'user-demo-supporter', 10, 'valid', 'referral', '{"campaign":"ember-revival"}', '2026-06-25T09:00:00.000Z'),
-  ('support-event-005', 'user-demo-admin', 'boost_submission', 'submission', 'submission-pxg-remix', 'bounty-pxg-ugc', 'submission-pxg-remix', NULL, 15, 'valid', 'admin_review', '{"note":"Featured win"}', '2026-06-25T09:30:00.000Z'),
-  ('support-event-006', 'user-demo-supporter', 'boost_bounty', 'bounty', 'bounty-atlas-indexer', 'bounty-atlas-indexer', NULL, NULL, 10, 'valid', 'dormant_giants', '{"rank":2}', '2026-06-25T10:00:00.000Z'),
-  ('support-event-007', 'user-demo-builder', 'share', 'submission', 'submission-atlas-radar', 'bounty-atlas-indexer', 'submission-atlas-radar', NULL, 30, 'valid', 'builder_hub', '{"network":"telegram"}', '2026-06-25T10:30:00.000Z');
+INSERT OR REPLACE INTO support_points (user_id,total_points,boost_points,referral_points,share_points,valid_boost_count,updated_at) VALUES
+('user-demo-supporter',640,540,40,60,9,'2026-06-26T10:00:00.000Z'),
+('user-demo-builder',430,360,40,30,6,'2026-06-26T10:00:00.000Z'),
+('user-demo-admin',250,240,0,10,4,'2026-06-26T10:00:00.000Z'),
+('user-builder-mira',410,360,30,20,6,'2026-06-26T10:00:00.000Z'),
+('user-builder-orion',390,360,0,30,6,'2026-06-26T10:00:00.000Z');
 
-INSERT OR REPLACE INTO builder_scores (
-  builder_id, total_score, submitted_count, shortlisted_count, won_count,
-  completed_count, confirmed_reward_completed_count, boost_count,
-  referral_boost_count, violation_count, dispute_lost_count, updated_at
-) VALUES
-  ('user-demo-builder', 15100, 2, 1, 0, 0, 0, 71, 8, 0, 0, '2026-06-26T10:00:00.000Z'),
-  ('user-builder-mira', 18900, 2, 1, 1, 1, 1, 87, 12, 0, 0, '2026-06-26T10:00:00.000Z'),
-  ('user-builder-orion', 10400, 1, 0, 0, 0, 0, 35, 5, 0, 0, '2026-06-26T10:00:00.000Z');
+INSERT OR REPLACE INTO support_events (id,user_id,event_type,target_type,target_id,bounty_id,submission_id,referrer_id,points_delta,validity_status,source,metadata_json,created_at) VALUES
+('support-event-001','user-demo-supporter','boost_bounty','bounty','bounty-dorm-miniapp','bounty-dorm-miniapp',NULL,NULL,10,'valid','homepage_banner','{"label":"Banner boost"}','2026-06-25T08:00:00.000Z'),
+('support-event-002','user-demo-supporter','boost_submission','submission','submission-dorm-pulsebot','bounty-dorm-miniapp','submission-dorm-pulsebot',NULL,15,'valid','submission_card','{"label":"Builder support"}','2026-06-25T08:10:00.000Z'),
+('support-event-003','user-demo-supporter','share','bounty','bounty-pxg-ugc','bounty-pxg-ugc',NULL,NULL,30,'valid','share_button','{"network":"x"}','2026-06-25T08:20:00.000Z'),
+('support-event-004','user-demo-builder','boost_bounty','bounty','bounty-ember-reputation','bounty-ember-reputation',NULL,'user-demo-supporter',10,'valid','referral','{"campaign":"ember-revival"}','2026-06-25T09:00:00.000Z'),
+('support-event-005','user-demo-admin','boost_submission','submission','submission-pxg-remix','bounty-pxg-ugc','submission-pxg-remix',NULL,15,'valid','admin_review','{"note":"Featured win"}','2026-06-25T09:30:00.000Z'),
+('support-event-006','user-demo-supporter','boost_bounty','bounty','bounty-atlas-indexer','bounty-atlas-indexer',NULL,NULL,10,'valid','dormant_giant','{"rank":2}','2026-06-25T10:00:00.000Z'),
+('support-event-007','user-demo-builder','share','submission','submission-atlas-radar','bounty-atlas-indexer','submission-atlas-radar',NULL,30,'valid','builder_hub','{"network":"telegram"}','2026-06-25T10:30:00.000Z'),
+('support-event-008','user-builder-mira','boost_submission','submission','submission-dorm-lens','bounty-dorm-miniapp','submission-dorm-lens',NULL,15,'valid','catalyst_detail','{"label":"Alternative demo"}','2026-06-25T11:00:00.000Z'),
+('support-event-009','user-builder-orion','boost_submission','submission','submission-ember-forge','bounty-ember-reputation','submission-ember-forge',NULL,15,'valid','leaderboard','{"label":"Reputation demo"}','2026-06-25T11:30:00.000Z'),
+('support-event-010','user-demo-supporter','boost_bounty','bounty','bounty-neon-genesis','bounty-neon-genesis',NULL,NULL,10,'valid','genesis_candidate','{"label":"Restart interest"}','2026-06-25T12:00:00.000Z');
 
-INSERT OR REPLACE INTO curated_items (
-  id, item_type, placement, target_type, target_id, title, description,
-  image_url, external_url, sort_order, status, created_at, updated_at
-) VALUES
-  ('curated-homepage-banner-dorm', 'homepage_banner', 'home', 'bounty', 'bounty-dorm-miniapp', 'DORM revival sprint is live', 'Escrow-backed DORM rewards are ready for builders who can revive dormant yield demand.', 'https://images.unsplash.com/photo-1551288049-bebda4e38f71', NULL, 1, 'active', '2026-06-25T07:00:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('curated-dormant-giants-atlas', 'dormant_giants', 'home', 'token', 'token-atlas', 'Atlas Mesh: large holder base, low activity', 'A once-active infrastructure token with whale cohorts waiting for a credible activation campaign.', 'https://images.unsplash.com/photo-1460925895917-afdab827c52f', NULL, 10, 'active', '2026-06-25T07:05:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('curated-breakout-stories-pxg', 'breakout_stories', 'home', 'submission', 'submission-pxg-remix', 'PXG Remix Quests turned holders into creators', 'A winning builder submission shows how proof cards can convert passive holders into viral UGC loops.', 'https://images.unsplash.com/photo-1518005020951-eccb494ad742', NULL, 20, 'active', '2026-06-25T07:10:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('curated-genesis-candidates-neon', 'genesis_candidates', 'home', 'bounty', 'bounty-neon-genesis', 'Neon Keepers is testing genesis demand', 'A genesis candidate seeking a landing system, waitlist mechanics, and measurable social proof.', 'https://images.unsplash.com/photo-1519608487953-e999c86e7455', NULL, 30, 'active', '2026-06-25T07:15:00.000Z', '2026-06-26T10:00:00.000Z'),
-  ('curated-featured-catalysts-ember', 'featured_catalysts', 'home', 'bounty', 'bounty-ember-reputation', 'Ember DAO needs contributor reputation', 'A featured catalyst for builders who can reconnect governance history to current work squads.', 'https://images.unsplash.com/photo-1451187580459-43490279c0fa', NULL, 40, 'active', '2026-06-25T07:20:00.000Z', '2026-06-26T10:00:00.000Z');
+INSERT OR REPLACE INTO builder_scores (builder_id,total_score,submitted_count,shortlisted_count,won_count,completed_count,confirmed_reward_completed_count,boost_count,referral_boost_count,violation_count,dispute_lost_count,updated_at) VALUES
+('user-demo-builder',15100,3,1,0,0,0,8,1,0,0,'2026-06-26T10:00:00.000Z'),
+('user-builder-mira',18900,3,1,1,1,1,7,2,0,0,'2026-06-26T10:00:00.000Z'),
+('user-builder-orion',12400,2,0,0,0,0,6,1,0,0,'2026-06-26T10:00:00.000Z');
 
--- Internal escrow events are intentionally stored with operational event_type values.
--- Frontend consumers should label these as Funding Events / Reward Records rather than exposing internal names.
-INSERT OR REPLACE INTO escrow_events (
-  id, bounty_id, actor_id, event_type, amount_text, proof_url, note, created_at
-) VALUES
-  ('escrow-event-dorm-funded', 'bounty-dorm-miniapp', 'user-demo-admin', 'internal_funding_deposited', '35,000 DORM + 2,500 USDC', 'https://demo.kairo.local/proofs/dorm-funded', 'Funding event: multisig deposit confirmed for the DORM sprint.', '2026-06-22T08:00:00.000Z'),
-  ('escrow-event-dorm-topup', 'bounty-dorm-miniapp', 'user-demo-admin', 'internal_funding_top_up', '500 USDC', 'https://demo.kairo.local/proofs/dorm-topup', 'Funding event: sponsor added review stipend for shortlisted builders.', '2026-06-24T08:00:00.000Z'),
-  ('escrow-event-atlas-funded', 'bounty-atlas-indexer', 'user-demo-admin', 'internal_funding_deposited', '4,000 USDC', 'https://demo.kairo.local/proofs/atlas-funded', 'Funding event: stablecoin funding record received and tagged to Atlas indexer bounty.', '2026-06-22T09:00:00.000Z'),
-  ('escrow-event-pxg-reward', 'bounty-pxg-ugc', 'user-demo-admin', 'internal_reward_recorded', '12,500 PXG + merch pool', 'https://demo.kairo.local/proofs/pxg-reward', 'Reward record: winning PXG Remix Quests delivery marked complete.', '2026-06-25T16:00:00.000Z'),
-  ('escrow-event-lumen-funded', 'bounty-lumen-audit', 'user-demo-admin', 'internal_funding_deposited', '6,500 USDC', 'https://demo.kairo.local/proofs/lumen-funded', 'Funding event: reserve audit widget bounty confirmed pending submissions.', '2026-06-23T12:00:00.000Z');
+INSERT OR REPLACE INTO curated_items (id,item_type,placement,target_type,target_id,title,description,image_url,external_url,sort_order,status,created_at,updated_at) VALUES
+('curated-homepage-banner-dorm','homepage_banner','home','bounty','bounty-dorm-miniapp','DORM signal sprint is live','A Telegram-first Catalyst invites builders to turn quiet community energy into visible workstreams.','https://images.unsplash.com/photo-1551288049-bebda4e38f71',NULL,1,'active','2026-06-25T07:00:00.000Z','2026-06-26T10:00:00.000Z'),
+('curated-featured-catalyst-ember','featured_catalyst','home','bounty','bounty-ember-reputation','Ember DAO needs contributor reputation','A featured Catalyst for builders who can reconnect governance history to current work squads.','https://images.unsplash.com/photo-1451187580459-43490279c0fa',NULL,2,'active','2026-06-25T07:05:00.000Z','2026-06-26T10:00:00.000Z'),
+('curated-dormant-giant-atlas','dormant_giant','dormant_giant','token','token-atlas','Atlas Mesh: large holder base, low activity','A once-active infrastructure token with quiet cohorts waiting for a credible activation campaign.','https://images.unsplash.com/photo-1460925895917-afdab827c52f',NULL,10,'active','2026-06-25T07:10:00.000Z','2026-06-26T10:00:00.000Z'),
+('curated-featured-builder-mira','featured_builder','featured_builder','user','user-builder-mira','Mira Protocols is shipping creator loops','A builder profile with strong delivery on PXG Remix Quests and reusable quest tooling.','https://images.unsplash.com/photo-1497366754035-f200968a6e72',NULL,20,'active','2026-06-25T07:15:00.000Z','2026-06-26T10:00:00.000Z'),
+('curated-breakout-story-pxg','breakout_story','breakout_story','submission','submission-pxg-remix','PXG Remix Quests turned holders into creators','A winning builder submission shows how proof cards can convert passive holders into visible UGC loops.','https://images.unsplash.com/photo-1518005020951-eccb494ad742',NULL,30,'active','2026-06-25T07:20:00.000Z','2026-06-26T10:00:00.000Z'),
+('curated-comeback-hall-dorm','comeback_hall','comeback_hall','submission','submission-dorm-pulsebot','DORM PulseBot enters the comeback hall','A shortlisted Telegram demo makes support actions and workstream progress easy to understand.','https://images.unsplash.com/photo-1551288049-bebda4e38f71',NULL,40,'active','2026-06-25T07:25:00.000Z','2026-06-26T10:00:00.000Z'),
+('curated-genesis-candidate-neon','genesis_candidate','genesis_candidate','bounty','bounty-neon-genesis','Neon Keepers is testing restart demand','A genesis candidate seeking a landing system, waitlist mechanics, and measurable social proof.','https://images.unsplash.com/photo-1519608487953-e999c86e7455',NULL,50,'active','2026-06-25T07:30:00.000Z','2026-06-26T10:00:00.000Z'),
+('curated-sponsor-campaign-harbor','sponsor_campaign','sponsor_campaign','bounty','bounty-harbor-briefs','Harbor sponsor campaign needs concise weekly briefs','A sponsor-backed campaign asks builders to package ecosystem updates into readable community cards.','https://images.unsplash.com/photo-1497366754035-f200968a6e72',NULL,60,'active','2026-06-25T07:35:00.000Z','2026-06-26T10:00:00.000Z');
+
+INSERT OR REPLACE INTO escrow_events (id,bounty_id,actor_id,event_type,amount_text,proof_url,note,created_at) VALUES
+('escrow-event-dorm-funded','bounty-dorm-miniapp','user-demo-admin','internal_funding_recorded','35,000 DORM + 2,500 USDC sponsor reward','https://demo.kairo.local/proofs/dorm-funded','Funding Event: sponsor reward record confirmed for the DORM signal sprint.','2026-06-22T08:00:00.000Z'),
+('escrow-event-atlas-funded','bounty-atlas-indexer','user-demo-admin','internal_funding_recorded','4,000 USDC sponsor reward','https://demo.kairo.local/proofs/atlas-funded','Funding Event: sponsor reward record attached to the Atlas indexer Catalyst.','2026-06-22T09:00:00.000Z'),
+('escrow-event-pxg-reward','bounty-pxg-ugc','user-demo-admin','internal_reward_recorded','12,500 PXG + merch sponsor reward','https://demo.kairo.local/proofs/pxg-reward','Reward Record: PXG Remix Quests delivery marked complete.','2026-06-25T16:00:00.000Z'),
+('escrow-event-lumen-funded','bounty-lumen-proof','user-demo-admin','internal_funding_recorded','6,500 USDC sponsor reward','https://demo.kairo.local/proofs/lumen-funded','Funding Event: proof freshness widget Catalyst ready for submissions.','2026-06-23T12:00:00.000Z');

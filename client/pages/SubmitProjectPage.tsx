@@ -3,6 +3,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Loader2, Send } from 'lucide-react';
 import { createSubmission, getBounty } from '../lib/api';
 import type { BountyRecord } from '../../shared/domain';
+import { ErrorState, LoadingState } from './pageUtils';
 
 export default function SubmitProjectPage() {
   const { id } = useParams();
@@ -21,6 +22,8 @@ export default function SubmitProjectPage() {
   }, [id]);
 
   if (!id) return <Navigate to="/catalysts" replace />;
+  if (isLoading) return <LoadingState label="Loading submission form..." />;
+  if (error && !catalyst) return <ErrorState message={error} />;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -31,12 +34,13 @@ export default function SubmitProjectPage() {
     try {
       const submission = await createSubmission({
         bountyId: id,
-        builderId: String(form.get('builderId') ?? 'runtime-builder'),
+        builderId: String(form.get('builderId') ?? 'user-demo-builder'),
         name: String(form.get('name') ?? ''),
         tagline: String(form.get('tagline') ?? ''),
         demoUrl: String(form.get('demoUrl') ?? '') || undefined,
         githubUrl: String(form.get('githubUrl') ?? '') || undefined,
         videoUrl: String(form.get('videoUrl') ?? '') || undefined,
+        screenshotUrl: String(form.get('screenshotUrl') ?? '') || undefined,
         description: String(form.get('description') ?? ''),
         deliveryStatus: 'submitted_for_review',
       });
@@ -52,8 +56,8 @@ export default function SubmitProjectPage() {
     <form onSubmit={handleSubmit} className="space-y-6">
       <section className="rounded-2xl border border-white/5 bg-[#0c0e14]/50 p-6">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#ffd285]"><Send className="h-4 w-4" />Submit Project</div>
-        <h1 className="mt-3 text-3xl font-black text-white">{isLoading ? 'Loading Catalyst...' : `Submit to ${catalyst?.title ?? 'Catalyst'}`}</h1>
-        <p className="mt-2 text-white/60">Attach demo, repository, video, and milestone notes for this Catalyst.</p>
+        <h1 className="mt-3 text-3xl font-black text-white">Submit to {catalyst?.title ?? 'Catalyst'}</h1>
+        <p className="mt-2 text-white/60">Attach a demo, repository, proof assets, and a short delivery narrative for review.</p>
       </section>
 
       <section className="grid gap-4 rounded-2xl border border-white/5 bg-[#0c0e14]/50 p-6 md:grid-cols-2">
@@ -62,14 +66,15 @@ export default function SubmitProjectPage() {
         <Field name="tagline" label="Tagline" className="md:col-span-2" required />
         <Field name="demoUrl" label="Demo URL" type="url" />
         <Field name="githubUrl" label="GitHub URL" type="url" />
-        <Field name="videoUrl" label="Video URL" type="url" className="md:col-span-2" />
+        <Field name="videoUrl" label="Video URL" type="url" />
+        <Field name="screenshotUrl" label="Screenshot URL" type="url" />
         <label className="md:col-span-2">
           <span className="text-xs font-bold uppercase tracking-wider text-white/45">Description</span>
           <textarea name="description" rows={5} className="mt-2 w-full rounded-2xl border border-white/10 bg-[#05070d] px-4 py-3 text-sm text-white outline-none focus:border-[#ffd285]/50" />
         </label>
       </section>
 
-      {error ? <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-100">{error}</div> : null}
+      {error ? <ErrorState message={error} /> : null}
 
       <button type="submit" disabled={isSubmitting} className="inline-flex items-center gap-2 rounded-full bg-[#ffd285] px-6 py-3 text-sm font-black text-[#05070d] disabled:opacity-60">
         {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}

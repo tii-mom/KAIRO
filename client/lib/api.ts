@@ -2,6 +2,8 @@ import type {
   BountyRecord,
   CreateBountyInput,
   CreateSubmissionInput,
+  CuratedItemRecord,
+  FundingEventRecord,
   SubmissionRecord,
 } from '../../shared/domain';
 import { DEFAULT_DEMO_IDENTITY, type DemoIdentity, withSessionHeaders } from './session';
@@ -13,18 +15,24 @@ export interface HealthResponse {
 }
 
 export interface BoostResponse {
-  id: string;
-  supportEventId: string;
-  pointsDelta: number;
-  createdAt: string;
+  id?: string;
+  supportEventId?: string;
+  pointsDelta?: number;
+  createdAt?: string;
   duplicate?: boolean;
   existingBoostId?: string;
+  message?: string;
 }
 
 export interface LeaderboardResponse {
   hottestCatalysts: Array<Record<string, unknown>>;
+  confirmedRewardCatalysts: Array<Record<string, unknown>>;
   topBuilders: Array<Record<string, unknown>>;
-  curatedItems: Array<Record<string, unknown>>;
+  mostBoostedSubmissions: Array<Record<string, unknown>>;
+  dormantGiants: Array<Record<string, unknown>>;
+  breakoutStories: Array<Record<string, unknown>>;
+  comebackHall: Array<Record<string, unknown>>;
+  genesisCandidates: Array<Record<string, unknown>>;
 }
 
 export interface SupportPoints {
@@ -62,6 +70,17 @@ export interface ProofOfSupport {
   points: SupportPoints;
   validBoostCount: number;
   events: SupportEvent[];
+  supporterLevel: string;
+  boostedCatalysts: Array<{ id: string; title: string }>;
+  boostedSubmissions: Array<{ id: string; name: string }>;
+}
+
+export interface AdminStats {
+  bounties: number;
+  submissions: number;
+  boosts: number;
+  supportEvents: number;
+  activeCuratedItems: number;
 }
 
 interface ApiEnvelope<T> {
@@ -73,11 +92,14 @@ export interface ApiClientOptions {
   identity?: DemoIdentity;
 }
 
-const envBaseUrl = ((import.meta as unknown as { env?: { VITE_API_BASE_URL?: string } }).env?.VITE_API_BASE_URL) ?? '';
+const envBaseUrl = ((import.meta as unknown as { env?: { VITE_KAIRO_API_BASE_URL?: string } }).env?.VITE_KAIRO_API_BASE_URL) ?? '';
+
+function resolveBaseUrl(options?: ApiClientOptions) {
+  return options?.baseUrl ?? envBaseUrl;
+}
 
 async function requestJson<T>(path: string, init: RequestInit = {}, options: ApiClientOptions = {}): Promise<T> {
-  const baseUrl = options.baseUrl ?? envBaseUrl;
-  const response = await fetch(`${baseUrl}${path}`, withSessionHeaders(init, options.identity ?? DEFAULT_DEMO_IDENTITY));
+  const response = await fetch(`${resolveBaseUrl(options)}${path}`, withSessionHeaders(init, options.identity ?? DEFAULT_DEMO_IDENTITY));
 
   if (!response.ok) {
     const message = await response.text();
@@ -114,6 +136,11 @@ export async function createBounty(input: CreateBountyInput, options?: ApiClient
   return response.data;
 }
 
+export async function listFundingEvents(bountyId: string, options?: ApiClientOptions): Promise<FundingEventRecord[]> {
+  const response = await requestJson<ApiEnvelope<FundingEventRecord[]>>(`/api/bounties/${encodeURIComponent(bountyId)}/funding-events`, undefined, options);
+  return response.data;
+}
+
 export async function listSubmissions(bountyId?: string, options?: ApiClientOptions): Promise<SubmissionRecord[]> {
   const query = bountyId ? `?bountyId=${encodeURIComponent(bountyId)}` : '';
   const response = await requestJson<ApiEnvelope<SubmissionRecord[]>>(`/api/submissions${query}`, undefined, options);
@@ -140,11 +167,7 @@ export async function boostBounty(bountyId: string, options?: ApiClientOptions):
   return response.data;
 }
 
-export async function boostSubmission(
-  submissionId: string,
-  bountyId?: string,
-  options?: ApiClientOptions,
-): Promise<BoostResponse> {
+export async function boostSubmission(submissionId: string, bountyId?: string, options?: ApiClientOptions): Promise<BoostResponse> {
   const identity = options?.identity ?? DEFAULT_DEMO_IDENTITY;
   const response = await requestJson<ApiEnvelope<BoostResponse>>(
     '/api/boosts',
@@ -159,15 +182,111 @@ export async function getLeaderboard(options?: ApiClientOptions): Promise<Leader
   return response.data;
 }
 
-export async function getLeaderboardCategory<T = Array<Record<string, unknown>>>(
-  category: string,
-  options?: ApiClientOptions,
-): Promise<T> {
+export async function getLeaderboardCategory<T = Array<Record<string, unknown>>>(category: string, options?: ApiClientOptions): Promise<T> {
   const response = await requestJson<ApiEnvelope<T>>(`/api/leaderboard/${category}`, undefined, options);
   return response.data;
 }
 
 export async function getProofOfSupport(options?: ApiClientOptions): Promise<ProofOfSupport> {
   const response = await requestJson<ApiEnvelope<ProofOfSupport>>('/api/support/proof/me', undefined, options);
+  return response.data;
+}
+
+export async function getProofOfSupportByUser(userId: string, options?: ApiClientOptions): Promise<ProofOfSupport> {
+  const response = await requestJson<ApiEnvelope<ProofOfSupport>>(`/api/support/proof/${encodeURIComponent(userId)}`, undefined, options);
+  return response.data;
+}
+
+export async function listCuratedItems(options?: ApiClientOptions): Promise<CuratedItemRecord[]> {
+  const response = await requestJson<ApiEnvelope<CuratedItemRecord[]>>('/api/curated-items', undefined, options);
+  return response.data;
+}
+
+export async function listCuratedItemsByPlacement(placement: string, options?: ApiClientOptions): Promise<CuratedItemRecord[]> {
+  const response = await requestJson<ApiEnvelope<CuratedItemRecord[]>>(`/api/curated-items/${encodeURIComponent(placement)}`, undefined, options);
+  return response.data;
+}
+
+export async function listCuratedItemsByType(itemType: string, options?: ApiClientOptions): Promise<CuratedItemRecord[]> {
+  const response = await requestJson<ApiEnvelope<CuratedItemRecord[]>>(`/api/curated-items/type/${encodeURIComponent(itemType)}`, undefined, options);
+  return response.data;
+}
+
+export async function listAdminBounties(params: { status?: string; fundingStatus?: string } = {}, options?: ApiClientOptions) {
+  const search = new URLSearchParams();
+  if (params.status) search.set('status', params.status);
+  if (params.fundingStatus) search.set('fundingStatus', params.fundingStatus);
+  const query = search.toString() ? `?${search.toString()}` : '';
+  const response = await requestJson<ApiEnvelope<Array<Record<string, unknown>>>>(`/api/admin/bounties${query}`, undefined, options);
+  return response.data;
+}
+
+export async function patchAdminBountyStatus(id: string, status: string, options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/bounties/${encodeURIComponent(id)}/status`, jsonInit('PATCH', { status }), options);
+  return response.data;
+}
+
+export async function patchAdminBountyFundingStatus(id: string, fundingStatus: string, options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/bounties/${encodeURIComponent(id)}/funding-status`, jsonInit('PATCH', { fundingStatus }), options);
+  return response.data;
+}
+
+export async function createAdminFundingEvent(id: string, body: { amountText?: string; proofUrl?: string; note: string; eventType?: string }, options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/bounties/${encodeURIComponent(id)}/funding-events`, jsonInit('POST', body), options);
+  return response.data;
+}
+
+export async function listAdminSubmissions(options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Array<Record<string, unknown>>>>('/api/admin/submissions', undefined, options);
+  return response.data;
+}
+
+export async function patchAdminSubmissionStatus(id: string, status: string, options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/submissions/${encodeURIComponent(id)}/status`, jsonInit('PATCH', { status }), options);
+  return response.data;
+}
+
+export async function patchAdminSubmissionDeliveryStatus(id: string, deliveryStatus: string, options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/submissions/${encodeURIComponent(id)}/delivery-status`, jsonInit('PATCH', { deliveryStatus }), options);
+  return response.data;
+}
+
+export async function listAdminBoosts(options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Array<Record<string, unknown>>>>('/api/admin/boosts', undefined, options);
+  return response.data;
+}
+
+export async function patchAdminBoostValidityStatus(id: string, validityStatus: string, options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/boosts/${encodeURIComponent(id)}/validity-status`, jsonInit('PATCH', { validityStatus }), options);
+  return response.data;
+}
+
+export async function listAdminSupportEvents(options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Array<Record<string, unknown>>>>('/api/admin/support-events', undefined, options);
+  return response.data;
+}
+
+export async function patchAdminSupportEventValidityStatus(id: string, validityStatus: string, options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/support-events/${encodeURIComponent(id)}/validity-status`, jsonInit('PATCH', { validityStatus }), options);
+  return response.data;
+}
+
+export async function listAdminCuratedItems(options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Array<Record<string, unknown>>>>('/api/admin/curated-items', undefined, options);
+  return response.data;
+}
+
+export async function createAdminCuratedItem(body: Record<string, unknown>, options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>('/api/admin/curated-items', jsonInit('POST', body), options);
+  return response.data;
+}
+
+export async function patchAdminCuratedItem(id: string, body: Record<string, unknown>, options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/curated-items/${encodeURIComponent(id)}`, jsonInit('PATCH', body), options);
+  return response.data;
+}
+
+export async function getAdminStats(options?: ApiClientOptions): Promise<AdminStats> {
+  const response = await requestJson<ApiEnvelope<AdminStats>>('/api/admin/stats', undefined, options);
   return response.data;
 }

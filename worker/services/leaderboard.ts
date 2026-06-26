@@ -24,10 +24,13 @@ type ConfirmedRewardCatalyst = {
 export async function getHottestCatalysts(env: Env, limit = DEFAULT_LIMIT) {
   return listRows(
     env.DB,
-    `SELECT id, title, reward_text, funding_status, momentum_score, boost_count, submission_count
+    `SELECT bounties.id, bounties.title, bounties.reward_text, bounties.funding_status, bounties.momentum_score,
+            COUNT(DISTINCT boosts.id) AS boost_count, bounties.submission_count
      FROM bounties
+     LEFT JOIN boosts ON boosts.bounty_id = bounties.id AND boosts.validity_status = 'valid' AND boosts.submission_id IS NULL
      WHERE status != 'hidden'
-     ORDER BY momentum_score DESC, boost_count DESC, created_at DESC
+     GROUP BY bounties.id
+     ORDER BY bounties.momentum_score DESC, boost_count DESC, bounties.created_at DESC
      LIMIT ?`,
     [limit],
   );
@@ -36,11 +39,14 @@ export async function getHottestCatalysts(env: Env, limit = DEFAULT_LIMIT) {
 export async function getConfirmedRewardCatalysts(env: Env, limit = DEFAULT_LIMIT) {
   const catalysts = await listRows<ConfirmedRewardCatalyst>(
     env.DB,
-    `SELECT id, title, reward_text, funding_status, momentum_score, boost_count, submission_count
+    `SELECT bounties.id, bounties.title, bounties.reward_text, bounties.funding_status, bounties.momentum_score,
+            COUNT(DISTINCT boosts.id) AS boost_count, bounties.submission_count
      FROM bounties
+     LEFT JOIN boosts ON boosts.bounty_id = bounties.id AND boosts.validity_status = 'valid' AND boosts.submission_id IS NULL
      WHERE funding_status IN (?, ?, ?)
        AND status != 'hidden'
-     ORDER BY momentum_score DESC, boost_count DESC, created_at DESC
+     GROUP BY bounties.id
+     ORDER BY bounties.momentum_score DESC, boost_count DESC, bounties.created_at DESC
      LIMIT ?`,
     [...CONFIRMED_REWARD_STATUSES, limit],
   );
@@ -54,10 +60,12 @@ export async function getConfirmedRewardCatalysts(env: Env, limit = DEFAULT_LIMI
 export async function getTopBuilders(env: Env, limit = DEFAULT_LIMIT) {
   return listRows(
     env.DB,
-    `SELECT builder_id, total_score, submitted_count, shortlisted_count, won_count,
-            completed_count, confirmed_reward_completed_count, boost_count, referral_boost_count
+    `SELECT builder_scores.builder_id, users.display_name AS builder_name, builder_scores.total_score,
+            builder_scores.submitted_count, builder_scores.shortlisted_count, builder_scores.won_count,
+            builder_scores.completed_count, builder_scores.confirmed_reward_completed_count, builder_scores.boost_count, builder_scores.referral_boost_count
      FROM builder_scores
-     ORDER BY total_score DESC, won_count DESC, completed_count DESC, boost_count DESC, updated_at DESC
+     LEFT JOIN users ON users.id = builder_scores.builder_id
+     ORDER BY builder_scores.total_score DESC, builder_scores.won_count DESC, builder_scores.completed_count DESC, builder_scores.boost_count DESC, builder_scores.updated_at DESC
      LIMIT ?`,
     [limit],
   );
@@ -66,11 +74,13 @@ export async function getTopBuilders(env: Env, limit = DEFAULT_LIMIT) {
 export async function getMostBoostedSubmissions(env: Env, limit = DEFAULT_LIMIT) {
   return listRows(
     env.DB,
-    `SELECT id, bounty_id, builder_id, name, tagline, demo_url, github_url, video_url,
-            screenshot_url, status, boost_count, momentum_score, delivery_status, created_at
+    `SELECT submissions.id, submissions.bounty_id, submissions.builder_id, submissions.name, submissions.tagline, submissions.demo_url, submissions.github_url, submissions.video_url,
+            submissions.screenshot_url, submissions.status, COUNT(DISTINCT boosts.id) AS boost_count, submissions.momentum_score, submissions.delivery_status, submissions.created_at
      FROM submissions
+     LEFT JOIN boosts ON boosts.submission_id = submissions.id AND boosts.validity_status = 'valid'
      WHERE status != 'hidden'
-     ORDER BY boost_count DESC, momentum_score DESC, created_at DESC
+     GROUP BY submissions.id
+     ORDER BY boost_count DESC, submissions.momentum_score DESC, submissions.created_at DESC
      LIMIT ?`,
     [limit],
   );

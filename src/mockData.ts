@@ -113,12 +113,12 @@ export const INITIAL_CATALYSTS: Catalyst[] = [
   {
     id: 'cat-1',
     title: '开发以 $DORM 驱动的 Telegram 单键智能挖矿聚合器',
-    description: 'Dormant Yields 是 Arbitrum 上曾经的明星收益聚合协议，锁仓量曾达 1 亿美金。创始人离队后，智能合约代码依然完好，拥有 4.1 万持币者。我们急需一款贴近用户的 Telegram Mini App 挖矿聚合器，重新盘活其余温。',
+    description: 'Dormant Yields 是 Arbitrum 上曾经的明星贡献聚合协议，锁仓量曾达 1 亿美金。创始人离队后，智能合约代码依然完好，拥有 4.1 万持币者。我们急需一款贴近用户的 Telegram Mini App 挖矿聚合器，重新盘活其余温。',
     background: 'Dormant Yields 在 2021 年曾经大火。然而，因为创始人将合约权限完全丢弃（Renounced）且锁仓到期，项目缺少持续运营，沦为休眠代币。由于流动性充足且持有人基数大，它是最具备复兴潜力的 DeFi 代币。',
     requirements: [
       '构建一个基于 React/Next.js 的 Telegram Mini App，前端设计符合 Web3 简约高级美学。',
-      '集成 $DORM 的单键挖矿（1-Click Zap Buy & Stake）功能，自动将 Arbitrum 上的 ETH 换为 $DORM 并质押。',
-      '设计动态收益率 (Dynamic APY) 计算面板，让用户直观看到复兴能量对收益的倍增效应。',
+      '集成 $DORM 的单键挖矿（one-click support task entry）功能，自动将 Arbitrum 上的 ETH 换为 $DORM 并质押。',
+      '设计动态贡献率 (Dynamic Momentum) 计算面板，让用户直观看到复兴能量对贡献的倍增效应。',
       '提供邀请好友机制（Referral System）和返佣计算页面。'
     ],
     rewardPool: {
@@ -194,7 +194,7 @@ export const INITIAL_CATALYSTS: Catalyst[] = [
       '设计并实现一个极简炫酷的开源 GPU 状态监控与调度前端面板。',
       '展示节点连接状态（模拟 P2P 握手、延迟、节点温度、算力跑分）。',
       '用 TypeScript 模拟 Docker daemon 通讯接口，让节点能轻松一键“出租”本地空闲算力。',
-      '展示算力收益曲线和由 $NEURA 发放的租金收益分析图。'
+      '展示算力贡献曲线和由 $NEURA 发放的租金贡献分析图。'
     ],
     rewardPool: {
       amount: 450000,
@@ -283,7 +283,7 @@ export const INITIAL_BIDS: Bid[] = [
     catalystId: 'cat-1',
     builderName: 'ZettaBytes Studio',
     builderAvatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=80&h=80&q=80',
-    title: 'DormCore: 高收益矿池看板与高级多链 Zap 连接器',
+    title: 'DormCore: 高贡献矿池看板与高级多链 Zap 连接器',
     description: '我们不仅要盘活 Arbitrum，还计划把 DORM 桥接扩展到 Base 与 Optimism。本项目提供多链资产看板，用户不仅可以用 ETH 挖矿，还可以使用 USDC/USDT 等稳定币一键 Zap。前端完全遵循 Glassmorphism（磨砂玻璃）美学，并带有高频动态行情卡片。',
     demoUrl: 'https://dormcore-multichain.kairo.dev',
     githubUrl: 'https://github.com/zettabytes-studio/dormcore-client',
@@ -299,7 +299,7 @@ export const INITIAL_BIDS: Bid[] = [
     builderName: 'Elena Rostova',
     builderAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&h=80&q=80',
     title: 'DormZap-Mini: 专为电报优化的极致极简挖矿页面',
-    description: '大而全往往会拖慢加载速度，降低转化率。我的设计主打 3 秒内极速打开。省去一切多余文字，只保留 [钱包连接] - [滑块确认挖矿] - [收益提现] 两个主屏幕。通过纯净拟物化（Neumorphic）按钮和酷炫的硬币掉落动效，大幅提升用户质押意愿。',
+    description: '大而全往往会拖慢加载速度，降低转化率。我的设计主打 3 秒内极速打开。省去一切多余文字，只保留 [钱包连接] - [滑块确认挖矿] - [贡献提现] 两个主屏幕。通过纯净拟物化（Neumorphic）按钮和酷炫的硬币掉落动效，大幅提升用户质押意愿。',
     demoUrl: 'https://dormzap-mini.vercel.app',
     githubUrl: 'https://github.com/elenarost/dormzap-mini-tg',
     requestedFunding: '1,500,000 DORM',

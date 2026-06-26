@@ -1,6 +1,10 @@
 name = "kairo-worker"
 main = "worker/index.ts"
 compatibility_date = "2026-06-26"
+workers_dev = true
+
+[vars]
+APP_ENV = "local"
 
 [[d1_databases]]
 binding = "DB"
@@ -8,6 +12,14 @@ database_name = "kairo-local"
 database_id = "00000000-0000-0000-0000-000000000000"
 migrations_dir = "worker/migrations"
 
-[[kv_namespaces]]
-binding = "KAIRO_CACHE"
-id = "00000000000000000000000000000000"
+[env.production]
+name = "kairo-worker-prod"
+
+[env.production.vars]
+APP_ENV = "production"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "kairo-prod"
+database_id = "b7b521f5-96d2-4cf9-9c73-6ff1245f9d35"
+migrations_dir = "worker/migrations"

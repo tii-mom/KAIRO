@@ -36,6 +36,16 @@ export const submissionStatuses = [
 ] as const;
 
 export const boostValidityStatuses = ['valid', 'suspicious', 'invalid'] as const;
+export const curatedItemTypes = [
+  'featured_catalyst',
+  'dormant_giant',
+  'featured_builder',
+  'breakout_story',
+  'comeback_hall',
+  'genesis_candidate',
+  'homepage_banner',
+  'sponsor_campaign',
+] as const;
 
 export const tokenSchema = z.object({
   id: z.string().min(1),
@@ -191,23 +201,27 @@ export const supportEventSchema = z.object({
   createdAt: z.string(),
 });
 
+export const fundingEventSchema = z.object({
+  id: z.string().min(1),
+  bountyId: z.string().min(1),
+  actorId: z.string().min(1),
+  eventType: z.string().min(1),
+  amountText: z.string().nullable().optional(),
+  proofUrl: z.string().nullable().optional(),
+  note: z.string().nullable().optional(),
+  createdAt: z.string(),
+});
+
 export const curatedItemSchema = z.object({
   id: z.string().min(1),
-  itemType: z.enum([
-    'featured_catalyst',
-    'dormant_giant',
-    'featured_builder',
-    'breakout_story',
-    'comeback_hall',
-    'genesis_candidate',
-    'homepage_banner',
-    'sponsor_campaign',
-  ]),
+  itemType: z.enum(curatedItemTypes),
   placement: z.string().default('home'),
-  targetType: z.enum(['bounty', 'submission', 'builder', 'external']),
+  targetType: z.enum(['bounty', 'submission', 'builder', 'external', 'token']),
   targetId: z.string().optional(),
   title: z.string().min(1),
   description: z.string().optional(),
+  imageUrl: z.string().optional(),
+  externalUrl: z.string().optional(),
   sortOrder: z.number().int().default(0),
   status: z.enum(['active', 'hidden']).default('active'),
 });
@@ -222,6 +236,7 @@ export type UpdateSubmissionInput = z.infer<typeof updateSubmissionSchema>;
 export type PatchSubmissionInput = z.infer<typeof patchSubmissionSchema>;
 export type CreateBoostInput = z.infer<typeof createBoostSchema>;
 export type SupportEventRecord = z.infer<typeof supportEventSchema>;
+export type FundingEventRecord = z.infer<typeof fundingEventSchema>;
 export type CuratedItemRecord = z.infer<typeof curatedItemSchema>;
 
 export const fundingStatusLabels: Record<(typeof fundingStatuses)[number], string> = {

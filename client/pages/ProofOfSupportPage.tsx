@@ -1,36 +1,44 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Award, Flame, Loader2, Share2, ShieldCheck, Sparkles } from 'lucide-react';
-import { getProofOfSupport, type ProofOfSupport, type SupportEvent } from '../lib/api';
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { Award, Copy, Flame, Share2, ShieldCheck, Sparkles } from 'lucide-react';
+import { getProofOfSupport, getProofOfSupportByUser, type ProofOfSupport, type SupportEvent } from '../lib/api';
+import { EmptyState, ErrorState, LoadingState } from './pageUtils';
 
 export default function ProofOfSupportPage() {
+  const { userId } = useParams();
   const [proof, setProof] = useState<ProofOfSupport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [copyMessage, setCopyMessage] = useState<string | null>(null);
+
+  const load = async () => {
+    setIsLoading(true);
+    try {
+      const payload = userId ? await getProofOfSupportByUser(userId) : await getProofOfSupport();
+      setProof(payload);
+      setError(null);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : 'Unable to load Proof of Support');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    let isMounted = true;
+    void load();
+  }, [userId]);
 
-    getProofOfSupport()
-      .then((payload) => {
-        if (!isMounted) return;
-        setProof(payload);
-        setError(null);
-      })
-      .catch((loadError: unknown) => {
-        if (!isMounted) return;
-        setError(loadError instanceof Error ? loadError.message : 'Unable to load Proof of Support');
-      })
-      .finally(() => {
-        if (isMounted) setIsLoading(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  if (isLoading) return <LoadingState label="Loading Proof of Support..." />;
+  if (error) return <ErrorState message={error} onRetry={() => void load()} />;
 
   const hasEvents = Boolean(proof?.events.length);
+
+  const handleCopy = async () => {
+    if (!proof) return;
+    const copy = `KAIRO Proof of Support\nUser: ${proof.user.id}\nLevel: ${proof.supporterLevel}\nSupport Points: ${proof.points.totalPoints}\nValid Boosts: ${proof.validBoostCount}`;
+    await navigator.clipboard.writeText(copy);
+    setCopyMessage('Proof summary copied.');
+  };
 
   return (
     <div className="space-y-6" id="proof-of-support-page">
@@ -41,18 +49,30 @@ export default function ProofOfSupportPage() {
               <ShieldCheck className="h-4 w-4" />
               Proof of Support
             </div>
-            <h2 className="mt-2 text-2xl font-black text-white">支持证明与积分流水</h2>
+            <h2 className="mt-2 text-2xl font-black text-white">Support profile and shareable contribution record</h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/55">
-              Boost、Referral 和分享会写入 support_events，并汇总到 support_points，供你的 KAIRO 支持证明使用。
+              Proof of Support shows valid Boost history, support points, timeline entries, and supported Catalysts or submissions. It does not imply any guaranteed reward, airdrop, or profit outcome.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <SummaryCard label="Support Points" value={proof?.points.totalPoints ?? 0} tone="gold" />
             <SummaryCard label="Boost Points" value={proof?.points.boostPoints ?? 0} />
-            <SummaryCard label="Share Points" value={proof?.points.sharePoints ?? 0} />
             <SummaryCard label="Valid Boosts" value={proof?.validBoostCount ?? 0} tone="green" />
+            <SummaryCard label="Level" value={proof?.supporterLevel ?? 'New Signal'} />
           </div>
         </div>
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <button type="button" onClick={() => void handleCopy()} className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-white/80">
+            <Copy className="h-4 w-4" />
+            Copy share summary
+          </button>
+          {copyMessage ? <span className="text-sm text-[#ffd285]">{copyMessage}</span> : null}
+        </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-2">
+        <SupportList title="Boosted Catalysts" items={proof?.boostedCatalysts ?? []} empty="No boosted Catalysts yet." pathPrefix="/catalysts" />
+        <SupportList title="Boosted Submissions" items={proof?.boostedSubmissions ?? []} empty="No boosted submissions yet." pathPrefix="/submissions" />
       </section>
 
       <section className="rounded-2xl border border-white/5 bg-[#0c0e14]/40 p-5 backdrop-blur-md">
@@ -68,40 +88,49 @@ export default function ProofOfSupportPage() {
           ) : null}
         </div>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center gap-2 rounded-xl border border-white/5 bg-[#07090e]/70 p-8 text-sm text-white/55">
-            <Loader2 className="h-4 w-4 animate-spin text-[#ffd285]" />
-            Loading Proof of Support…
-          </div>
-        ) : error ? (
-          <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-5 text-sm text-red-200">{error}</div>
-        ) : hasEvents && proof ? (
+        {hasEvents && proof ? (
           <div className="divide-y divide-white/5">
             {proof.events.map((event) => (
-              <SupportEventRow key={event.id} event={event} />
+              <div key={event.id}>
+                <SupportEventRow event={event} />
+              </div>
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-white/10 bg-[#07090e]/70 p-8 text-center">
-            <Sparkles className="mx-auto h-8 w-8 text-[#ffd285]" />
-            <h3 className="mt-3 text-lg font-black text-white">No support events yet</h3>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-white/55">
-              Boost a catalyst to generate your first compliant support event and start building your Proof of Support.
-            </p>
-            <Link
-              to="/catalysts"
-              className="mt-5 inline-flex rounded-full bg-[#ffd285] px-5 py-2 text-sm font-black text-[#07090e] transition hover:bg-white"
-            >
-              Browse catalysts
-            </Link>
-          </div>
+          <EmptyState
+            title="No support events yet"
+            description="Boost a Catalyst or submission to start building a visible Proof of Support timeline."
+            action={<Link to="/catalysts" className="inline-flex rounded-full bg-[#ffd285] px-5 py-2 text-sm font-black text-[#07090e] transition hover:bg-white">Browse Catalysts</Link>}
+          />
         )}
       </section>
     </div>
   );
 }
 
-function SummaryCard({ label, value, tone = 'default' }: { label: string; value: number; tone?: 'default' | 'gold' | 'green' }) {
+function SupportList({ title, items, empty, pathPrefix }: { title: string; items: Array<{ id: string; title?: string; name?: string }>; empty: string; pathPrefix: string }) {
+  return (
+    <section className="rounded-2xl border border-white/5 bg-[#0c0e14]/50 p-5">
+      <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/60">
+        <Sparkles className="h-4 w-4 text-[#ffd285]" />
+        {title}
+      </div>
+      {items.length ? (
+        <div className="space-y-3">
+          {items.map((item) => (
+            <Link key={item.id} to={`${pathPrefix}/${item.id}`} className="block rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-white/80">
+              {item.title ?? item.name ?? item.id}
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-white/45">{empty}</p>
+      )}
+    </section>
+  );
+}
+
+function SummaryCard({ label, value, tone = 'default' }: { label: string; value: number | string; tone?: 'default' | 'gold' | 'green' }) {
   const valueClass = tone === 'gold' ? 'text-[#ffd285]' : tone === 'green' ? 'text-emerald-400' : 'text-white';
 
   return (
@@ -112,7 +141,7 @@ function SummaryCard({ label, value, tone = 'default' }: { label: string; value:
   );
 }
 
-const SupportEventRow: React.FC<{ event: SupportEvent }> = ({ event }) => {
+function SupportEventRow({ event }: { event: SupportEvent }) {
   const Icon = event.source === 'share' ? Share2 : Flame;
   const label = `${formatEventType(event.eventType)} ${event.targetType} ${event.targetId}`;
 
@@ -130,7 +159,7 @@ const SupportEventRow: React.FC<{ event: SupportEvent }> = ({ event }) => {
       <span className="font-mono text-sm font-black text-[#ffd285]">{event.pointsDelta >= 0 ? '+' : ''}{event.pointsDelta}</span>
     </div>
   );
-};
+}
 
 function formatEventType(eventType: string) {
   return eventType.replace(/_/g, ' ').replace(/^\w/, (letter) => letter.toUpperCase());

@@ -44,7 +44,7 @@ export default function Dashboard({
   const [selectedTokenId, setSelectedTokenId] = useState<string>('cat-1');
   const [activationRate, setActivationRate] = useState<number>(35); // percentage (0 - 100)
   const [activityStream, setActivityStream] = useState<ActivityEvent[]>([]);
-  const [dashboardView, setDashboardView] = useState<'investor' | 'developer'>('investor');
+  const [dashboardView, setDashboardView] = useState<'supporter' | 'developer'>('supporter');
   const [compilerRuns, setCompilerRuns] = useState<number>(200);
   const [isDryDeploying, setIsDryDeploying] = useState<boolean>(false);
   const [devConsoleLogs, setDevConsoleLogs] = useState<string[]>([
@@ -119,24 +119,24 @@ export default function Dashboard({
         <div>
           <span className="text-xs font-bold text-white tracking-wide flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
-            <span>{dashboardView === 'investor' ? '当前布局：📊 社区投资者专属看板 (Investor View)' : '当前布局：🛠️ 智能合约开发者控制台 (Developer Console)'}</span>
+            <span>{dashboardView === 'supporter' ? '当前布局：📊 社区支持者专属看板 (Supporter View)' : '当前布局：🛠️ 智能合约开发者控制台 (Developer Console)'}</span>
           </span>
           <p className="text-[11px] text-white/50 mt-1 leading-relaxed max-w-2xl">
-            {dashboardView === 'investor' 
+            {dashboardView === 'supporter' 
               ? '关注休眠资产势能、奖励确认状态、市值修复模拟与销毁通缩进度。适合治理方与代币持有者。' 
               : '专注 KAIR-VM 沙盒编译器调试、气阻 (Gas) 执行效率微调、智能对齐校验与多签代理。适合链上 Builder 与安全审计师。'}
           </p>
         </div>
         <div className="flex rounded-xl bg-[#07090e] p-[3px] border border-white/5 self-start md:self-center">
           <button
-            onClick={() => setDashboardView('investor')}
+            onClick={() => setDashboardView('supporter')}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-              dashboardView === 'investor'
+              dashboardView === 'supporter'
                 ? 'bg-[#ffd285] text-black shadow-lg shadow-[#ffd285]/10 font-black'
                 : 'text-white/40 hover:text-white/70'
             }`}
           >
-            <span>📊 投资者视图</span>
+            <span>📊 支持者视图</span>
           </button>
           <button
             onClick={() => setDashboardView('developer')}
@@ -200,7 +200,7 @@ export default function Dashboard({
           </div>
 
           {/* Conditional Sub-Views depending on Perspective Toggle */}
-          {dashboardView === 'investor' ? (
+          {dashboardView === 'supporter' ? (
             <>
               {/* Interactive Recharts area chart */}
               <div className="h-64 sm:h-72 w-full mt-6 z-10 font-mono text-xs">
@@ -352,11 +352,11 @@ export default function Dashboard({
 
         </div>
 
-        {/* Right 1 Column: Conditional Sandbox Projection (Investor) or Gas Optimizer (Developer) */}
+        {/* Right 1 Column: Conditional Sandbox Projection (Supporter) or Gas Optimizer (Developer) */}
         <div className="rounded-2xl border border-white/5 bg-[#0c0e14]/50 p-6 backdrop-blur-md relative flex flex-col justify-between overflow-hidden">
           <div className="absolute -bottom-32 -right-32 h-64 w-64 rounded-full bg-[#f52329]/5 blur-[80px]" />
           
-          {dashboardView === 'investor' ? (
+          {dashboardView === 'supporter' ? (
             <div className="z-10 flex flex-col h-full justify-between">
               <div>
                 <div className="flex items-center justify-between border-b border-white/5 pb-4">

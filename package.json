@@ -11,9 +11,12 @@
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "db:migrate:local": "wrangler d1 migrations apply kairo-local --local",
-    "db:migrate:remote": "wrangler d1 migrations apply kairo-prod --remote",
-    "deploy:worker": "wrangler deploy",
-    "db:seed:local": "wrangler d1 execute kairo-local --local --file=worker/db/seed.sql"
+    "db:migrate:remote": "wrangler d1 migrations apply kairo-prod --remote --env production",
+    "db:seed:remote": "wrangler d1 execute kairo-prod --remote --env production --file=worker/db/seed.sql",
+    "deploy:worker": "wrangler deploy --env production",
+    "db:seed:local": "wrangler d1 execute kairo-local --local --file=worker/db/seed.sql",
+    "verify:copy": "node scripts/verify-runtime-copy.mjs",
+    "verify:routes": "node scripts/verify-api-routes.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

@@ -1,13 +1,8 @@
 import { getRow, listRows, type Env } from '../db/d1';
+import type { CurrentUser } from '../lib/http';
 
 const DEMO_SUPPORTER_ID = 'user-demo-supporter';
 const DEFAULT_ROLE = 'supporter';
-
-export interface CurrentSupportUser {
-  id: string;
-  role: string;
-  isDemoFallback: boolean;
-}
 
 interface SupportPointsRow {
   user_id: string;
@@ -62,13 +57,16 @@ export interface SupportEvent {
 }
 
 export interface ProofOfSupportPayload {
-  user: CurrentSupportUser;
+  user: CurrentUser;
   points: SupportPoints;
   validBoostCount: number;
   events: SupportEvent[];
+  supporterLevel: string;
+  boostedCatalysts: Array<{ id: string; title: string }>;
+  boostedSubmissions: Array<{ id: string; name: string }>;
 }
 
-export function resolveCurrentSupportUser(headers: Headers): CurrentSupportUser {
+export function resolveCurrentSupportUser(headers: Headers): CurrentUser {
   const headerUserId = headers.get('x-kairo-user-id')?.trim();
   const headerRole = headers.get('x-kairo-role')?.trim();
 
@@ -106,10 +104,30 @@ export async function getSupportEvents(env: Env, userId: string): Promise<Suppor
   return rows.map(mapSupportEvent);
 }
 
-export async function getProofOfSupport(env: Env, user: CurrentSupportUser): Promise<ProofOfSupportPayload> {
-  const [points, events] = await Promise.all([
+export async function getProofOfSupport(env: Env, user: CurrentUser): Promise<ProofOfSupportPayload> {
+  const [points, events, boostedCatalysts, boostedSubmissions] = await Promise.all([
     getSupportPoints(env, user.id),
     getSupportEvents(env, user.id),
+    listRows<{ id: string; title: string }>(
+      env.DB,
+      `SELECT DISTINCT bounties.id, bounties.title
+       FROM boosts
+       INNER JOIN bounties ON bounties.id = boosts.bounty_id
+       WHERE boosts.user_id = ? AND boosts.validity_status = 'valid' AND boosts.bounty_id IS NOT NULL
+       ORDER BY boosts.created_at DESC
+       LIMIT 12`,
+      [user.id],
+    ),
+    listRows<{ id: string; name: string }>(
+      env.DB,
+      `SELECT DISTINCT submissions.id, submissions.name
+       FROM boosts
+       INNER JOIN submissions ON submissions.id = boosts.submission_id
+       WHERE boosts.user_id = ? AND boosts.validity_status = 'valid' AND boosts.submission_id IS NOT NULL
+       ORDER BY boosts.created_at DESC
+       LIMIT 12`,
+      [user.id],
+    ),
   ]);
 
   return {
@@ -117,7 +135,18 @@ export async function getProofOfSupport(env: Env, user: CurrentSupportUser): Pro
     points,
     validBoostCount: points.validBoostCount,
     events,
+    supporterLevel: getSupporterLevel(points.totalPoints, points.validBoostCount),
+    boostedCatalysts,
+    boostedSubmissions,
   };
+}
+
+function getSupporterLevel(totalPoints: number, validBoostCount: number) {
+  if (totalPoints >= 1000 || validBoostCount >= 60) return 'Genesis Supporter';
+  if (totalPoints >= 700 || validBoostCount >= 40) return 'Revival Scout';
+  if (totalPoints >= 450 || validBoostCount >= 25) return 'Momentum Maker';
+  if (totalPoints >= 200 || validBoostCount >= 10) return 'Early Backer';
+  return 'New Signal';
 }
 
 function mapSupportPoints(row: SupportPointsRow | null, userId: string): SupportPoints {

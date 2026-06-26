@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Sparkles } from 'lucide-react';
 import { createBounty } from '../lib/api';
+import { ErrorState } from './pageUtils';
 
 export default function CreateCatalystPage() {
   const navigate = useNavigate();
@@ -25,6 +26,9 @@ export default function CreateCatalystPage() {
         rewardType: 'offchain',
         contactInfo: String(form.get('contactInfo') ?? ''),
         deadline: String(form.get('deadline') ?? ''),
+        websiteUrl: String(form.get('websiteUrl') ?? '') || undefined,
+        twitterUrl: String(form.get('twitterUrl') ?? '') || undefined,
+        telegramUrl: String(form.get('telegramUrl') ?? '') || undefined,
       });
       navigate(`/catalysts/${catalyst.id}`);
     } catch (submitError) {
@@ -39,7 +43,7 @@ export default function CreateCatalystPage() {
       <section className="rounded-2xl border border-white/5 bg-[#0c0e14]/50 p-6">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#ffd285]"><Sparkles className="h-4 w-4" />Create Catalyst</div>
         <h1 className="mt-3 text-3xl font-black text-white">Publish a comeback Catalyst</h1>
-        <p className="mt-2 max-w-2xl text-white/60">Define the dormant community, reward record, and builder brief.</p>
+        <p className="mt-2 max-w-2xl text-white/60">Describe the token context, builder objective, reward record, and contact details for review.</p>
       </section>
 
       <section className="grid gap-4 rounded-2xl border border-white/5 bg-[#0c0e14]/50 p-6 md:grid-cols-2">
@@ -49,6 +53,9 @@ export default function CreateCatalystPage() {
         <Field name="rewardText" label="Reward record" />
         <Field name="contactInfo" label="Contact" />
         <Field name="deadline" label="Deadline" type="datetime-local" />
+        <Field name="websiteUrl" label="Website URL" type="url" />
+        <Field name="twitterUrl" label="X URL" type="url" />
+        <Field name="telegramUrl" label="Telegram URL" type="url" />
         <Field name="title" label="Catalyst title" className="md:col-span-2" required />
         <label className="md:col-span-2">
           <span className="text-xs font-bold uppercase tracking-wider text-white/45">Description</span>
@@ -56,13 +63,9 @@ export default function CreateCatalystPage() {
         </label>
       </section>
 
-      {error ? <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-100">{error}</div> : null}
+      {error ? <ErrorState message={error} /> : null}
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="inline-flex items-center gap-2 rounded-full bg-[#ffd285] px-6 py-3 text-sm font-black text-[#05070d] disabled:opacity-60"
-      >
+      <button type="submit" disabled={isSubmitting} className="inline-flex items-center gap-2 rounded-full bg-[#ffd285] px-6 py-3 text-sm font-black text-[#05070d] disabled:opacity-60">
         {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
         Create Catalyst
       </button>

@@ -1,22 +1,55 @@
-# KAIRO MVP
+# KAIRO
 
-KAIRO Phase 0 is positioned as a **Crypto Comeback Launchpad**: dormant crypto communities can publish Catalysts, AI Builders can submit comeback demos, and supporters can Boost the strongest revival paths into visible Momentum and leaderboard placement.
+KAIRO Phase 0 is a Catalyst, Builder Submission, Boost, Momentum, Proof of Support, Funding Status, and Reward Records platform for dormant token communities that need visible product work and community signal.
 
-The current implementation keeps the existing neon fintech preview experience while adding the scalable MVP structure:
+## Phase 0 Scope
 
-- `src/`: preserved visual mock experience and reusable UI components.
-- `client/`: React Router entrypoints and new product pages.
-- `shared/`: KAIRO domain types, Zod schemas, and mapping helpers.
-- `worker/`: Cloudflare Workers + Hono API, service layer, and D1 migrations.
-- `kairo_project_docs/`: product docs, static preview, and original schema reference.
+KAIRO Phase 0 focuses on:
 
-## Product Boundary
+- Catalyst discovery and publication.
+- Builder submissions with demo, repository, media, and delivery status metadata.
+- Community Boosts that create visible Momentum.
+- Proof of Support for supporter activity history.
+- Leaderboards for Catalysts, Builders, Submissions, Dormant Giants, Breakout Stories, Comeback Hall, and Genesis Candidates.
+- Admin review flows for Catalyst status, submission status, Boost validity, curated items, Funding Status, and Reward Records.
 
-Phase 0 focuses on Catalyst discovery, Builder submissions, community Boosts, Momentum ranking, Proof of Support, Funding Status, and public leaderboards.
+## What KAIRO Is Not
 
-Phase 0 explicitly does **not** include token swap, investment products, custody, crowdfunding, or a platform token economy. Funding Status is a user-facing reward commitment and verification signal only; do not describe it as custody, escrow, or a KAIRO-held asset service. Frontend copy must display `Reward confirmed by KAIRO` / `奖励已由 KAIRO 确认` instead of escrow or custody language.
+KAIRO Phase 0 is not an investment product, token swap, trading venue, crowdfunding platform, token launch platform, staking system, yield product, custody provider, escrow service, or platform token economy.
 
-## Local Development
+Funding Status and Reward Records are public coordination labels for sponsor-provided reward information. They must not be described as KAIRO holding assets, a financial service, guaranteed payouts, guaranteed airdrops, or any guaranteed return.
+
+## Architecture
+
+- **Frontend:** Vite + React + TypeScript.
+- **Hosting:** Cloudflare Pages for the frontend.
+- **API:** Cloudflare Worker API using Hono.
+- **Database:** Cloudflare D1.
+- **Shared domain layer:** `shared/` contains Zod/domain types and mapping helpers shared by the runtime and Worker-adjacent code.
+
+## Directory Structure
+
+```text
+.
+├── client/                 # API-driven Phase 0 React runtime
+│   ├── lib/                # API client, session helpers, formatters
+│   ├── pages/              # Runtime pages and smoke-test routes
+│   └── RuntimeV2Shell.tsx  # Main app shell
+├── docs/                   # Launch checklist and operational docs
+├── kairo_project_docs/     # Historical project docs and static preview
+├── scripts/                # Verification scripts
+├── shared/                 # Domain types, Zod schemas, and mappers
+├── src/                    # Legacy visual preview retained under /legacy
+├── worker/                 # Cloudflare Worker, D1 schema, services, seed data
+│   ├── db/
+│   ├── migrations/
+│   └── services/
+├── package.json
+├── vite.config.ts
+└── wrangler.toml
+```
+
+## Local Frontend Development
 
 Install dependencies:
 
@@ -24,31 +57,25 @@ Install dependencies:
 npm install
 ```
 
-Run the local frontend dev server:
+Run the Vite frontend:
 
 ```bash
 npm run dev
 ```
 
-Vite starts on port `3000` by default and will pick the next open port if needed.
+The frontend runs on port `3000` by default. When `VITE_KAIRO_API_BASE_URL` is not set, the API client falls back to same-origin requests.
 
-Useful routes:
+## Local Worker Development
 
-- `/`: Runtime V2 home
-- `/catalysts`: Catalyst list
-- `/catalysts/:id`: Catalyst detail
-- `/leaderboard`: Leaderboard
-- `/builder`: Builder board
-- `/proof`: Proof of Support
-- `/admin`: Redirects to Catalyst list
-
-## Worker And D1
-
-Run the Cloudflare Worker locally:
+Run the Worker locally:
 
 ```bash
 npm run dev:worker
 ```
+
+The Worker exposes the `/api/*` routes listed below. For a local split frontend and Worker setup, set `VITE_KAIRO_API_BASE_URL` to the Worker origin used by Wrangler.
+
+## D1 Local Migration
 
 Apply local D1 migrations:
 
@@ -56,57 +83,99 @@ Apply local D1 migrations:
 npm run db:migrate:local
 ```
 
-Seed the local D1 database with demo Phase 0 data:
+This runs the migration files in `worker/migrations/` against the local `kairo-local` D1 database configured in `wrangler.toml`.
+
+## D1 Local Seed
+
+Seed local launch demo data:
 
 ```bash
 npm run db:seed:local
 ```
 
-Deploy after replacing the placeholder D1/KV IDs in `wrangler.toml`:
+To verify the seed loaded, query D1 locally with Wrangler, for example:
 
 ```bash
-npm run db:migrate:remote
-npm run deploy:worker
+npx wrangler d1 execute kairo-local --local --command="SELECT COUNT(*) AS count FROM bounties;"
+npx wrangler d1 execute kairo-local --local --command="SELECT COUNT(*) AS count FROM submissions;"
+npx wrangler d1 execute kairo-local --local --command="SELECT COUNT(*) AS count FROM boosts;"
 ```
 
-## API Endpoints
+## Production Deployment Overview
 
-Current Worker endpoints are:
+1. Create a Cloudflare D1 database for production.
+2. Update `wrangler.toml` with the production D1 database name and ID.
+3. Run remote migrations.
+4. Apply the seed only to non-production or curated demo environments unless production launch data is approved.
+5. Deploy the Worker.
+6. Deploy the frontend to Cloudflare Pages.
+7. Set `VITE_KAIRO_API_BASE_URL` in Cloudflare Pages when the Worker is not same-origin.
+8. Run the production smoke test from `docs/LAUNCH_CHECKLIST.md`.
 
-### Bounties / Catalysts
+## Environment Variables
 
-- `GET /api/bounties` — list Catalysts ordered by Momentum.
-- `GET /api/bounties/:id` — fetch one Catalyst.
-- `POST /api/bounties` — create a Catalyst record.
-- `PATCH /api/bounties/:id` — update Catalyst metadata.
-- `POST /api/bounties/:id/boost` — Boost a Catalyst.
-- `GET /api/bounties/:id/submissions` — list submissions for a Catalyst.
-- `POST /api/bounties/:id/submissions` — submit a project to a Catalyst.
+| Name | Used by | Purpose |
+| --- | --- | --- |
+| `VITE_KAIRO_API_BASE_URL` | Frontend | Optional absolute Worker API base URL. Leave unset for same-origin API requests. |
+
+## Package Scripts
+
+| Script | Purpose |
+| --- | --- |
+| `npm run dev` | Start the Vite frontend. |
+| `npm run build` | Build the frontend for production. |
+| `npm run preview` | Preview the production frontend build. |
+| `npm run lint` | Run TypeScript verification with `tsc --noEmit`. |
+| `npm run dev:worker` | Run the Cloudflare Worker locally with Wrangler. |
+| `npm run db:migrate:local` | Apply D1 migrations locally. |
+| `npm run db:seed:local` | Seed local D1 with launch demo data. |
+| `npm run db:migrate:remote` | Apply D1 migrations to the configured remote database. |
+| `npm run deploy:worker` | Deploy the Worker with Wrangler. |
+| `npm run verify:copy` | Scan public runtime code for forbidden public copy. |
+| `npm run verify:routes` | Verify required Worker route strings and client page files. |
+
+## API Route Overview
+
+### Health
+
+- `GET /api/health`
+
+### Catalysts / Bounties
+
+- `GET /api/bounties`
+- `GET /api/bounties/:id`
+- `POST /api/bounties`
+- `PATCH /api/bounties/:id`
+- `GET /api/bounties/:id/funding-events`
+- `POST /api/bounties/:id/boost`
+- `GET /api/bounties/:id/submissions`
+- `POST /api/bounties/:id/submissions`
 
 ### Submissions
 
-- `GET /api/submissions` — list recent submissions.
-- `GET /api/submissions?bountyId=:id` — list submissions for a Catalyst.
-- `GET /api/submissions/:id` — fetch one submission.
-- `POST /api/submissions` — create a Builder submission.
-- `PATCH /api/submissions/:id` — update a submission.
-- `POST /api/submissions/:id/boost` — Boost a submission.
-
-### Boost
-
-- `POST /api/boosts` — Boost a Catalyst or submission and create the related support event.
+- `GET /api/submissions`
+- `GET /api/submissions/:id`
+- `POST /api/submissions`
+- `PATCH /api/submissions/:id`
+- `POST /api/submissions/:id/boost`
 
 ### Support Proof
 
-- `GET /proof` — frontend Proof of Support page for Phase 0 supporter activity.
-- `GET /api/support/points/me` — read the current supporter's points.
-- `GET /api/support/events/me` — read the current supporter's support event timeline.
-- `GET /api/support/proof/me` — read the current supporter's Proof of Support payload.
-- `GET /api/proof-of-support` — compatibility endpoint for the Proof of Support payload.
+- `GET /api/support/points/me`
+- `GET /api/support/events/me`
+- `GET /api/support/proof/me`
+- `GET /api/support/proof/:userId`
+- `GET /api/proof-of-support`
 
-### Leaderboards
+### Curated Runtime
 
-- `GET /api/leaderboard` — return all Runtime V2 leaderboard groups.
+- `GET /api/curated-items`
+- `GET /api/curated-items/:placement`
+- `GET /api/curated-items/type/:itemType`
+
+### Leaderboard
+
+- `GET /api/leaderboard`
 - `GET /api/leaderboard/hottest-catalysts`
 - `GET /api/leaderboard/confirmed-reward-catalysts`
 - `GET /api/leaderboard/top-builders`
@@ -116,9 +185,70 @@ Current Worker endpoints are:
 - `GET /api/leaderboard/comeback-hall`
 - `GET /api/leaderboard/genesis-candidates`
 
-## Verification
+### Admin
+
+- `GET /api/admin/bounties`
+- `PATCH /api/admin/bounties/:id/status`
+- `PATCH /api/admin/bounties/:id/funding-status`
+- `POST /api/admin/bounties/:id/funding-events`
+- `GET /api/admin/submissions`
+- `PATCH /api/admin/submissions/:id/status`
+- `PATCH /api/admin/submissions/:id/delivery-status`
+- `GET /api/admin/boosts`
+- `PATCH /api/admin/boosts/:id/validity-status`
+- `GET /api/admin/support-events`
+- `PATCH /api/admin/support-events/:id/validity-status`
+- `GET /api/admin/curated-items`
+- `POST /api/admin/curated-items`
+- `PATCH /api/admin/curated-items/:id`
+- `GET /api/admin/stats`
+
+## Admin Flow
+
+Admin endpoints require `x-kairo-role: admin`. Without that role, admin routes must return forbidden access. Admin users can review Catalysts, update Funding Status, add Reward Records, moderate submissions, validate Boosts and support events, curate runtime placements, and view launch stats.
+
+For local smoke tests, use:
 
 ```bash
-npm run lint
-npm run build
+curl -H "x-kairo-role: admin" http://127.0.0.1:8787/api/admin/stats
 ```
+
+## Proof of Support Flow
+
+Supporters create Proof of Support through Boosts, shares, referrals, and related support events. The API resolves the current demo user from request headers and returns support points, event history, and a proof payload for `/proof`.
+
+Useful demo headers:
+
+```bash
+-H "x-kairo-user-id: user-demo-supporter"
+-H "x-kairo-user-name: Demo Supporter"
+```
+
+## Funding Status / Reward Records Wording Policy
+
+Use these public labels:
+
+- Funding Status
+- Funding Events
+- Reward Records
+- Reward confirmed
+- Partial reward sent
+- Reward paid
+- Sponsor reward
+
+Do not use public copy that describes KAIRO as a financial intermediary, asset holder, guaranteed reward provider, or financial service. Internal table names and enum values may exist for implementation compatibility, but public runtime labels must remain product-safe.
+
+## Compliance Boundary
+
+Boost is a community signal, not a financial action. Catalyst pages should describe concrete product work and Builder submissions, not financial promises. Proof of Support records early support behavior only; they do not guarantee badges, access, rewards, or airdrops.
+
+Run this before launch:
+
+```bash
+npm run verify:copy
+npm run verify:routes
+```
+
+## Launch Checklist
+
+See [`docs/LAUNCH_CHECKLIST.md`](docs/LAUNCH_CHECKLIST.md).

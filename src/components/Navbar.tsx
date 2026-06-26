@@ -9,8 +9,8 @@ interface NavbarProps {
   disconnectWallet: () => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  roleMode: 'investor' | 'developer';
-  setRoleMode: (mode: 'investor' | 'developer') => void;
+  roleMode: 'supporter' | 'developer';
+  setRoleMode: (mode: 'supporter' | 'developer') => void;
   addNotification: (title: string, message: string, type: 'success' | 'info' | 'error') => void;
 }
 
@@ -48,8 +48,8 @@ export default function Navbar({
   };
 
   const tabs = [
-    { id: 'arena', label: '复苏竞技场', icon: Flame, role: 'investor' },
-    { id: 'leaderboard', label: '排行榜', icon: Trophy, role: 'investor' },
+    { id: 'arena', label: '复苏竞技场', icon: Flame, role: 'supporter' },
+    { id: 'leaderboard', label: '排行榜', icon: Trophy, role: 'supporter' },
     { id: 'catalysts', label: '复兴催化剂', icon: Award, role: 'developer' },
     { id: 'builderHub', label: 'Builder 终端', icon: Terminal, role: 'developer' }
   ];
@@ -125,17 +125,17 @@ export default function Navbar({
           <div className="hidden lg:flex items-center rounded-xl bg-[#121622]/60 p-[3px] border border-white/5">
             <button
               onClick={() => {
-                setRoleMode('investor');
+                setRoleMode('supporter');
                 setActiveTab('arena');
-                addNotification('视角切换', '已切换至社区投资者视图 📊', 'success');
+                addNotification('视角切换', '已切换至社区支持者视图 📊', 'success');
               }}
               className={`px-3 py-1.5 text-[10.5px] font-bold rounded-lg transition-all cursor-pointer ${
-                roleMode === 'investor'
+                roleMode === 'supporter'
                   ? 'bg-gradient-to-r from-[#ffd285] to-[#f52329] text-black shadow-md'
                   : 'text-white/40 hover:text-white/70'
               }`}
             >
-              📊 投资者
+              📊 支持者
             </button>
             <button
               onClick={() => {
