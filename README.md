@@ -1,6 +1,8 @@
-# KAIRO MVP
+﻿# KAIRO MVP
 
-KAIRO is a Web3 Catalyst and Boost platform for reviving dormant token ecosystems. The current implementation keeps the existing neon fintech preview experience while adding the scalable MVP structure:
+KAIRO is a Web3 Catalyst and Boost platform for reviving dormant token ecosystems.
+
+## Project Structure
 
 - `src/`: preserved visual mock experience and reusable UI components.
 - `client/`: React Router entrypoints and new product pages.
@@ -8,45 +10,114 @@ KAIRO is a Web3 Catalyst and Boost platform for reviving dormant token ecosystem
 - `worker/`: Cloudflare Workers + Hono API, service layer, and D1 migrations.
 - `kairo_project_docs/`: product docs, static preview, and original schema reference.
 
-## Local Development
+## Quick Start
 
 ```bash
 npm install
-npm run dev
+npm run dev          # Frontend on :3000
+npm run dev:worker   # Worker API on :8787
 ```
 
-Vite starts on port `3000` by default and will pick the next open port if needed.
+## API Reference
 
-Useful routes:
+All endpoints are served from the Cloudflare Worker at `/api/`.
 
-- `/`: KAIRO arena dashboard
-- `/catalysts`: Catalyst list
-- `/catalysts/cat-1`: Catalyst detail deep link
-- `/leaderboard`: Leaderboard
-- `/builder`: Builder terminal
-- `/proof`: Proof of Support
-- `/admin`: Admin-oriented Catalyst workspace
+### Bounties (Catalysts)
 
-## Worker And D1
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/bounties` | List all bounties, ordered by momentum |
+| GET | `/api/bounties/:id` | Get single bounty details |
+| POST | `/api/bounties` | Create a new bounty (catalyst) |
+| PATCH | `/api/bounties/:id` | Update bounty fields (funding_status, etc.) |
 
-Run the Cloudflare Worker locally:
+### Submissions
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/submissions?bountyId=` | List submissions, optional filter by bounty |
+| POST | `/api/submissions` | Submit a builder solution |
+| PATCH | `/api/submissions/:id` | Update submission (mark winner, etc.) |
+
+### Boosts
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/boosts` | Boost a catalyst or submission (+300 momentum) |
+
+### Leaderboard
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/leaderboard` | Hottest catalysts, top builders, curated items |
+
+### Admin
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/admin/curated` | Add curated item to homepage/leaderboard |
+| DELETE | `/api/admin/curated/:id` | Remove curated item |
+| GET | `/api/admin/audit` | List pending reviews |
+
+### Support & Proof
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/support/points/:userId` | Get user support point balance |
+| GET | `/api/support/events/:userId` | Immutable support event history (proof of support) |
+
+## Database Schema (Cloudflare D1)
+
+| Table | Purpose |
+|-------|---------|
+| `bounties` | Catalyst records with funding_status, momentum_score |
+| `submissions` | Builder submissions linked to bounties |
+| `boosts` | Boost events with anti-abuse checks |
+| `tokens` | Token metadata for dormant coin ecosystems |
+| `builder_scores` | Aggregated builder reputation scores |
+| `curated_items` | Admin-placed items for homepage/leaderboard |
+| `support_points` | User support point balances |
+| `support_events` | Immutable event log for Proof of Support |
+| `escrow_events` | Funding history (not shown as escrow to users) |
+| `referrals` | Referral link tracking |
+| `admin_actions` | Audit log for admin operations |
+
+## Deployment
 
 ```bash
-npm run dev:worker
-```
-
-Apply local D1 migrations:
-
-```bash
-npm run db:migrate:local
-```
-
-Deploy after replacing the placeholder D1/KV IDs in `wrangler.toml`:
-
-```bash
+# Deploy D1 migrations
 npm run db:migrate:remote
+
+# Deploy worker
 npm run deploy:worker
+
+# Deploy frontend (Cloudflare Pages)
+npm run build
+npm run deploy:pages
 ```
+
+Replace the placeholder D1/KV IDs in `wrangler.toml` before deploying.
+
+## Frontend Routes
+
+| Path | Page |
+|------|------|
+| `/` | Arena dashboard |
+| `/catalysts` | Catalyst list |
+| `/catalysts/:id` | Catalyst detail |
+| `/leaderboard` | Leaderboard with multiple categories |
+| `/builder` | Builder terminal |
+| `/proof` | Proof of Support |
+| `/admin` | Admin workspace |
+
+## Key Concepts
+
+- **Catalyst**: A project bounty posted by a token team to revive their dormant ecosystem.
+- **Boost**: Community upvote mechanism that adds Momentum.
+- **Momentum**: Composite score based on boosts, submissions, shares, and referrals.
+- **KAIRO Score**: Weighted builder reputation (delivery > boosts).
+- **Proof of Support**: Immutable record of a user's contributions.
+- **Funding Status**: `unverified` → `pledged` → `escrowed` → `partially_paid` → `paid` → `disputed` → `cancelled`
 
 ## Verification
 
@@ -55,4 +126,4 @@ npm run lint
 npm run build
 ```
 
-Frontend copy must display `Reward confirmed by KAIRO` / `奖励已由 KAIRO 确认` instead of escrow or custody language.
+Frontend copy must display "Reward confirmed by KAIRO" instead of escrow/custody language.
