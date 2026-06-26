@@ -10,17 +10,29 @@ export const bountyStatuses = [
 
 export const fundingStatuses = [
   'unverified',
-  'kairo_confirmed',
-  'community_reported',
+  'pledged',
+  'escrowed',
+  'partially_paid',
   'paid',
   'disputed',
+  'cancelled',
+] as const;
+
+export const deliveryStatuses = [
+  'not_started',
+  'building',
+  'submitted_for_review',
+  'approved',
+  'rejected',
+  'completed',
 ] as const;
 
 export const submissionStatuses = [
   'submitted',
   'shortlisted',
   'winner',
-  'declined',
+  'rejected',
+  'hidden',
 ] as const;
 
 export const boostValidityStatuses = ['valid', 'suspicious', 'invalid'] as const;
@@ -79,6 +91,7 @@ export const submissionSchema = z.object({
   videoUrl: z.string().url().optional(),
   description: z.string().optional(),
   status: z.enum(submissionStatuses).default('submitted'),
+  deliveryStatus: z.enum(deliveryStatuses).default('not_started'),
   boostCount: z.number().int().nonnegative().default(0),
   momentumScore: z.number().int().nonnegative().default(0),
   createdAt: z.string(),
@@ -109,7 +122,16 @@ export const createBoostSchema = z
 export const supportEventSchema = z.object({
   id: z.string().min(1),
   userId: z.string().min(1),
-  eventType: z.enum(['boost', 'referral', 'share', 'admin_adjustment']),
+  eventType: z.enum([
+    'boost_bounty',
+    'boost_submission',
+    'share',
+    'referral_signup',
+    'referral_boost',
+    'demo_feedback',
+    'early_tester',
+    'manual_adjustment',
+  ]),
   targetType: z.enum(['bounty', 'submission', 'profile']),
   targetId: z.string().min(1),
   pointsDelta: z.number().int(),
@@ -120,11 +142,14 @@ export const supportEventSchema = z.object({
 export const curatedItemSchema = z.object({
   id: z.string().min(1),
   itemType: z.enum([
-    'hottest_catalyst',
+    'featured_catalyst',
     'dormant_giant',
-    'top_builder',
+    'featured_builder',
     'breakout_story',
+    'comeback_hall',
     'genesis_candidate',
+    'homepage_banner',
+    'sponsor_campaign',
   ]),
   placement: z.string().default('home'),
   targetType: z.enum(['bounty', 'submission', 'builder', 'external']),
@@ -145,9 +170,11 @@ export type SupportEventRecord = z.infer<typeof supportEventSchema>;
 export type CuratedItemRecord = z.infer<typeof curatedItemSchema>;
 
 export const fundingStatusLabels: Record<(typeof fundingStatuses)[number], string> = {
-  unverified: 'Reward pending KAIRO confirmation',
-  kairo_confirmed: 'Reward confirmed by KAIRO',
-  community_reported: 'Reward reported by community',
-  paid: 'Reward paid',
-  disputed: 'Reward under review',
+  unverified: 'Reward pending KAIRO confirmation / 奖励等待 KAIRO 确认',
+  pledged: 'Reward pledged / 奖励已承诺',
+  escrowed: 'Reward confirmed by KAIRO / 奖励已由 KAIRO 确认',
+  partially_paid: 'Reward partially paid / 奖励已部分支付',
+  paid: 'Reward paid / 奖励已支付',
+  disputed: 'Reward under review / 奖励审核中',
+  cancelled: 'Reward cancelled / 奖励已取消',
 };

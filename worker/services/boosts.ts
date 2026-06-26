@@ -9,6 +9,7 @@ export async function createBoost(env: Env, payload: unknown) {
   const targetType = input.submissionId ? 'submission' : 'bounty';
   const targetId = input.submissionId ?? input.bountyId;
   const pointsDelta = input.submissionId ? 15 : 10;
+  const eventType = input.submissionId ? 'boost_submission' : 'boost_bounty';
 
   await env.DB.batch([
     env.DB.prepare(
@@ -27,10 +28,11 @@ export async function createBoost(env: Env, payload: unknown) {
       `INSERT INTO support_events (
         id, user_id, event_type, target_type, target_id, bounty_id,
         submission_id, referrer_id, points_delta, validity_status, source, created_at
-      ) VALUES (?, ?, 'boost', ?, ?, ?, ?, ?, ?, 'valid', ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'valid', ?, ?)`,
     ).bind(
       supportEventId,
       input.userId,
+      eventType,
       targetType,
       targetId,
       input.bountyId ?? null,
