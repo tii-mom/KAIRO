@@ -80,6 +80,18 @@ export const createBountySchema = bountySchema
     tokenSymbol: z.string().min(1).optional(),
   });
 
+export const updateBountySchema = bountySchema
+  .omit({
+    id: true,
+    createdBy: true,
+    boostCount: true,
+    momentumScore: true,
+    submissionCount: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .partial();
+
 export const submissionSchema = z.object({
   id: z.string().min(1),
   bountyId: z.string().min(1),
@@ -106,6 +118,18 @@ export const createSubmissionSchema = submissionSchema.omit({
   createdAt: true,
   updatedAt: true,
 });
+
+export const updateSubmissionSchema = submissionSchema
+  .omit({
+    id: true,
+    bountyId: true,
+    builderId: true,
+    boostCount: true,
+    momentumScore: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .partial();
 
 export const createBoostSchema = z
   .object({
@@ -163,8 +187,10 @@ export const curatedItemSchema = z.object({
 export type TokenRecord = z.infer<typeof tokenSchema>;
 export type BountyRecord = z.infer<typeof bountySchema>;
 export type CreateBountyInput = z.infer<typeof createBountySchema>;
+export type UpdateBountyInput = z.infer<typeof updateBountySchema>;
 export type SubmissionRecord = z.infer<typeof submissionSchema>;
 export type CreateSubmissionInput = z.infer<typeof createSubmissionSchema>;
+export type UpdateSubmissionInput = z.infer<typeof updateSubmissionSchema>;
 export type CreateBoostInput = z.infer<typeof createBoostSchema>;
 export type SupportEventRecord = z.infer<typeof supportEventSchema>;
 export type CuratedItemRecord = z.infer<typeof curatedItemSchema>;

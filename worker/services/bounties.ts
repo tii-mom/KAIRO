@@ -1,4 +1,4 @@
-import { createBountySchema } from '../../shared/domain';
+import { createBountySchema, updateBountySchema } from '../../shared/domain';
 import { getRow, listRows, type Env } from '../db/d1';
 
 export async function listBounties(env: Env) {
@@ -56,4 +56,35 @@ export async function createBounty(env: Env, payload: unknown) {
   ]);
 
   return getBounty(env, bountyId);
+}
+
+export async function updateBounty(env: Env, id: string, payload: unknown) {
+  const input = updateBountySchema.parse(payload);
+  const updates: string[] = [];
+  const bindings: unknown[] = [];
+
+  const set = (column: string, value: unknown) => {
+    updates.push(`${column} = ?`);
+    bindings.push(value ?? null);
+  };
+
+  if (input.tokenId !== undefined) set('token_id', input.tokenId);
+  if (input.title !== undefined) set('title', input.title);
+  if (input.description !== undefined) set('description', input.description);
+  if (input.rewardText !== undefined) set('reward_text', input.rewardText);
+  if (input.rewardType !== undefined) set('reward_type', input.rewardType);
+  if (input.fundingStatus !== undefined) set('funding_status', input.fundingStatus);
+  if (input.contactInfo !== undefined) set('contact_info', input.contactInfo);
+  if (input.deadline !== undefined) set('deadline', input.deadline);
+  if (input.status !== undefined) set('status', input.status);
+  if (input.featured !== undefined) set('featured', input.featured ? 1 : 0);
+
+  if (updates.length === 0) return getBounty(env, id);
+
+  const now = new Date().toISOString();
+  updates.push('updated_at = ?');
+  bindings.push(now, id);
+
+  await env.DB.prepare(`UPDATE bounties SET ${updates.join(', ')} WHERE id = ?`).bind(...bindings).run();
+  return getBounty(env, id);
 }
