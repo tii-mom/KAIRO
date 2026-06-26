@@ -1,4 +1,6 @@
 import { Award, Flame, Share2, ShieldCheck } from 'lucide-react';
+import { formatDate, formatMomentumCount, fallbackText } from '../lib/formatters';
+import { DEFAULT_DEMO_IDENTITY } from '../lib/session';
 import type { UserState } from '../../src/types';
 
 interface ProofOfSupportPageProps {
@@ -7,9 +9,9 @@ interface ProofOfSupportPageProps {
 
 export default function ProofOfSupportPage({ userState }: ProofOfSupportPageProps) {
   const events = [
-    { id: 'support-1', label: 'Boosted Dormant Yields', points: 10, source: 'direct' },
-    { id: 'support-2', label: 'Shared Pepe2Clicker catalyst', points: 4, source: 'share' },
-    { id: 'support-3', label: 'Shared a builder submission', points: 12, source: 'referral' },
+    { id: 'support-1', label: 'Boosted Dormant Yields', points: 10, source: 'direct', createdAt: '2026-06-01T12:00:00.000Z' },
+    { id: 'support-2', label: 'Shared Pepe2Clicker catalyst', points: 4, source: 'share', createdAt: '2026-06-08T12:00:00.000Z' },
+    { id: 'support-3', label: 'Referred a Builder submission', points: 12, source: 'referral', createdAt: '2026-06-15T12:00:00.000Z' },
   ];
   const totalPoints = events.reduce((sum, event) => sum + event.points, 0);
 
@@ -30,15 +32,15 @@ export default function ProofOfSupportPage({ userState }: ProofOfSupportPageProp
           <div className="grid grid-cols-3 gap-3">
             <div className="rounded-xl border border-[#ffd285]/10 bg-[#07090e]/70 p-4">
               <div className="text-[10px] uppercase text-white/40">KAIRO Score</div>
-              <div className="mt-1 font-mono text-xl font-black text-[#ffd285]">{totalPoints}</div>
+              <div className="mt-1 font-mono text-xl font-black text-[#ffd285]">{formatMomentumCount(totalPoints)}</div>
             </div>
             <div className="rounded-xl border border-white/5 bg-[#07090e]/70 p-4">
               <div className="text-[10px] uppercase text-white/40">Boosts</div>
-              <div className="mt-1 font-mono text-xl font-black text-white">{userState.boostedCatalysts.length}</div>
+              <div className="mt-1 font-mono text-xl font-black text-white">{formatMomentumCount(userState.boostedCatalysts.length)}</div>
             </div>
             <div className="rounded-xl border border-white/5 bg-[#07090e]/70 p-4">
-              <div className="text-[10px] uppercase text-white/40">KAIRO</div>
-              <div className="mt-1 font-mono text-xl font-black text-emerald-400">{userState.balanceKairo}</div>
+              <div className="text-[10px] uppercase text-white/40">KAIR</div>
+              <div className="mt-1 font-mono text-xl font-black text-emerald-400">{formatMomentumCount(userState.balanceKairo)}</div>
             </div>
           </div>
         </div>
@@ -47,7 +49,7 @@ export default function ProofOfSupportPage({ userState }: ProofOfSupportPageProp
       <section className="rounded-2xl border border-white/5 bg-[#0c0e14]/40 p-5 backdrop-blur-md">
         <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/60">
           <Award className="h-4 w-4 text-[#ffd285]" />
-          Proof of Support
+          Support Events · {fallbackText(DEFAULT_DEMO_IDENTITY.id)}
         </div>
         <div className="divide-y divide-white/5">
           {events.map((event) => (
@@ -58,9 +60,12 @@ export default function ProofOfSupportPage({ userState }: ProofOfSupportPageProp
                 ) : (
                   <Flame className="h-4 w-4 text-[#f52329]" />
                 )}
-                <span className="text-sm font-semibold text-white">{event.label}</span>
+                <div>
+                  <span className="text-sm font-semibold text-white">{fallbackText(event.label)}</span>
+                  <div className="mt-1 text-[11px] font-medium uppercase tracking-wide text-white/35">{formatDate(event.createdAt)}</div>
+                </div>
               </div>
-              <span className="font-mono text-sm font-black text-[#ffd285]">+{event.points}</span>
+              <span className="font-mono text-sm font-black text-[#ffd285]">+{formatMomentumCount(event.points)}</span>
             </div>
           ))}
         </div>
