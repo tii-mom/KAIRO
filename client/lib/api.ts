@@ -3,7 +3,6 @@ import type {
   CreateBountyInput,
   CreateSubmissionInput,
   SubmissionRecord,
-  SupportEventRecord,
 } from '../../shared/domain';
 import { DEFAULT_DEMO_IDENTITY, type DemoIdentity, withSessionHeaders } from './session';
 
@@ -18,6 +17,8 @@ export interface BoostResponse {
   supportEventId: string;
   pointsDelta: number;
   createdAt: string;
+  duplicate?: boolean;
+  existingBoostId?: string;
 }
 
 export interface LeaderboardResponse {
@@ -26,10 +27,41 @@ export interface LeaderboardResponse {
   curatedItems: Array<Record<string, unknown>>;
 }
 
-export interface ProofOfSupportResponse {
+export interface SupportPoints {
   userId: string;
   totalPoints: number;
-  events: SupportEventRecord[];
+  boostPoints: number;
+  referralPoints: number;
+  sharePoints: number;
+  validBoostCount: number;
+  updatedAt: string | null;
+}
+
+export interface SupportEvent {
+  id: string;
+  userId: string;
+  eventType: string;
+  targetType: string;
+  targetId: string;
+  bountyId: string | null;
+  submissionId: string | null;
+  referrerId: string | null;
+  pointsDelta: number;
+  validityStatus: string;
+  source: string;
+  metadata: unknown;
+  createdAt: string;
+}
+
+export interface ProofOfSupport {
+  user: {
+    id: string;
+    role: string;
+    isDemoFallback: boolean;
+  };
+  points: SupportPoints;
+  validBoostCount: number;
+  events: SupportEvent[];
 }
 
 interface ApiEnvelope<T> {
@@ -41,10 +73,10 @@ export interface ApiClientOptions {
   identity?: DemoIdentity;
 }
 
-const defaultBaseUrl = '';
+const envBaseUrl = ((import.meta as unknown as { env?: { VITE_API_BASE_URL?: string } }).env?.VITE_API_BASE_URL) ?? '';
 
 async function requestJson<T>(path: string, init: RequestInit = {}, options: ApiClientOptions = {}): Promise<T> {
-  const baseUrl = options.baseUrl ?? defaultBaseUrl;
+  const baseUrl = options.baseUrl ?? envBaseUrl;
   const response = await fetch(`${baseUrl}${path}`, withSessionHeaders(init, options.identity ?? DEFAULT_DEMO_IDENTITY));
 
   if (!response.ok) {
@@ -127,11 +159,15 @@ export async function getLeaderboard(options?: ApiClientOptions): Promise<Leader
   return response.data;
 }
 
-export async function getProofOfSupport(options?: ApiClientOptions): Promise<ProofOfSupportResponse> {
-  const identity = options?.identity ?? DEFAULT_DEMO_IDENTITY;
-  const response = await requestJson<ApiEnvelope<ProofOfSupportResponse>>('/api/proof-of-support', undefined, {
-    ...options,
-    identity,
-  });
+export async function getLeaderboardCategory<T = Array<Record<string, unknown>>>(
+  category: string,
+  options?: ApiClientOptions,
+): Promise<T> {
+  const response = await requestJson<ApiEnvelope<T>>(`/api/leaderboard/${category}`, undefined, options);
+  return response.data;
+}
+
+export async function getProofOfSupport(options?: ApiClientOptions): Promise<ProofOfSupport> {
+  const response = await requestJson<ApiEnvelope<ProofOfSupport>>('/api/support/proof/me', undefined, options);
   return response.data;
 }

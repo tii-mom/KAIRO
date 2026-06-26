@@ -14,7 +14,7 @@ import {
   getMostBoostedSubmissions,
   getTopBuilders,
 } from './services/leaderboard';
-import { getProofOfSupport, getSupportPoints, listSupportEvents } from './services/support';
+import { getProofOfSupport, getSupportEvents, getSupportPoints, resolveCurrentSupportUser } from './services/support';
 import { createSubmission, getSubmission, listSubmissions, updateSubmission } from './services/submissions';
 import type { Env } from './db/d1';
 
@@ -90,9 +90,25 @@ app.post('/api/submissions/:id/boost', async (c) => {
 
 app.post('/api/boosts', async (c) => c.json({ data: await createBoost(c.env, await c.req.json()) }, 201));
 
-app.get('/api/support/points/me', async (c) => c.json({ data: await getSupportPoints(c.env, getCurrentUserId(c)) }));
-app.get('/api/support/events/me', async (c) => c.json({ data: await listSupportEvents(c.env, getCurrentUserId(c)) }));
-app.get('/api/support/proof/me', async (c) => c.json({ data: await getProofOfSupport(c.env, getCurrentUserId(c)) }));
+app.get('/api/support/points/me', async (c) => {
+  const user = resolveCurrentSupportUser(c.req.raw.headers);
+  return c.json({ data: await getSupportPoints(c.env, user.id), user });
+});
+
+app.get('/api/support/events/me', async (c) => {
+  const user = resolveCurrentSupportUser(c.req.raw.headers);
+  return c.json({ data: await getSupportEvents(c.env, user.id), user });
+});
+
+app.get('/api/support/proof/me', async (c) => {
+  const user = resolveCurrentSupportUser(c.req.raw.headers);
+  return c.json({ data: await getProofOfSupport(c.env, user) });
+});
+
+app.get('/api/proof-of-support', async (c) => {
+  const user = resolveCurrentSupportUser(c.req.raw.headers);
+  return c.json({ data: await getProofOfSupport(c.env, user) });
+});
 
 app.get('/api/leaderboard', async (c) => c.json({ data: await getLeaderboard(c.env) }));
 app.get('/api/leaderboard/hottest-catalysts', async (c) => c.json({ data: await getHottestCatalysts(c.env) }));
