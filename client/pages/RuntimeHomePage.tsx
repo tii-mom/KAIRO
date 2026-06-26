@@ -89,7 +89,7 @@ export default function RuntimeHomePage() {
           <div className="grid gap-4">
             {(featured.length ? featured : curatedItems.slice(0, 3)).map((item) => (
               <article key={item.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-                <div className="text-xs font-black uppercase tracking-[0.18em] text-[#ffd285]">{item.itemType.replace(/_/g, ' ')}</div>
+                <div className="text-xs font-black uppercase tracking-[0.18em] text-[#ffd285]">{(item.itemType ?? 'curated item').replace(/_/g, ' ')}</div>
                 <h2 className="mt-2 text-lg font-black text-white">{item.title}</h2>
                 <p className="mt-2 text-sm leading-6 text-white/60">{item.description}</p>
               </article>

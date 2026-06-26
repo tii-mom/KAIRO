@@ -5,18 +5,20 @@ Task: KAIRO Production Deploy & Smoke Test V1
 
 ## Deployment status
 
-- Worker deployed to production.
+- Worker redeployed to production.
 - Production D1 database created and bound in `wrangler.toml`.
 - Remote D1 migration did not complete because Cloudflare D1 returned platform error `7500`.
 - Remote seed did not complete because the schema migration did not create tables.
-- Cloudflare Pages project `kairo` does not exist in the current account, so Pages production deploy was not completed in this session.
+- Cloudflare Pages project `kairo` exists and production Pages has been redeployed.
 
 ## Production resources
 
 - D1 database name: `kairo-prod`
 - D1 database id: `b7b521f5-96d2-4cf9-9c73-6ff1245f9d35`
 - Worker URL: `https://kairo-worker-prod.348421501.workers.dev`
-- Pages URL: not deployed
+- Pages URLs:
+  - `https://f828a223.kairo-5vg.pages.dev`
+  - `https://6f92ba0d.kairo-5vg.pages.dev`
 
 ## Validation summary
 
@@ -25,6 +27,9 @@ Task: KAIRO Production Deploy & Smoke Test V1
 - `npm run build`: passed
 - `npm run verify:copy`: passed
 - `npm run verify:routes`: passed
+- Production Pages bundle rebuilt with `VITE_KAIRO_API_BASE_URL=https://kairo-worker-prod.348421501.workers.dev`
+- Pages TLS verified with `curl -Iv` for both `kairo-5vg.pages.dev` and the latest deployment URL
+- Browser smoke test reached the Pages site, but the runtime stayed on the loading shell because Worker fetches timed out
 
 ## D1 notes
 
@@ -43,20 +48,21 @@ Task: KAIRO Production Deploy & Smoke Test V1
 
 - `/api/admin/stats` without admin headers returned `403` as expected.
 - `/api/bounties`, `/api/leaderboard`, `/api/curated-items`, `/api/support/proof/me`, and admin stats with admin headers currently fail because production D1 tables were not created.
-- `/api/health` on the workers.dev URL returned Cloudflare `1042` during one request, while application API routes were otherwise reachable. Treat this as an edge/platform inconsistency to re-check after D1 is healthy.
+- `curl -Iv --http1.1 --connect-timeout 10 --max-time 20 https://kairo-worker-prod.348421501.workers.dev/api/health` timed out after the Worker redeploy.
+- Browser requests to `https://kairo-worker-prod.348421501.workers.dev/api/bounties`, `/api/curated-items/home`, and `/api/leaderboard` also timed out.
 
 ## Pages notes
 
-- `npx wrangler pages project list` shows no `kairo` project in the current account.
-- Current local production bundle still contains `http://localhost:8787`, which means Pages must be built with:
+- `npx wrangler pages project list` shows a `kairo` project in the current account.
+- Pages must be built with:
   - `VITE_KAIRO_API_BASE_URL=https://kairo-worker-prod.348421501.workers.dev`
-- Redeploy Pages only after setting that production environment variable and after Worker API data routes pass.
+- The latest deployed bundle uses the production Worker base URL.
 
 ## Known issues
 
 - Cloudflare D1 migration platform failure blocks data-backed API routes.
-- Production Pages project is missing.
-- Current local `dist` output still resolves API requests to localhost when `VITE_KAIRO_API_BASE_URL` is not injected at build time.
+- Production Worker edge requests are timing out from shell and browser probes, even after a fresh redeploy.
+- Pages renders the loading shell because the Worker fetches never complete.
 
 ## Rollback notes
 

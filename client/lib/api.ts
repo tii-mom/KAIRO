@@ -87,12 +87,40 @@ interface ApiEnvelope<T> {
   data: T;
 }
 
+export interface PublicBountyRecord extends BountyRecord {
+  tokenSymbol?: string | null;
+  tokenName?: string | null;
+  tokenChain?: string | null;
+  tokenContractAddress?: string | null;
+  tokenWebsiteUrl?: string | null;
+  tokenTwitterUrl?: string | null;
+  tokenTelegramUrl?: string | null;
+}
+
 export interface ApiClientOptions {
   baseUrl?: string;
   identity?: DemoIdentity;
 }
 
 const envBaseUrl = ((import.meta as unknown as { env?: { VITE_KAIRO_API_BASE_URL?: string } }).env?.VITE_KAIRO_API_BASE_URL) ?? '';
+
+function camelizeKey(key: string) {
+  return key.replace(/_([a-z])/g, (_, letter: string) => letter.toUpperCase());
+}
+
+function camelizeRecord<T extends Record<string, unknown>>(record: T) {
+  return Object.fromEntries(
+    Object.entries(record).map(([key, value]) => [camelizeKey(key), key === 'featured' ? Boolean(value) : value]),
+  );
+}
+
+function normalizePublicRecord<T>(record: Record<string, unknown>): T {
+  return camelizeRecord(record) as T;
+}
+
+function normalizePublicRecords<T>(records: Array<Record<string, unknown>>): T[] {
+  return records.map((record) => normalizePublicRecord<T>(record));
+}
 
 function resolveBaseUrl(options?: ApiClientOptions) {
   return options?.baseUrl ?? envBaseUrl;
@@ -122,39 +150,39 @@ export async function getHealth(options?: ApiClientOptions): Promise<HealthRespo
 }
 
 export async function listBounties(options?: ApiClientOptions): Promise<BountyRecord[]> {
-  const response = await requestJson<ApiEnvelope<BountyRecord[]>>('/api/bounties', undefined, options);
-  return response.data;
+  const response = await requestJson<ApiEnvelope<Array<Record<string, unknown>>>>('/api/bounties', undefined, options);
+  return normalizePublicRecords<BountyRecord>(response.data);
 }
 
-export async function getBounty(id: string, options?: ApiClientOptions): Promise<BountyRecord> {
-  const response = await requestJson<ApiEnvelope<BountyRecord>>(`/api/bounties/${encodeURIComponent(id)}`, undefined, options);
-  return response.data;
+export async function getBounty(id: string, options?: ApiClientOptions): Promise<PublicBountyRecord> {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/bounties/${encodeURIComponent(id)}`, undefined, options);
+  return normalizePublicRecord<PublicBountyRecord>(response.data);
 }
 
-export async function createBounty(input: CreateBountyInput, options?: ApiClientOptions): Promise<BountyRecord> {
-  const response = await requestJson<ApiEnvelope<BountyRecord>>('/api/bounties', jsonInit('POST', input), options);
-  return response.data;
+export async function createBounty(input: CreateBountyInput, options?: ApiClientOptions): Promise<PublicBountyRecord> {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>('/api/bounties', jsonInit('POST', input), options);
+  return normalizePublicRecord<PublicBountyRecord>(response.data);
 }
 
 export async function listFundingEvents(bountyId: string, options?: ApiClientOptions): Promise<FundingEventRecord[]> {
-  const response = await requestJson<ApiEnvelope<FundingEventRecord[]>>(`/api/bounties/${encodeURIComponent(bountyId)}/funding-events`, undefined, options);
-  return response.data;
+  const response = await requestJson<ApiEnvelope<Array<Record<string, unknown>>>>(`/api/bounties/${encodeURIComponent(bountyId)}/funding-events`, undefined, options);
+  return normalizePublicRecords<FundingEventRecord>(response.data);
 }
 
 export async function listSubmissions(bountyId?: string, options?: ApiClientOptions): Promise<SubmissionRecord[]> {
   const query = bountyId ? `?bountyId=${encodeURIComponent(bountyId)}` : '';
-  const response = await requestJson<ApiEnvelope<SubmissionRecord[]>>(`/api/submissions${query}`, undefined, options);
-  return response.data;
+  const response = await requestJson<ApiEnvelope<Array<Record<string, unknown>>>>(`/api/submissions${query}`, undefined, options);
+  return normalizePublicRecords<SubmissionRecord>(response.data);
 }
 
 export async function getSubmission(id: string, options?: ApiClientOptions): Promise<SubmissionRecord> {
-  const response = await requestJson<ApiEnvelope<SubmissionRecord>>(`/api/submissions/${encodeURIComponent(id)}`, undefined, options);
-  return response.data;
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/submissions/${encodeURIComponent(id)}`, undefined, options);
+  return normalizePublicRecord<SubmissionRecord>(response.data);
 }
 
 export async function createSubmission(input: CreateSubmissionInput, options?: ApiClientOptions): Promise<SubmissionRecord> {
-  const response = await requestJson<ApiEnvelope<SubmissionRecord>>('/api/submissions', jsonInit('POST', input), options);
-  return response.data;
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>('/api/submissions', jsonInit('POST', input), options);
+  return normalizePublicRecord<SubmissionRecord>(response.data);
 }
 
 export async function boostBounty(bountyId: string, options?: ApiClientOptions): Promise<BoostResponse> {
@@ -198,18 +226,18 @@ export async function getProofOfSupportByUser(userId: string, options?: ApiClien
 }
 
 export async function listCuratedItems(options?: ApiClientOptions): Promise<CuratedItemRecord[]> {
-  const response = await requestJson<ApiEnvelope<CuratedItemRecord[]>>('/api/curated-items', undefined, options);
-  return response.data;
+  const response = await requestJson<ApiEnvelope<Array<Record<string, unknown>>>>('/api/curated-items', undefined, options);
+  return normalizePublicRecords<CuratedItemRecord>(response.data);
 }
 
 export async function listCuratedItemsByPlacement(placement: string, options?: ApiClientOptions): Promise<CuratedItemRecord[]> {
-  const response = await requestJson<ApiEnvelope<CuratedItemRecord[]>>(`/api/curated-items/${encodeURIComponent(placement)}`, undefined, options);
-  return response.data;
+  const response = await requestJson<ApiEnvelope<Array<Record<string, unknown>>>>(`/api/curated-items/${encodeURIComponent(placement)}`, undefined, options);
+  return normalizePublicRecords<CuratedItemRecord>(response.data);
 }
 
 export async function listCuratedItemsByType(itemType: string, options?: ApiClientOptions): Promise<CuratedItemRecord[]> {
-  const response = await requestJson<ApiEnvelope<CuratedItemRecord[]>>(`/api/curated-items/type/${encodeURIComponent(itemType)}`, undefined, options);
-  return response.data;
+  const response = await requestJson<ApiEnvelope<Array<Record<string, unknown>>>>(`/api/curated-items/type/${encodeURIComponent(itemType)}`, undefined, options);
+  return normalizePublicRecords<CuratedItemRecord>(response.data);
 }
 
 export async function listAdminBounties(params: { status?: string; fundingStatus?: string } = {}, options?: ApiClientOptions) {

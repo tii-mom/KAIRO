@@ -33,7 +33,7 @@ export default function DormantGiantsPage() {
       <h1 className="text-3xl font-black text-white">Dormant Giants</h1>
       {giants.map((item) => (
         <article key={item.id} className="rounded-2xl border border-white/5 bg-[#0c0e14]/50 p-5">
-          <div className="text-xs font-bold text-[#ffd285]">{item.itemType.replace(/_/g, ' ')}</div>
+          <div className="text-xs font-bold text-[#ffd285]">{(item.itemType ?? 'curated item').replace(/_/g, ' ')}</div>
           <h2 className="mt-1 text-xl font-black text-white">{item.title}</h2>
           <p className="mt-2 text-white/60">{item.description}</p>
         </article>

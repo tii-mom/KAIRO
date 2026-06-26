@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { Award, Flame, Plus, Send, ShieldCheck } from 'lucide-react';
-import { boostBounty, getBounty, listBounties, listFundingEvents, listSubmissions } from '../lib/api';
+import { boostBounty, getBounty, listBounties, listFundingEvents, listSubmissions, type PublicBountyRecord } from '../lib/api';
 import { fundingStatusLabels, type BountyRecord, type FundingEventRecord, type SubmissionRecord } from '../../shared/domain';
 import { EmptyState, ErrorState, LoadingState } from './pageUtils';
 
-type ApiBounty = BountyRecord & {
-  token_symbol?: string | null;
-  token_name?: string | null;
-  token_chain?: string | null;
+type ApiBounty = PublicBountyRecord & {
+  tokenSymbol?: string | null;
+  tokenName?: string | null;
+  tokenChain?: string | null;
 };
 
 export function CatalystDetailPage() {
@@ -60,7 +60,7 @@ export function CatalystDetailPage() {
       <Link to="/catalysts" className="text-sm font-bold text-[#ffd285]">Back to Catalysts</Link>
       <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8">
         <div className="text-xs font-black uppercase tracking-[0.2em] text-[#ffd285]">
-          Catalyst · {catalyst.token_symbol ?? catalyst.tokenId}
+          Catalyst · {catalyst.tokenSymbol ?? catalyst.tokenId}
         </div>
         <h1 className="mt-4 text-4xl font-black text-white">{catalyst.title}</h1>
         <p className="mt-4 max-w-3xl text-base leading-8 text-white/60">{catalyst.description}</p>
@@ -191,7 +191,7 @@ export default function CatalystsPage() {
               {catalysts.filter((item) => item.fundingStatus !== 'unverified').slice(0, 4).map((event) => (
                 <div key={event.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                   <div className="text-sm font-black text-white">{event.title}</div>
-                  <div className="mt-1 text-xs text-white/45">{event.token_symbol ?? event.tokenId}</div>
+              <div className="mt-1 text-xs text-white/45">{event.tokenSymbol ?? event.tokenId}</div>
                   <div className="mt-3 text-sm text-[#ffd285]">{fundingStatusLabels[event.fundingStatus]}</div>
                 </div>
               ))}
