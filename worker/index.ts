@@ -23,7 +23,7 @@ const app = new Hono<{ Bindings: Env }>();
 app.use('*', cors());
 
 const getCurrentUserId = (c: Context<{ Bindings: Env }>) =>
-  c.req.header('x-user-id') ?? c.req.query('userId') ?? 'demo-user';
+  c.req.header('x-user-id') ?? c.req.header('x-kairo-user-id') ?? c.req.query('userId') ?? 'demo-user';
 
 app.get('/api/health', (c) =>
   c.json({
@@ -51,7 +51,10 @@ app.patch('/api/bounties/:id', async (c) => {
 
 app.post('/api/bounties/:id/boost', async (c) => {
   const body = await c.req.json().catch(() => ({}));
-  return c.json({ data: await createBoost(c.env, { ...body, userId: body.userId ?? getCurrentUserId(c), bountyId: c.req.param('id') }) }, 201);
+  return c.json(
+    { data: await createBoost(c.env, { ...body, userId: body.userId ?? getCurrentUserId(c), bountyId: c.req.param('id') }) },
+    201,
+  );
 });
 
 app.get('/api/bounties/:id/submissions', async (c) =>
@@ -60,7 +63,10 @@ app.get('/api/bounties/:id/submissions', async (c) =>
 
 app.post('/api/bounties/:id/submissions', async (c) => {
   const body = await c.req.json();
-  return c.json({ data: await createSubmission(c.env, { ...body, userId: body.userId ?? getCurrentUserId(c), bountyId: c.req.param('id') }) }, 201);
+  return c.json(
+    { data: await createSubmission(c.env, { ...body, userId: body.userId ?? getCurrentUserId(c), bountyId: c.req.param('id') }) },
+    201,
+  );
 });
 
 app.get('/api/submissions', async (c) =>
@@ -135,7 +141,9 @@ app.get('/api/leaderboard/most-boosted-submissions', async (c) =>
 app.get('/api/leaderboard/dormant-giants', async (c) => c.json({ data: await getDormantGiants(c.env) }));
 app.get('/api/leaderboard/breakout-stories', async (c) => c.json({ data: await getBreakoutStories(c.env) }));
 app.get('/api/leaderboard/comeback-hall', async (c) => c.json({ data: await getComebackHall(c.env) }));
-app.get('/api/leaderboard/genesis-candidates', async (c) => c.json({ data: await getGenesisCandidates(c.env) }));
+app.get('/api/leaderboard/genesis-candidates', async (c) =>
+  c.json({ data: await getGenesisCandidates(c.env) }),
+);
 
 app.get('/api/admin/stats', (c) => c.json({ data: { status: 'stubbed', message: 'Admin API is partially implemented.' } }));
 app.get('/api/admin/*', (c) => c.json({ data: [], status: 'stubbed' }));
