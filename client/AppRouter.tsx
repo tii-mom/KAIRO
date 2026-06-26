@@ -1,49 +1,31 @@
-import { Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom';
-import App from '../src/App';
-import { INITIAL_CATALYSTS } from '../src/mockData';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import AdminPage from './pages/AdminPage';
+import BuilderProfilePage from './pages/BuilderProfilePage';
+import CatalystDetailPage from './pages/CatalystDetailPage';
+import CatalystListPage from './pages/CatalystListPage';
+import CreateCatalystPage from './pages/CreateCatalystPage';
+import DormantGiantsPage from './pages/DormantGiantsPage';
+import HomePage from './pages/HomePage';
+import LeaderboardPage from './pages/LeaderboardPage';
 import ProofOfSupportPage from './pages/ProofOfSupportPage';
-
-const demoUserState = {
-  walletAddress: '0x71C8b29330ebde4ea29141088d8b4a2911ba49Bf',
-  walletName: 'KAIRO Demo',
-  balanceEth: 2.8452,
-  balanceSol: 45.8,
-  balanceKairo: 400,
-  boostedCatalysts: ['cat-1'],
-  boostedBids: [],
-  ownedTokens: {
-    DORM: 5000,
-    PEPE2: 12000000,
-    RETRO: 250,
-    SHIBE: 80000,
-  },
-};
-
-function LegacyWorkspace({ initialTab }: { initialTab?: string }) {
-  return <App initialTab={initialTab} />;
-}
-
-function CatalystDeepLink() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const exists = INITIAL_CATALYSTS.some((catalyst) => catalyst.id === id);
-
-  if (!exists) return <Navigate to="/catalysts" replace />;
-
-  return <App initialTab="catalysts" initialCatalystId={id} onRouteBack={() => navigate('/catalysts')} />;
-}
+import SubmissionDetailPage from './pages/SubmissionDetailPage';
+import SubmitProjectPage from './pages/SubmitProjectPage';
+import { demoUserState } from './pages/pageUtils';
 
 export default function AppRouter() {
   return (
     <Routes>
-      <Route path="/" element={<LegacyWorkspace initialTab="arena" />} />
-      <Route path="/catalysts" element={<LegacyWorkspace initialTab="catalysts" />} />
-      <Route path="/catalysts/:id" element={<CatalystDeepLink />} />
-      <Route path="/builder" element={<LegacyWorkspace initialTab="builderHub" />} />
-      <Route path="/leaderboard" element={<LegacyWorkspace initialTab="leaderboard" />} />
-      <Route path="/swap" element={<LegacyWorkspace initialTab="swap" />} />
+      <Route path="/" element={<HomePage />} />
+      <Route path="/catalysts" element={<CatalystListPage />} />
+      <Route path="/catalysts/:id" element={<CatalystDetailPage />} />
+      <Route path="/create-catalyst" element={<CreateCatalystPage />} />
+      <Route path="/catalysts/:id/submit" element={<SubmitProjectPage />} />
+      <Route path="/submissions/:id" element={<SubmissionDetailPage />} />
+      <Route path="/builders/:id" element={<BuilderProfilePage />} />
+      <Route path="/leaderboard" element={<LeaderboardPage />} />
+      <Route path="/dormant-giants" element={<DormantGiantsPage />} />
       <Route path="/proof" element={<ProofOfSupportPage userState={demoUserState} />} />
-      <Route path="/admin" element={<LegacyWorkspace initialTab="catalysts" />} />
+      <Route path="/admin" element={<AdminPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
