@@ -3,7 +3,17 @@ import { cors } from 'hono/cors';
 import { z } from 'zod';
 import { createBoost } from './services/boosts';
 import { createBounty, getBounty, listBounties } from './services/bounties';
-import { getLeaderboard } from './services/leaderboard';
+import {
+  getBreakoutStories,
+  getComebackHall,
+  getConfirmedRewardCatalysts,
+  getDormantGiants,
+  getGenesisCandidates,
+  getHottestCatalysts,
+  getLeaderboard,
+  getMostBoostedSubmissions,
+  getTopBuilders,
+} from './services/leaderboard';
 import { createSubmission, listSubmissions } from './services/submissions';
 import type { Env } from './db/d1';
 
@@ -40,6 +50,30 @@ app.post('/api/submissions', async (c) =>
 app.post('/api/boosts', async (c) => c.json({ data: await createBoost(c.env, await c.req.json()) }, 201));
 
 app.get('/api/leaderboard', async (c) => c.json({ data: await getLeaderboard(c.env) }));
+
+app.get('/api/leaderboard/hottest-catalysts', async (c) =>
+  c.json({ data: await getHottestCatalysts(c.env) }),
+);
+
+app.get('/api/leaderboard/confirmed-reward-catalysts', async (c) =>
+  c.json({ data: await getConfirmedRewardCatalysts(c.env) }),
+);
+
+app.get('/api/leaderboard/top-builders', async (c) => c.json({ data: await getTopBuilders(c.env) }));
+
+app.get('/api/leaderboard/most-boosted-submissions', async (c) =>
+  c.json({ data: await getMostBoostedSubmissions(c.env) }),
+);
+
+app.get('/api/leaderboard/dormant-giants', async (c) => c.json({ data: await getDormantGiants(c.env) }));
+
+app.get('/api/leaderboard/breakout-stories', async (c) => c.json({ data: await getBreakoutStories(c.env) }));
+
+app.get('/api/leaderboard/comeback-hall', async (c) => c.json({ data: await getComebackHall(c.env) }));
+
+app.get('/api/leaderboard/genesis-candidates', async (c) =>
+  c.json({ data: await getGenesisCandidates(c.env) }),
+);
 
 app.onError((error, c) => {
   if (error instanceof z.ZodError) {
