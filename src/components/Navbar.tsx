@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Wallet, ChevronDown, Flame, Award, Trophy, ArrowLeftRight, Activity, Terminal, Shield, Sparkles, Globe, LogOut, Ghost, Link, Coins } from 'lucide-react';
+import { Wallet, ChevronDown, Flame, Award, Trophy, Activity, Terminal, Shield, Sparkles, Globe, LogOut, Ghost, Link, Coins } from 'lucide-react';
 import { UserState } from '../types';
 
 interface NavbarProps {
@@ -49,7 +49,6 @@ export default function Navbar({
 
   const tabs = [
     { id: 'arena', label: '复苏竞技场', icon: Flame, role: 'investor' },
-    { id: 'swap', label: '代币兑换', icon: ArrowLeftRight, role: 'investor' },
     { id: 'leaderboard', label: '排行榜', icon: Trophy, role: 'investor' },
     { id: 'catalysts', label: '复兴催化剂', icon: Award, role: 'developer' },
     { id: 'builderHub', label: 'Builder 终端', icon: Terminal, role: 'developer' }

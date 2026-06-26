@@ -16,7 +16,7 @@ interface DashboardProps {
 interface ActivityEvent {
   id: string;
   user: string;
-  type: 'boost' | 'bid' | 'swap';
+  type: 'boost' | 'bid' | 'support';
   target: string;
   detail: string;
   time: string;
@@ -24,10 +24,10 @@ interface ActivityEvent {
 
 const MOCK_EVENTS: Omit<ActivityEvent, 'id' | 'time'>[] = [
   { user: '0x94fC...e92a', type: 'boost', target: 'DORM', detail: '质押注入 850 Boost 势能', },
-  { user: '0x32a1...78b2', type: 'swap', target: 'PEPE2', detail: '兑换了 45,000,000 $PEPE2 并燃烧 5%' },
+  { user: '0x32a1...78b2', type: 'support', target: 'PEPE2', detail: '分享 Catalyst 并获得 30 支持积分' },
   { user: 'Builder Alex.eth', type: 'bid', target: 'DORM', detail: '提交了 Catalyst-01 的复兴方案' },
   { user: '0x77c1...f201', type: 'boost', target: 'RETRO', detail: '质押注入 1,200 Boost 势能' },
-  { user: '0xab62...cd81', type: 'swap', target: 'NEURA', detail: '买入 8,500 $NEURA 算力代币' },
+  { user: '0xab62...cd81', type: 'support', target: 'NEURA', detail: '完成一次有效 Boost 记录' },
   { user: 'Builder Elena_R', type: 'bid', target: 'PEPE2', detail: '提交了 Pepe2 极速挂机版 H5 小游戏' },
   { user: '0x44bf...1210', type: 'boost', target: 'SPATIAL', detail: '质押注入 300 Boost 势能' }
 ];

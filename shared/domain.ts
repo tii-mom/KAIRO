@@ -142,6 +142,9 @@ export const updateSubmissionSchema = submissionSchema
     momentumScore: true,
     createdAt: true,
     updatedAt: true,
+  })
+  .partial();
+
 export const patchSubmissionSchema = submissionSchema
   .pick({
     name: true,

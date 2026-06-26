@@ -162,9 +162,9 @@ export const INITIAL_CATALYSTS: Catalyst[] = [
   },
   {
     id: 'cat-3',
-    title: '重构并分布式托管 Retro Arcade 的 3 款经典网页街机游戏',
-    description: 'Retro Arcade 曾在 2022 年掀起复古街机风，其代币 $RETRO 用于支付游戏门票。由于原本的 AWS 中心化服务器欠费，游戏被迫下线。我们需要开发者将游戏重构并托管至 IPFS/Arweave 等去中心化网络，并修改游戏合约使门票结算重连。',
-    background: '游戏前端与智能合约实际上都是开源完备的，只因原开发团队无钱维护服务器而下架。8900 名持币持有者和狂热街机玩家迫切希望看到游戏重回人间。去中心化托管是最好的答案。',
+    title: '重构并分布式部署 Retro Arcade 的 3 款经典网页街机游戏',
+    description: 'Retro Arcade 曾在 2022 年掀起复古街机风，其代币 $RETRO 用于支付游戏门票。由于原本的 AWS 中心化服务器欠费，游戏被迫下线。我们需要开发者将游戏重构并部署至 IPFS/Arweave 等去中心化网络，并修改游戏合约使门票结算重连。',
+    background: '游戏前端与智能合约实际上都是开源完备的，只因原开发团队无钱维护服务器而下架。8900 名持币持有者和狂热街机玩家迫切希望看到游戏重回人间。去中心化部署是最好的答案。',
     requirements: [
       '将 3 款原 WebGL 街机游戏打包成可以在 IPFS/Arweave 顺畅运行的单页面 HTML5。',
       '使用智能合约前端库（Wagmi/Viem）编写门票扣减交互，玩家需通过签名 $RETRO 扣除门票开始游戏。',
@@ -269,7 +269,7 @@ export const INITIAL_BIDS: Bid[] = [
     builderName: 'Alex Rivers (0xAlex)',
     builderAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&h=80&q=80',
     title: 'DormApp Lite: 一键 Zap Eth 质押并生成 TG Bot 控制台',
-    description: '我计划设计一款基于 Vite-React 和 Tailwind 的 Telegram WebApp。通过接入 Uniswap V3 SDK 模拟计算，玩家能够将 Arbitrum ETH 一键闪兑换为 $DORM 并质押，质押所得收益通过 Telegram 每日推送。我已完成了大部分的 UI 交互及智能合约脚手架。',
+    description: '我计划设计一款基于 Vite-React 和 Tailwind 的 Telegram WebApp。通过接入 Catalyst API 和社区任务流，玩家能够完成 $DORM 支持任务并生成 Proof of Support，任务进展通过 Telegram 每日推送。我已完成了大部分的 UI 交互及智能合约脚手架。',
     demoUrl: 'https://dorm-zap-lite.demo.kairo.dev',
     githubUrl: 'https://github.com/alexriverdev/dorm-zap-lite',
     videoUrl: 'https://youtube.com/watch?v=mock_dormapp',

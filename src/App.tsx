@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bell, Flame, Award, ArrowLeftRight, Terminal, Globe, X, CheckCircle2, AlertCircle, Info, Sparkles, TrendingUp, Shield } from 'lucide-react';
-import { Catalyst, Bid, UserState, SwapTx } from './types';
+import { Bell, Flame, Award, Terminal, Globe, X, CheckCircle2, AlertCircle, Info, Sparkles, TrendingUp, Shield } from 'lucide-react';
+import { Catalyst, Bid, UserState } from './types';
 import { INITIAL_CATALYSTS, INITIAL_BIDS } from './mockData';
 import confetti from 'canvas-confetti';
 
@@ -10,7 +10,6 @@ import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
 import CatalystsList from './components/CatalystsList';
 import CatalystDetails from './components/CatalystDetails';
-import TokenSwap from './components/TokenSwap';
 import BuilderHub from './components/BuilderHub';
 import Leaderboard from './components/Leaderboard';
 import AdminPanel from './components/AdminPanel';
@@ -46,36 +45,6 @@ const INITIAL_USER: UserState = {
   }
 };
 
-const INITIAL_SWAP_HISTORY: SwapTx[] = [
-  {
-    id: 'tx-1',
-    fromSymbol: 'ETH',
-    toSymbol: 'DORM',
-    fromAmount: 0.25,
-    toAmount: 6850,
-    timestamp: '11:24:15',
-    txHash: '0x3bf9...f19a'
-  },
-  {
-    id: 'tx-2',
-    fromSymbol: 'SOL',
-    toSymbol: 'PEPE2',
-    fromAmount: 1.5,
-    toAmount: 18450000,
-    timestamp: '10:52:40',
-    txHash: '0x88c2...fa83'
-  },
-  {
-    id: 'tx-3',
-    fromSymbol: 'KAIRO',
-    toSymbol: 'RETRO',
-    fromAmount: 150,
-    toAmount: 3820,
-    timestamp: '09:12:05',
-    txHash: '0xfa3d...cb21'
-  }
-];
-
 export default function App({ initialTab = 'arena', initialCatalystId = null, onRouteBack }: AppProps) {
   const [activeTab, setActiveTab] = useState<string>(initialTab);
   const [roleMode, setRoleMode] = useState<'investor' | 'developer'>('investor');
@@ -83,7 +52,6 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
   const [catalysts, setCatalysts] = useState<Catalyst[]>(INITIAL_CATALYSTS);
   const [bids, setBids] = useState<Bid[]>(INITIAL_BIDS);
   const [userState, setUserState] = useState<UserState>(INITIAL_USER);
-  const [swapHistory, setSwapHistory] = useState<SwapTx[]>(INITIAL_SWAP_HISTORY);
   const [notifications, setNotifications] = useState<ToastNotification[]>([]);
   const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
 
@@ -266,52 +234,6 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
     );
   };
 
-  // Perform Token Swap Sandbox Action
-  const handlePerformSwap = (fromSymbol: string, toSymbol: string, fromAmount: number, toAmount: number) => {
-    // 1. Deduct from balance
-    setUserState((prev) => {
-      const next = { ...prev };
-      if (fromSymbol === 'ETH') next.balanceEth -= fromAmount;
-      if (fromSymbol === 'SOL') next.balanceSol -= fromAmount;
-      if (fromSymbol === 'KAIRO') next.balanceKairo -= fromAmount;
-
-      // 2. Add to owned token balance
-      const currentOwned = next.ownedTokens[toSymbol] || 0;
-      next.ownedTokens[toSymbol] = currentOwned + toAmount;
-
-      return next;
-    });
-
-    // 3. Append to swap History
-    const txHash = '0x' + Array.from({ length: 40 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
-    const tx: SwapTx = {
-      id: `tx-${Date.now()}`,
-      fromSymbol,
-      toSymbol,
-      fromAmount,
-      toAmount,
-      timestamp: new Date().toLocaleTimeString('zh-CN'),
-      txHash
-    };
-    setSwapHistory((prev) => [tx, ...prev]);
-
-    // 4. Dynamic feedback: boost momentum & current market cap slightly to simulate buy pressure
-    setCatalysts((prev) =>
-      prev.map((cat) => {
-        if (cat.token.symbol === toSymbol) {
-          const updatedMc = cat.token.currentMc + (toAmount * 0.05); // simulate MC growth
-          const updatedToken = { ...cat.token, currentMc: updatedMc, priceChange24h: cat.token.priceChange24h + 1.25 };
-          return {
-            ...cat,
-            token: updatedToken,
-            momentum: cat.momentum + 200 // trading increases momentum
-          };
-        }
-        return cat;
-      })
-    );
-  };
-
   // Reward points handler
   const handleAddRewards = (amount: number) => {
     setUserState((prev) => ({
@@ -387,7 +309,7 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
         setActiveTab={(tab) => {
           setActiveTab(tab);
           setSelectedCatalystId(null); // Close detail view on tab switch
-          if (['arena', 'swap', 'leaderboard'].includes(tab)) {
+          if (['arena', 'leaderboard'].includes(tab)) {
             setRoleMode('investor');
           } else if (['catalysts', 'builderHub'].includes(tab)) {
             setRoleMode('developer');
@@ -397,7 +319,7 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
         setRoleMode={(mode) => {
           setRoleMode(mode);
           if (mode === 'investor') {
-            if (!['arena', 'swap', 'leaderboard'].includes(activeTab)) {
+            if (!['arena', 'leaderboard'].includes(activeTab)) {
               setActiveTab('arena');
             }
           } else {
@@ -448,11 +370,11 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
             <button
               onClick={() => {
                 setRoleMode('investor');
-                if (!['arena', 'swap', 'leaderboard'].includes(activeTab)) {
+                if (!['arena', 'leaderboard'].includes(activeTab)) {
                   setActiveTab('arena');
                 }
                 setSelectedCatalystId(null);
-                addNotification('进入：投资者视角', '已加载代币势能、走势分析与闪兑板块', 'info');
+                addNotification('进入：支持者视角', '已加载 Catalyst 势能、Proof of Support 与排行榜', 'info');
               }}
               className={`flex-1 md:flex-initial rounded-lg px-5 py-2.5 text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
                 roleMode === 'investor'
@@ -487,7 +409,7 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
             <span className={`h-2 w-2 rounded-full animate-pulse ${roleMode === 'developer' ? 'bg-cyan-400' : 'bg-amber-400'}`} />
             <span className="font-sans font-medium text-white/70">
               {roleMode === 'investor' 
-                ? '当前视角：代币走势、流动性闪兑、龙虎排行榜' 
+                ? '当前视角：Catalyst 势能、Proof of Support、排行榜' 
                 : '当前视角：资助任务、提案投票、Builder沙箱'
               }
             </span>
@@ -524,7 +446,7 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
               <p className="text-xs text-white/60 leading-relaxed">
                 {roleMode === 'developer' 
                   ? '专为 Web3 Builder、项目团队与社区催化人打造的协同工具链。在这里，您可以针对由于流动性匮乏或市场异常受损的代币提出重组资助和催化剂重启方案，获得全网 Boost 能量并锁定高额 Kairo 治理奖励。'
-                  : '面向散户与专业投资者的流动性监测看板。在这里，您可以实时跟踪复苏竞技场中代币的 24H 动态势能与增量。在代币闪兑页面，您可以一键买入重组代币，享受自动通缩通胀再平衡机制带来的流动性红利。'
+                  : '面向社区支持者的复兴看板。在这里，您可以实时跟踪 Catalyst 的 Boost 势能、Builder 交付记录与 Proof of Support 积分变化。'
                 }
               </p>
             </div>
@@ -630,15 +552,7 @@ export default function App({ initialTab = 'arena', initialCatalystId = null, on
                   />
                 )}
 
-                {activeTab === 'swap' && (
-                  <TokenSwap
-                    tokens={catalysts.map((c) => c.token)}
-                    userState={userState}
-                    addNotification={addNotification}
-                    onPerformSwap={handlePerformSwap}
-                    swapHistory={swapHistory}
-                  />
-                )}
+
 
                 {activeTab === 'builderHub' && (
                   <BuilderHub
