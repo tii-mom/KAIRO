@@ -114,6 +114,7 @@ export const submissionSchema = z.object({
   demoUrl: z.string().url().optional(),
   githubUrl: z.string().url().optional(),
   videoUrl: z.string().url().optional(),
+  screenshotUrl: z.string().url().optional(),
   description: z.string().optional(),
   status: z.enum(submissionStatuses).default('submitted'),
   deliveryStatus: z.enum(deliveryStatuses).default('not_started'),
@@ -141,6 +142,17 @@ export const updateSubmissionSchema = submissionSchema
     momentumScore: true,
     createdAt: true,
     updatedAt: true,
+export const patchSubmissionSchema = submissionSchema
+  .pick({
+    name: true,
+    tagline: true,
+    demoUrl: true,
+    githubUrl: true,
+    videoUrl: true,
+    screenshotUrl: true,
+    description: true,
+    status: true,
+    deliveryStatus: true,
   })
   .partial();
 
@@ -204,6 +216,7 @@ export type UpdateBountyInput = z.infer<typeof updateBountySchema>;
 export type SubmissionRecord = z.infer<typeof submissionSchema>;
 export type CreateSubmissionInput = z.infer<typeof createSubmissionSchema>;
 export type UpdateSubmissionInput = z.infer<typeof updateSubmissionSchema>;
+export type PatchSubmissionInput = z.infer<typeof patchSubmissionSchema>;
 export type CreateBoostInput = z.infer<typeof createBoostSchema>;
 export type SupportEventRecord = z.infer<typeof supportEventSchema>;
 export type CuratedItemRecord = z.infer<typeof curatedItemSchema>;

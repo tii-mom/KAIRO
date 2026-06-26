@@ -15,7 +15,7 @@ import {
   getTopBuilders,
 } from './services/leaderboard';
 import { getProofOfSupport, getSupportEvents, getSupportPoints, resolveCurrentSupportUser } from './services/support';
-import { createSubmission, getSubmission, listSubmissions, updateSubmission } from './services/submissions';
+import { createSubmission, getSubmission, listSubmissions, patchSubmission } from './services/submissions';
 import type { Env } from './db/d1';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -78,14 +78,27 @@ app.post('/api/submissions', async (c) =>
 );
 
 app.patch('/api/submissions/:id', async (c) => {
-  const submission = await updateSubmission(c.env, c.req.param('id'), await c.req.json());
+  const submission = await patchSubmission(c.env, c.req.param('id'), await c.req.json());
   if (!submission) return c.json({ error: 'Submission not found' }, 404);
   return c.json({ data: submission });
 });
 
 app.post('/api/submissions/:id/boost', async (c) => {
+  const submission = await getSubmission<{ bounty_id: string }>(c.env, c.req.param('id'));
+  if (!submission) return c.json({ error: 'Submission not found' }, 404);
   const body = await c.req.json().catch(() => ({}));
-  return c.json({ data: await createBoost(c.env, { ...body, userId: body.userId ?? getCurrentUserId(c), submissionId: c.req.param('id') }) }, 201);
+
+  return c.json(
+    {
+      data: await createBoost(c.env, {
+        ...body,
+        userId: body.userId ?? getCurrentUserId(c),
+        bountyId: submission.bounty_id,
+        submissionId: c.req.param('id'),
+      }),
+    },
+    201,
+  );
 });
 
 app.post('/api/boosts', async (c) => c.json({ data: await createBoost(c.env, await c.req.json()) }, 201));
