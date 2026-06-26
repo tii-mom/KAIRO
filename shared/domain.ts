@@ -53,20 +53,33 @@ export const bountySchema = z.object({
   updatedAt: z.string(),
 });
 
-export const createBountySchema = bountySchema
-  .omit({
-    id: true,
-    boostCount: true,
-    momentumScore: true,
-    submissionCount: true,
-    featured: true,
-    status: true,
-    createdAt: true,
-    updatedAt: true,
-  })
-  .extend({
-    tokenSymbol: z.string().min(1).optional(),
-  });
+const optionalUrlSchema = z.preprocess(
+  (value) => (value === '' ? undefined : value),
+  z.string().url().optional(),
+);
+
+const optionalTextSchema = z.preprocess(
+  (value) => (value === '' ? undefined : value),
+  z.string().optional(),
+);
+
+export const createBountySchema = z.object({
+  tokenId: z.string().min(1).optional(),
+  tokenName: z.string().min(1),
+  tokenSymbol: z.string().min(1),
+  chain: z.string().min(1),
+  contractAddress: optionalTextSchema,
+  websiteUrl: optionalUrlSchema,
+  twitterUrl: optionalUrlSchema,
+  telegramUrl: optionalUrlSchema,
+  createdBy: z.string().min(1).optional(),
+  title: z.string().min(3),
+  description: z.string().min(20),
+  rewardText: optionalTextSchema,
+  rewardType: z.enum(['offchain', 'token', 'stablecoin']).default('offchain'),
+  contactInfo: optionalTextSchema,
+  deadline: optionalTextSchema,
+});
 
 export const submissionSchema = z.object({
   id: z.string().min(1),
