@@ -4,7 +4,7 @@ import { Award, Flame, FolderKanban, Info, Plus, ShieldCheck } from 'lucide-reac
 import { boostBounty, getBounty, listBounties, listFundingEvents, listSubmissions, type PublicBountyRecord } from '../lib/api';
 import { fundingStatusLabels, type BountyRecord, type FundingEventRecord, type SubmissionRecord } from '../../shared/domain';
 import { fallbackText, formatDate, formatFundingStatusLabel, formatMomentumCount } from '../lib/formatters';
-import { ActionButton, ActionLink, DataRow, EmptyPanel, MomentumBar, PageHero, Panel, StatusChip } from '../components/runtimeUi';
+import { ActionButton, ActionLink, DataRow, EmptyPanel, MomentumBar, PageHero, Panel, StatusChip, AnimatedCounter, PointerGlowCard } from '../components/runtimeUi';
 import { EmptyState, ErrorState, LoadingState } from './pageUtils';
 
 type ApiBounty = PublicBountyRecord & {
@@ -22,6 +22,7 @@ export function CatalystDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [boostMessage, setBoostMessage] = useState<string | null>(null);
+  const [boostSuccess, setBoostSuccess] = useState(false);
 
   const load = async () => {
     if (!id) return;
@@ -56,6 +57,10 @@ export function CatalystDetailPage() {
     try {
       const result = await boostBounty(id);
       setBoostMessage(result.duplicate ? 'Boost already recorded for this user.' : `Boost recorded: +${result.pointsDelta ?? 0} support points.`);
+      if (!result.duplicate) {
+        setBoostSuccess(true);
+        setTimeout(() => setBoostSuccess(false), 700);
+      }
       await load();
     } catch (boostError) {
       setBoostMessage(boostError instanceof Error ? boostError.message : 'Unable to record Boost.');
@@ -93,7 +98,7 @@ export function CatalystDetailPage() {
         <div className="lg:col-span-8 space-y-8">
           
           {/* Project Profile & Chart */}
-          <section className="glass-panel rounded-lg overflow-hidden">
+          <PointerGlowCard className="glass-panel rounded-lg overflow-hidden kairo-tilt">
             <div className="glass-header px-6 py-4 flex justify-between items-center">
               <h2 className="text-sm font-bold tracking-wider font-mono uppercase text-white/80">Project Profile</h2>
               <div className="flex gap-2">
@@ -187,7 +192,7 @@ export function CatalystDetailPage() {
                 </div>
               </div>
             </div>
-          </section>
+          </PointerGlowCard>
 
           {/* Mission Objectives */}
           <section className="glass-panel rounded-lg p-6">
@@ -241,10 +246,10 @@ export function CatalystDetailPage() {
             <div className="relative z-10 flex flex-col items-center text-center">
               <div className="font-mono text-[10px] text-white/40 uppercase tracking-widest mb-2">Ecosystem Momentum</div>
               <div className="font-sans text-4xl font-black text-[#EE1C25] tracking-tight mb-4 flex items-baseline gap-1">
-                {formatMomentumCount(catalyst.momentumScore)} <span className="font-mono text-xs text-white/40 uppercase">PTS</span>
+                <AnimatedCounter value={catalyst.momentumScore} formatter={formatMomentumCount} /> <span className="font-mono text-xs text-white/40 uppercase">PTS</span>
               </div>
               <MomentumBar percentage={75} className="w-full mb-6" />
-              <ActionButton tone="ignite" onClick={() => void handleBoost()} className="w-full py-3 text-xs uppercase tracking-widest font-bold">
+              <ActionButton tone="ignite" onClick={() => void handleBoost()} className={`w-full py-3 text-xs uppercase tracking-widest font-bold ${boostSuccess ? 'animate-success-pulse' : ''}`}>
                 Boost Catalyst
               </ActionButton>
               {boostMessage ? (

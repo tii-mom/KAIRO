@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Loader2, Flame, ChevronRight, ChevronLeft, ShieldCheck } from 'lucide-react';
 import { createBounty } from '../lib/api';
 import { ErrorState } from './pageUtils';
-import { FormField, FormTextArea, ActionButton } from '../components/runtimeUi';
+import { FormField, FormTextArea, ActionButton, PointerGlowCard } from '../components/runtimeUi';
 
 export default function CreateCatalystPage() {
   const navigate = useNavigate();
@@ -149,7 +149,7 @@ export default function CreateCatalystPage() {
 
         {/* Right Column: Active Step Inputs Form */}
         <form onSubmit={handleSubmit} className="lg:col-span-9 space-y-6">
-          <div className="glass-panel p-6 sm:p-8 space-y-6">
+          <PointerGlowCard className="glass-panel p-6 sm:p-8 space-y-6 kairo-tilt">
             
             {/* Step 1: Token Identity */}
             {activeStep === 1 && (
@@ -381,8 +381,7 @@ export default function CreateCatalystPage() {
                 )}
               </div>
             </div>
-
-          </div>
+          </PointerGlowCard>
         </form>
       </div>
 
