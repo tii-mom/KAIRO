@@ -501,21 +501,20 @@ textarea:focus-visible {
 .btn-primary:active,
 .btn-ignite:active,
 .btn-ghost:active,
-.btn-secondary:active,
-button:active {
+.btn-secondary:active {
   transform: scale(0.98);
 }
 .btn-primary,
 .btn-ignite,
 .btn-ghost,
-.btn-secondary,
-button {
+.btn-secondary {
   transition: transform 150ms ease, background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 
 /* Reusable Pointer Glow Class */
 .pointer-glow-card {
   position: relative;
+  overflow: hidden;
 }
 .pointer-glow-card::before {
   content: '';
@@ -526,7 +525,7 @@ button {
     rgba(255, 185, 95, 0.15),
     transparent 40%
   );
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
   border-radius: inherit;
   opacity: 0;

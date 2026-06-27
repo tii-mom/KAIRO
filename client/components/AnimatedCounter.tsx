@@ -1,5 +1,9 @@
 import { useEffect, useState, type FC } from 'react';
 
+/**
+ * AnimatedCounter is designed strictly for integer telemetry metrics (e.g. scores, boosts).
+ * Do not use for date variables, hashes/addresses, decimals, percentages, or financial price values.
+ */
 interface AnimatedCounterProps {
   value: number | string | undefined | null;
   formatter?: (val: number) => string;
@@ -42,7 +46,7 @@ export const AnimatedCounter: FC<AnimatedCounterProps> = ({ value, formatter }) 
       
       // Ease out quad
       const easeProgress = progress * (2 - progress);
-      const currentVal = Math.round(start + (end - start) * easeProgress);
+      const currentVal = Math.max(0, Math.round(start + (end - start) * easeProgress));
 
       setCount(currentVal);
 
