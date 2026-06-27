@@ -107,6 +107,8 @@ Do not include private keys, seed phrases, sensitive personal data, non-public c
 - Production Worker healthy.
 - Pages healthy.
 - Production D1 populated.
+- Production D1 backup/export captured before real content import.
+- Real beta content import SQL reviewed before applying.
 - Boost works.
 - Proof of Support works.
 - Leaderboard works.
@@ -114,3 +116,18 @@ Do not include private keys, seed phrases, sensitive personal data, non-public c
 - Forbidden copy scanner passes.
 - Operators understand admin auth limitations.
 - Production D1 backup/export is captured before real beta data replaces seed/demo data.
+
+## D1 Backup And Import Procedure
+
+Before importing real beta content, capture an export or backup from Cloudflare D1 using the dashboard or Wrangler-supported export workflow available for the account. Record the backup name, timestamp, and operator in the beta notes.
+
+Recommended import path:
+
+1. Copy `content/beta-import.example.json` into a dated local working file.
+2. Replace placeholder entries with reviewed real Catalysts, Dormant Giants, Builder submissions, and Funding Events.
+3. Run `node scripts/generate-beta-import-sql.mjs <input.json> <output.sql>`.
+4. Review generated SQL for public-safe wording and correct IDs.
+5. Apply the SQL with `npx wrangler d1 execute kairo-prod --remote --env production --file=<output.sql>`.
+6. Re-run row-count checks and open the affected production pages.
+
+Stop the import if any record includes private keys, sensitive personal data, confidential reward evidence, price predictions, trading instructions, or unreviewed sponsor claims.

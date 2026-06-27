@@ -91,3 +91,32 @@ This plan prepares real beta content without introducing investment, trading, yi
 - Builder submissions include verifiable demo, repository, video, or screenshot links.
 - Admin notes separate private review context from public-safe wording.
 - No investment, swap, trading, token launch, yield, custody, or guaranteed airdrop language is present.
+
+## Import Workflow
+
+Use `content/beta-import.example.json` as the working template for real beta content. Keep each batch small enough for review: 3-5 Catalysts, 10-20 Dormant Giants, and only verified Builder submissions.
+
+Generate reviewable SQL:
+
+```bash
+npm run content:beta:sql
+```
+
+The command writes `content/beta-import.generated.sql`. Review the generated SQL before applying it to D1.
+
+Apply only after backup/export and review:
+
+```bash
+npx wrangler d1 execute kairo-prod --remote --env production --file=content/beta-import.generated.sql
+```
+
+Post-import checks:
+
+```bash
+npx wrangler d1 execute kairo-prod --remote --env production --command "SELECT COUNT(*) AS count FROM tokens;"
+npx wrangler d1 execute kairo-prod --remote --env production --command "SELECT COUNT(*) AS count FROM bounties;"
+npx wrangler d1 execute kairo-prod --remote --env production --command "SELECT COUNT(*) AS count FROM submissions;"
+npx wrangler d1 execute kairo-prod --remote --env production --command "SELECT item_type, COUNT(*) AS count FROM curated_items GROUP BY item_type;"
+```
+
+Do not commit real private contact details, sensitive links, or unreviewed evidence URLs into the repository.

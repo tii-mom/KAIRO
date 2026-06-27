@@ -152,6 +152,8 @@ Note: the current app also exposes Catalyst creation at `/catalysts/create`; ver
 - `docs/BETA_CONTENT_PLAN.md` is current.
 - Admin operators understand that demo header/session logic is not final production auth.
 - D1 backup/export is captured before importing real beta data or rerunning seed.
+- Real beta content SQL is generated from reviewed JSON and reviewed before apply.
+- Post-import row counts and public pages are verified.
 
 ## H. Cloudflare Deployment Checklist
 
