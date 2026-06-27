@@ -158,6 +158,7 @@ Operational notes:
 | `npm run deploy:worker` | Deploy the Worker with Wrangler. |
 | `npm run verify:copy` | Scan public runtime code for forbidden public copy. |
 | `npm run verify:beta:go-live` | Run the invite-only beta go-live gate against Pages, API, admin, D1 snapshot, copy, routes, and feedback docs. |
+| `npm run verify:operations` | Fail on unresolved operator ownership, missing real content import evidence, and other launch-to-operations blockers. |
 | `npm run verify:production` | Run production readiness checks against Pages, Worker, D1, and admin gating. |
 | `npm run verify:routes` | Verify required Worker route strings and client page files. |
 

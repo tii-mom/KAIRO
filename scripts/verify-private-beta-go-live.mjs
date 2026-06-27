@@ -2,10 +2,10 @@
 import { existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 
-const pagesUrl = process.env.KAIRO_PAGES_URL || 'https://e43fa2e9.kairo-5vg.pages.dev';
+const pagesUrl = process.env.KAIRO_PAGES_URL || 'https://kairo.cfd';
 const apiBaseUrl = process.env.KAIRO_API_BASE_URL || pagesUrl;
 const adminToken = process.env.ADMIN_API_TOKEN || '';
-const customDomain = process.env.KAIRO_CUSTOM_DOMAIN || '';
+const customDomain = process.env.KAIRO_CUSTOM_DOMAIN || (!pagesUrl.includes('pages.dev') ? new URL(pagesUrl).hostname : '');
 
 const checks = [];
 
@@ -104,7 +104,7 @@ async function main() {
   if (customDomain) {
     await checkUrl('Custom domain root', `https://${customDomain}`);
   } else {
-    record('warn', 'Custom domain', 'not configured; acceptable for invite-only beta, required before public launch');
+    record('warn', 'Custom domain', 'not configured; provide KAIRO_CUSTOM_DOMAIN explicitly when validating a preview URL');
   }
 
   for (const check of checks) {

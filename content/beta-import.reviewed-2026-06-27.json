@@ -1,0 +1,74 @@
+{
+  "generatedAt": "2026-06-27T08:30:00.000Z",
+  "tokens": [
+    {
+      "id": "token-real-example",
+      "name": "Example Dormant Network",
+      "symbol": "EXDN",
+      "chain": "Base",
+      "contractAddress": "0x0000000000000000000000000000000000000000",
+      "websiteUrl": "https://example.org",
+      "twitterUrl": "https://x.com/example",
+      "telegramUrl": "https://t.me/example",
+      "status": "sleeping"
+    }
+  ],
+  "catalysts": [
+    {
+      "id": "bounty-real-example-dashboard",
+      "tokenId": "token-real-example",
+      "createdBy": "user-demo-admin",
+      "title": "Example Dormant Network Contributor Dashboard",
+      "description": "Build a public dashboard that helps the community understand recent workstreams, demo submissions, and supporter activity.",
+      "rewardText": "Sponsor reward information pending admin confirmation",
+      "rewardType": "offchain",
+      "fundingStatus": "unverified",
+      "contactInfo": "ops@example.org",
+      "deadline": "2026-08-15T23:59:59.000Z",
+      "status": "pending_review",
+      "featured": false
+    }
+  ],
+  "submissions": [
+    {
+      "id": "submission-real-example-dashboard",
+      "bountyId": "bounty-real-example-dashboard",
+      "builderId": "user-demo-builder",
+      "name": "Example Contributor Lens",
+      "tagline": "A read-only dashboard for workstream and support visibility.",
+      "demoUrl": "https://example.org/demo",
+      "githubUrl": "https://github.com/example/example-contributor-lens",
+      "videoUrl": "",
+      "screenshotUrl": "",
+      "description": "Shows recent builder work, community support events, and next-step recommendations.",
+      "status": "submitted",
+      "deliveryStatus": "submitted_for_review"
+    }
+  ],
+  "curatedItems": [
+    {
+      "id": "curated-real-example-dormant",
+      "itemType": "dormant_giant",
+      "placement": "dormant_giant",
+      "targetType": "token",
+      "targetId": "token-real-example",
+      "title": "Example Dormant Network: quiet community, clear workflow gap",
+      "description": "A beta candidate with public community channels, recent low activity, and a concrete dashboard Catalyst angle.",
+      "imageUrl": "",
+      "externalUrl": "https://example.org",
+      "sortOrder": 100,
+      "status": "active"
+    }
+  ],
+  "fundingEvents": [
+    {
+      "id": "funding-event-real-example-note",
+      "bountyId": "bounty-real-example-dashboard",
+      "actorId": "user-demo-admin",
+      "eventType": "admin_note",
+      "amountText": "Reward information pending",
+      "proofUrl": "https://example.org/evidence",
+      "note": "Funding Event: sponsor information is under review and not guaranteed by KAIRO."
+    }
+  ]
+}

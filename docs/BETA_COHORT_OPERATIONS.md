@@ -17,16 +17,22 @@ KAIRO_PAGES_URL="https://kairo.cfd" KAIRO_API_BASE_URL="https://kairo.cfd" ADMIN
 
 The custom domain is now live on `kairo.cfd`. Continue to use the gate above before each invite batch.
 
+For true operator readiness, also run:
+
+```bash
+npm run verify:operations
+```
+
 ## Operator Roster
 
 Record only role names or public handles.
 
 | Role | Owner | Backup | Notes |
 | --- | --- | --- | --- |
-| Beta lead | TBD | TBD | Owns invite pacing and go/no-go calls. |
-| Admin operator | TBD | TBD | Holds `ADMIN_API_TOKEN`; updates Catalyst and review state. |
-| Feedback triage | TBD | TBD | Reviews new feedback once per beta day. |
-| Content reviewer | TBD | TBD | Reviews Catalyst/Dormant Giant wording before import. |
+| Beta lead | tii-mom | tii-mom | Temporary single-handle coverage for batch 0 only; assign a distinct backup before expanding invites. |
+| Admin operator | tii-mom | tii-mom | Holds `ADMIN_API_TOKEN`; temporary single-handle coverage for internal smoke only. |
+| Feedback triage | tii-mom | tii-mom | Reviews new feedback once per beta day until a separate triage owner is assigned. |
+| Content reviewer | tii-mom | tii-mom | Reviews Catalyst/Dormant Giant wording before import; separate reviewer still preferred before scale-up. |
 
 ## Cohort Targets
 
@@ -44,7 +50,7 @@ Start smaller than the maximum target and expand only after the daily go/no-go c
 
 | Date | Batch | Group | Count | Gate passed? | Notes |
 | --- | --- | --- | ---: | --- | --- |
-| TBD | 0 | Internal operators | 1-2 | TBD | Run admin smoke before external invites. |
+| 2026-06-27 | 0 | Internal operators | 1 | Yes | Production smoke, admin gate, custom domain, and beta go-live checks passed on `kairo.cfd`; no external invites sent yet. |
 | TBD | 1 | Builders + supporters | 5-10 | TBD | Expand only if no blocker feedback. |
 
 ## Daily Operator Loop
@@ -93,7 +99,7 @@ Before importing real content:
 
 | Date | Snapshot file | Import file | Operator | Result |
 | --- | --- | --- | --- | --- |
-| TBD | TBD | TBD | TBD | TBD |
+| 2026-06-27 | kairo-prod-snapshot-2026-06-27T08-23-57-461Z.json | beta-import.reviewed-2026-06-27.json | tii-mom | Reviewed JSON and SQL prepared; pending first real content source approval before live apply |
 
 ## Exit Criteria For Private Beta
 
