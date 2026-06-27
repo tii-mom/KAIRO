@@ -114,6 +114,7 @@ Do not include private keys, seed phrases, sensitive personal data, non-public c
 - Leaderboard works.
 - Admin 403/200 check works.
 - Admin API requires `x-kairo-admin-token` in production.
+- `ADMIN_API_TOKEN="..." npm run verify:production` passes.
 - Forbidden copy scanner passes.
 - Operators understand admin auth limitations.
 - Production D1 backup/export is captured before real beta data replaces seed/demo data.

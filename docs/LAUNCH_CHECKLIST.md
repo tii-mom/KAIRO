@@ -14,6 +14,12 @@ npm run verify:routes
 
 Expected result: every command exits successfully.
 
+For production readiness after deploy:
+
+```bash
+ADMIN_API_TOKEN="..." npm run verify:production
+```
+
 ## B. D1 Verification
 
 Apply migrations locally:
@@ -160,6 +166,7 @@ Note: the current app also exposes Catalyst creation at `/catalysts/create`; ver
 - Admin operators understand that demo header/session logic is not final production auth.
 - `ADMIN_API_TOKEN` is set as a production Worker secret before inviting operators.
 - Admin API returns `403` without the token and `200` with the token.
+- `ADMIN_API_TOKEN="..." npm run verify:production` passes.
 - D1 backup/export is captured before importing real beta data or rerunning seed.
 - Real beta content SQL is generated from reviewed JSON and reviewed before apply.
 - Post-import row counts and public pages are verified.

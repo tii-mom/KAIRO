@@ -153,6 +153,7 @@ Operational notes:
 | `npm run content:beta:sql` | Generate reviewable SQL from the beta content JSON template. |
 | `npm run deploy:worker` | Deploy the Worker with Wrangler. |
 | `npm run verify:copy` | Scan public runtime code for forbidden public copy. |
+| `npm run verify:production` | Run production readiness checks against Pages, Worker, D1, and admin gating. |
 | `npm run verify:routes` | Verify required Worker route strings and client page files. |
 
 ## API Route Overview
@@ -244,6 +245,12 @@ For production smoke tests, include the private beta admin token:
 
 ```bash
 curl -H "x-kairo-role: admin" -H "x-kairo-user-id: user-demo-admin" -H "x-kairo-admin-token: $ADMIN_API_TOKEN" https://kairo-worker-prod.348421501.workers.dev/api/admin/stats
+```
+
+Run the production readiness gate before inviting a beta cohort:
+
+```bash
+ADMIN_API_TOKEN="..." npm run verify:production
 ```
 
 ## Proof of Support Flow
