@@ -5,12 +5,10 @@ Task: KAIRO Production Deploy & Smoke Test V1
 
 ## Deployment status
 
-- Worker redeployed to production.
-- Replacement Worker `kairo-api-prod` was created and deployed, but its hostname also timed out at TCP connect stage.
-- Production D1 database created and bound in `wrangler.toml`.
-- Remote D1 migration did not complete because Cloudflare D1 returned platform error `7500`.
-- Remote seed did not complete because the schema migration did not create tables.
-- Cloudflare Pages project `kairo` exists and production Pages has been redeployed.
+- Production Worker `kairo-worker-prod` is reachable again at `/api/health`.
+- Replacement Worker `kairo-api-prod` remains on the account, but it is no longer needed for the current recovery path.
+- Production D1 database is bound in `wrangler.toml` and the remote data set is populated.
+- Cloudflare Pages project `kairo` exists and was redeployed with the live production API base URL.
 
 ## Production resources
 
@@ -22,6 +20,7 @@ Task: KAIRO Production Deploy & Smoke Test V1
 - Pages URLs:
   - `https://f828a223.kairo-5vg.pages.dev`
   - `https://6f92ba0d.kairo-5vg.pages.dev`
+  - `https://c03bea43.kairo-5vg.pages.dev`
 
 ## Validation summary
 
@@ -32,7 +31,8 @@ Task: KAIRO Production Deploy & Smoke Test V1
 - `npm run verify:routes`: passed
 - Production Pages bundle rebuilt with `VITE_KAIRO_API_BASE_URL=https://kairo-worker-prod.348421501.workers.dev`
 - Pages TLS verified with `curl -Iv` for both `kairo-5vg.pages.dev` and the latest deployment URL
-- Browser smoke test reached the Pages site, but the runtime stayed on the loading shell because Worker fetches timed out
+- Browser smoke test loaded the homepage and core runtime layout successfully
+- `/api/admin/stats` returned `403` without admin headers and `200` with demo admin headers
 
 ## D1 notes
 
@@ -42,17 +42,21 @@ Task: KAIRO Production Deploy & Smoke Test V1
   - `npm run db:migrate:remote`
 - Remote seed command used:
   - `npm run db:seed:remote`
-- Migration failed with Cloudflare API error:
-  - `internal error; reference = e_PVSMDp_32114137e2bc4871bcf9cd7fd51e223b [code: 7500]`
-- Because migration failed, seed then failed with:
-  - `no such table: users: SQLITE_ERROR`
+- Remote row counts now verified:
+  - `users = 5`
+  - `tokens = 8`
+  - `bounties = 8`
+  - `submissions = 8`
+  - `boosts = 20`
+  - `support_events = 10`
+  - `curated_items = 8`
 
-## Worker smoke test
+## Worker smoke test 
 
-- `/api/admin/stats` without admin headers returned `403` as expected.
-- `/api/bounties`, `/api/leaderboard`, `/api/curated-items`, `/api/support/proof/me`, and admin stats with admin headers currently fail because production D1 tables were not created.
-- `curl -Iv --http1.1 --connect-timeout 10 --max-time 20 https://kairo-worker-prod.348421501.workers.dev/api/health` timed out after the Worker redeploy.
-- Browser requests to `https://kairo-worker-prod.348421501.workers.dev/api/bounties`, `/api/curated-items/home`, and `/api/leaderboard` also timed out.
+- `curl -Iv` against `https://kairo-worker-prod.348421501.workers.dev` completed TLS and returned `404` on `/` as expected.
+- `curl -v https://kairo-worker-prod.348421501.workers.dev/api/health` returned `200` with the expected health payload.
+- `curl -i https://kairo-worker-prod.348421501.workers.dev/api/admin/stats` returned `403` without admin headers.
+- `curl -i -H 'x-kairo-role: admin' -H 'x-kairo-user-id: user-demo-admin' https://kairo-worker-prod.348421501.workers.dev/api/admin/stats` returned `200`.
 
 ## Pages notes
 
@@ -63,12 +67,10 @@ Task: KAIRO Production Deploy & Smoke Test V1
 
 ## Known issues
 
-- Cloudflare D1 migration platform failure blocks data-backed API routes.
-- Production Worker edge requests are timing out from shell and browser probes, even after a fresh redeploy.
-- Replacement Worker `kairo-api-prod` exhibits the same TCP timeout, so this appears to be a Cloudflare edge/path issue rather than a project-name issue.
-- Pages renders the loading shell because the Worker fetches never complete.
+- The `kairo-api-prod` Worker still exists as an extra deployment artifact, but the production path is healthy on `kairo-worker-prod`.
+- Keep the `VITE_KAIRO_API_BASE_URL` production setting pointed at the working Worker unless the app is switched to same-origin Pages Functions later.
 
 ## Rollback notes
 
 - Worker rollback target: Cloudflare deployment version before `ba40b2c9-2774-421b-89dd-3b9e87870831`
-- Do not run remote seed again until remote migration succeeds and tables exist.
+- Do not run remote seed again unless the production dataset needs to be regenerated intentionally.
