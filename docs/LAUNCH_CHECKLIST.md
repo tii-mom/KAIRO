@@ -109,6 +109,8 @@ Verify these routes:
 - `/leaderboard`
 - `/dormant-giants`
 - `/proof`
+- `/beta`
+- `/feedback`
 - `/admin`
 - `/about`
 - `/how-it-works`
@@ -140,7 +142,18 @@ Note: the current app also exposes Catalyst creation at `/catalysts/create`; ver
 - No guaranteed reward or airdrop claims.
 - `npm run verify:copy` passes.
 
-## G. Cloudflare Deployment Checklist
+## G. Private Beta Checklist
+
+- Production Worker URL is documented.
+- Production Pages URL is documented.
+- `/beta` explains the invite-only beta scope and Phase 0 limits.
+- `/feedback` provides a copyable feedback template.
+- `docs/PRIVATE_BETA_RUNBOOK.md` is current.
+- `docs/BETA_CONTENT_PLAN.md` is current.
+- Admin operators understand that demo header/session logic is not final production auth.
+- D1 backup/export is captured before importing real beta data or rerunning seed.
+
+## H. Cloudflare Deployment Checklist
 
 1. Create a production D1 database.
 2. Update `wrangler.toml` with the production D1 database name and ID.
@@ -162,7 +175,7 @@ Note: the current app also exposes Catalyst creation at `/catalysts/create`; ver
 8. Verify CORS and API base URL behavior.
 9. Run production smoke tests.
 
-## H. Rollback Notes
+## I. Rollback Notes
 
 Worker rollback:
 

@@ -22,6 +22,21 @@ Task: KAIRO Production Deploy & Smoke Test V1
   - `https://6f92ba0d.kairo-5vg.pages.dev`
   - `https://c03bea43.kairo-5vg.pages.dev`
 
+## Private Beta status
+
+- Current recommendation: invite-only Private Beta can begin after operators confirm the cohort and feedback channel.
+- Production API URL: `https://kairo-worker-prod.348421501.workers.dev`
+- Latest verified Pages URL: `https://c03bea43.kairo-5vg.pages.dev`
+- Beta support routes:
+  - `/beta`
+  - `/feedback`
+- Known limitations:
+  - Demo identity/session behavior is still used.
+  - Admin is protected by demo header/session logic and must not be treated as final production auth.
+  - Seed content is still partially demo content.
+  - No full authentication or analytics pipeline is in place yet.
+  - Run a D1 backup/export before replacing seed/demo data with real beta data.
+
 ## Validation summary
 
 - `npm install`: passed
@@ -74,3 +89,4 @@ Task: KAIRO Production Deploy & Smoke Test V1
 
 - Worker rollback target: Cloudflare deployment version before `ba40b2c9-2774-421b-89dd-3b9e87870831`
 - Do not run remote seed again unless the production dataset needs to be regenerated intentionally.
+- Before real beta data is imported, capture a D1 backup/export so seed overwrite or content mistakes can be recovered.

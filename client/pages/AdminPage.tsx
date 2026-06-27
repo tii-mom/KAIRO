@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { FormEvent, useEffect, useState } from 'react';
+import { ShieldAlert } from 'lucide-react';
 import {
   createAdminCuratedItem,
   createAdminFundingEvent,
@@ -81,6 +82,18 @@ export default function AdminPage() {
         <h1 className="text-4xl font-black text-white">Admin Operations V1</h1>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-white/60">Operational review surface for Catalyst moderation, Reward Records, validity checks, curated content, and launch stats. Requests are sent with `x-kairo-role: admin`.</p>
         {message ? <div className="mt-4 text-sm text-[#ffd285]">{message}</div> : null}
+      </section>
+
+      <section className="rounded-2xl border border-[#ffd285]/20 bg-[#ffd285]/10 p-5">
+        <div className="flex items-start gap-3">
+          <ShieldAlert className="mt-1 h-5 w-5 shrink-0 text-[#ffd285]" />
+          <div>
+            <h2 className="text-lg font-black text-white">Private beta admin warning</h2>
+            <p className="mt-2 max-w-4xl text-sm leading-7 text-white/70">
+              Admin is currently protected by demo header/session logic for beta operations. Do not use this as final production auth, do not publish the admin route broadly, and replace it with stronger auth before open beta or public launch.
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="grid gap-4 md:grid-cols-5">

@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
-import { Award, Flame, HeartHandshake, ShieldCheck, Sparkles, Trophy } from 'lucide-react';
+import { Award, Flame, FlaskConical, HeartHandshake, MessageSquare, ShieldCheck, Sparkles, Trophy } from 'lucide-react';
 
 const navItems = [
   { to: '/', label: 'Catalysts', icon: Sparkles },
@@ -7,6 +7,8 @@ const navItems = [
   { to: '/builder', label: 'Builder Board', icon: Award },
   { to: '/leaderboard', label: 'KAIRO Score', icon: Trophy },
   { to: '/proof', label: 'Proof of Support', icon: HeartHandshake },
+  { to: '/beta', label: 'Private Beta', icon: FlaskConical },
+  { to: '/feedback', label: 'Feedback', icon: MessageSquare },
 ];
 
 export default function RuntimeV2Shell() {

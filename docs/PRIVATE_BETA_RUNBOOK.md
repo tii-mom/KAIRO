@@ -1,0 +1,116 @@
+# KAIRO Private Beta Runbook
+
+Date: 2026-06-27
+
+## Beta Purpose
+
+KAIRO Private Beta tests whether a small cohort can understand and complete the Phase 0 workflow:
+
+- Project/community owners publish or review Catalysts.
+- Builders find Catalysts and submit working demos.
+- Supporters Boost useful Catalysts or submissions and copy Proof of Support.
+- Admin/operators review content, Funding Status, Reward Records, Boosts, and support events.
+
+This beta is not testing public launch scale, financial products, trading, token launch mechanics, custody, or guaranteed reward distribution.
+
+Target cohort:
+
+- 5-10 Builders
+- 20-50 Supporters
+- 3-5 real Catalysts
+- 10-20 Dormant Giants candidates
+- 1-2 admin operators
+
+## User Groups
+
+- Builder: finds Catalysts, ships demos, submits proof of work, and checks visibility.
+- Supporter: browses Catalysts, Boosts work, checks Proof of Support, and reports confusing flows.
+- Admin/operator: reviews submissions and public content, updates Funding Status, adds Reward Records, and moderates validity.
+- Project/community owner: proposes Dormant Giants, provides Catalyst context, and reviews public-safe copy.
+
+## Test Flows
+
+Supporter flow:
+
+1. Open the production Pages URL.
+2. Browse Catalysts.
+3. Open a Catalyst detail page.
+4. Boost a Catalyst or Submission.
+5. Open Proof of Support.
+6. Copy the proof summary.
+7. Report feedback through `/feedback`.
+
+Builder flow:
+
+1. Browse Catalysts.
+2. Open a Submit Demo page.
+3. Submit project/demo details.
+4. Verify the submission appears in the Catalyst or Submission detail view.
+5. Ask a Supporter to Boost the submission.
+6. Check leaderboard and Proof of Support visibility.
+
+Admin flow:
+
+1. Open the Admin page from a trusted operator context only.
+2. Review Catalysts.
+3. Update Catalyst status when needed.
+4. Update `funding_status` with public-safe wording.
+5. Add Reward Records / Funding Events only when evidence is available.
+6. Review submissions.
+7. Mark suspicious Boosts or support events when needed.
+
+## Tester Expectations
+
+Testers should not expect:
+
+- Real rewards to be guaranteed.
+- Airdrops to be guaranteed.
+- Investment functionality.
+- Swap or trading functionality.
+- Custody, escrow, or asset-holding services.
+- Full production authentication.
+
+## Feedback Protocol
+
+Use `/feedback` to copy the feedback template, then submit it in the private beta feedback channel or issue tracker.
+
+Include:
+
+- Role: Builder / Supporter / Admin / Project owner.
+- Page URL.
+- What happened.
+- Expected behavior.
+- Screenshot or short video link when useful.
+- Severity: blocker / major / minor / idea.
+- Optional wallet, social handle, or contact if follow-up is needed.
+
+Severity levels:
+
+- Blocker: cannot complete a core beta flow or production data is unavailable.
+- Major: core flow works only with confusing state, incorrect data, or repeated retries.
+- Minor: copy, layout, or clarity issue.
+- Idea: product or workflow suggestion for later.
+
+Do not include private keys, seed phrases, sensitive personal data, non-public credentials, or confidential project data.
+
+## Known Limitations
+
+- Demo identity/session behavior is still used.
+- Header-based admin access is for smoke/dev and controlled beta operations only.
+- Seed content is still partially demo content.
+- Full authentication is not implemented yet.
+- No analytics pipeline is implemented yet.
+- The extra `kairo-api-prod` Worker exists but is not the current production path.
+
+## Go/No-Go Checklist
+
+- Production Worker healthy.
+- Pages healthy.
+- Production D1 populated.
+- Boost works.
+- Proof of Support works.
+- Leaderboard works.
+- Admin 403/200 check works.
+- Forbidden copy scanner passes.
+- Operators understand admin auth limitations.
+- Production D1 backup/export is captured before real beta data replaces seed/demo data.

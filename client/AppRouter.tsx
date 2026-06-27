@@ -1,11 +1,13 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import RuntimeV2Shell from './RuntimeV2Shell';
 import AdminPage from './pages/AdminPage';
+import BetaPage from './pages/BetaPage';
 import BuilderPage from './pages/BuilderPage';
 import BuilderProfilePage from './pages/BuilderProfilePage';
 import CatalystsPage, { CatalystDetailPage } from './pages/CatalystsPage';
 import CreateCatalystPage from './pages/CreateCatalystPage';
 import DormantGiantsPage from './pages/DormantGiantsPage';
+import FeedbackPage from './pages/FeedbackPage';
 import HomePage from './pages/HomePage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import ProofOfSupportPage from './pages/ProofOfSupportPage';
@@ -43,6 +45,8 @@ export default function AppRouter() {
         <Route path="/proof" element={<ProofOfSupportPage />} />
         <Route path="/proof/:userId" element={<ProofOfSupportPage />} />
         <Route path="/dormant-giants" element={<DormantGiantsPage />} />
+        <Route path="/beta" element={<BetaPage />} />
+        <Route path="/feedback" element={<FeedbackPage />} />
         <Route
           path="/about"
           element={

@@ -112,6 +112,25 @@ npx wrangler d1 execute kairo-local --local --command="SELECT COUNT(*) AS count 
 7. Set `VITE_KAIRO_API_BASE_URL` in Cloudflare Pages when the Worker is not same-origin.
 8. Run the production smoke test from `docs/LAUNCH_CHECKLIST.md`.
 
+## Private Beta Operations
+
+KAIRO Private Beta is invite-only and intended for workflow and community-signal testing with a small cohort of Builders, Supporters, project/community owners, and admin operators.
+
+Current production resources:
+
+- Worker API: `https://kairo-worker-prod.348421501.workers.dev`
+- Latest verified Pages deploy: `https://c03bea43.kairo-5vg.pages.dev`
+- Beta information route: `/beta`
+- Feedback route: `/feedback`
+
+Operational notes:
+
+- Admin is currently protected by demo header/session logic for beta operations only.
+- Replace admin access with stronger authentication before open beta or public launch.
+- Seed content is still partially demo content.
+- Capture a D1 backup/export before importing real beta content or rerunning seed.
+- See `docs/PRIVATE_BETA_RUNBOOK.md` and `docs/BETA_CONTENT_PLAN.md`.
+
 ## Environment Variables
 
 | Name | Used by | Purpose |
