@@ -31,9 +31,9 @@ export default function RuntimeV2Shell() {
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:gap-6">
               <Link to="/" className="flex items-center gap-3">
                 <img
-                  src="/kairo-logo-transparent.png"
+                  src="/kairo-logo-dark.png"
                   alt="KAIRO"
-                  className="h-12 w-12 object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+                  className="h-12 w-12 rounded-lg object-cover drop-shadow-[0_0_12px_rgba(255,255,255,0.15)]"
                 />
                 <div>
                   <div className="font-mono text-lg font-bold tracking-[0.25em] text-[#ffb95f]">KAIRO</div>
@@ -74,9 +74,9 @@ export default function RuntimeV2Shell() {
         <div className="kairo-shell flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-3">
             <img
-              src="/kairo-logo-transparent.png"
+              src="/kairo-logo-dark.png"
               alt="KAIRO"
-              className="h-8 w-8 object-contain opacity-80"
+              className="h-8 w-8 rounded-lg object-cover opacity-90"
             />
             <div className="text-xl font-bold font-sans tracking-tight text-[#ffb95f]">KAIRO</div>
           </div>
