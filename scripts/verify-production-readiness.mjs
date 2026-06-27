@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
 
-const workerUrl = process.env.KAIRO_WORKER_URL || 'https://kairo-worker-prod.348421501.workers.dev';
-const pagesUrl = process.env.KAIRO_PAGES_URL || 'https://be52293d.kairo-5vg.pages.dev';
-const apiBaseUrl = process.env.KAIRO_API_BASE_URL || process.env.KAIRO_PAGES_API_BASE_URL || workerUrl;
+const pagesUrl = process.env.KAIRO_PAGES_URL || 'https://kairo.cfd';
+const apiBaseUrl = process.env.KAIRO_API_BASE_URL || process.env.KAIRO_PAGES_API_BASE_URL || pagesUrl;
 const expectsSameOriginApi = apiBaseUrl === pagesUrl;
 const adminToken = process.env.ADMIN_API_TOKEN || '';
 const minCounts = {

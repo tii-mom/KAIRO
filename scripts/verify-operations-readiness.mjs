@@ -27,6 +27,20 @@ function read(path) {
   return readFileSync(path, 'utf8');
 }
 
+function hasPlaceholderMarkers(text) {
+  const lower = text.toLowerCase();
+  return [
+    'example.org',
+    'example.com',
+    'token-real-example',
+    'bounty-real-example',
+    'submission-real-example',
+    'curated-real-example',
+    'funding-event-real-example',
+    'example dormant network',
+  ].some((marker) => lower.includes(marker));
+}
+
 function sectionLines(markdown, heading) {
   const lines = markdown.split('\n');
   const start = lines.findIndex((line) => line.trim() === heading);
@@ -114,7 +128,10 @@ function main() {
       pass('Content import snapshot', snapshotFile);
     }
     const resultLower = result.toLowerCase();
-    if (importFile.toLowerCase().includes('not yet') || resultLower.includes('no real beta import yet') || resultLower.includes('pending') || !/(applied|imported|verified live)/i.test(result)) {
+    const importPath = join(contentDir, importFile.replace(/\s+\(.*\)$/, ''));
+    if (existsSync(importPath) && hasPlaceholderMarkers(read(importPath))) {
+      fail('Real beta import', `${date} ${importFile}; recorded file still contains placeholder/example markers`);
+    } else if (importFile.toLowerCase().includes('not yet') || resultLower.includes('no real beta import yet') || resultLower.includes('pending') || resultLower.includes('blocked') || !/(applied|imported|verified live)/i.test(result)) {
       fail('Real beta import', `${date} ${importFile}; ${result}`);
     } else {
       pass('Real beta import', `${date} ${importFile} by ${operator}: ${result}`);
@@ -122,7 +139,7 @@ function main() {
   }
 
   const reviewedImportFiles = readdirSync(contentDir)
-    .filter((file) => file.startsWith('beta-import') && file.endsWith('.json') && file !== 'beta-import.example.json');
+    .filter((file) => file.startsWith('beta-import') && file.endsWith('.json') && file !== 'beta-import.example.json' && file !== 'beta-import.template.json');
   if (!reviewedImportFiles.length) {
     fail('Reviewed beta import file', 'no non-example beta import JSON file found under content/');
   } else {
@@ -130,7 +147,7 @@ function main() {
   }
 
   const reviewedSqlFiles = readdirSync(contentDir)
-    .filter((file) => file.startsWith('beta-import') && file.endsWith('.sql') && file !== 'beta-import.generated.sql');
+    .filter((file) => file.startsWith('beta-import') && file.endsWith('.sql') && file !== 'beta-import.generated.sql' && file !== 'beta-import.template.sql');
   if (!reviewedSqlFiles.length) {
     fail('Reviewed beta import SQL', 'no reviewed beta import SQL file found under content/');
   } else {

@@ -173,8 +173,10 @@ Note: the current app also exposes Catalyst creation at `/catalysts/create`; ver
 - `ADMIN_API_TOKEN="..." npm run verify:beta:go-live` passes on `https://kairo.cfd`.
 - `npm run verify:operations` passes once operator ownership and real beta content readiness are recorded.
 - `npm run db:backup:remote` is run and the snapshot filename is recorded before importing real beta data or rerunning seed.
-- `npm run content:beta:verify` passes for the reviewed import JSON.
+- `node scripts/verify-beta-import.mjs content/<reviewed-file>.json` passes for the reviewed import JSON.
 - Real beta content SQL is generated from reviewed JSON and reviewed before apply.
+- `npm run content:beta:import -- --help` has been reviewed by the operator if they are using the scripted import path.
+- `content/beta-import.example.json`, `content/beta-import.template.json`, and `content/beta-import.reviewed-2026-06-27.json` are not treated as approved production operating data.
 - Post-import row counts and public pages are verified.
 
 ## H. Cloudflare Deployment Checklist

@@ -30,6 +30,7 @@ Task: KAIRO Production Deploy & Smoke Test V1
 ## Private Beta status
 
 - Current recommendation: invite-only Private Beta can continue on the Pages same-origin API path while `workers.dev` reachability remains unreliable from the current network.
+- Formal operations launch remains blocked as of 2026-06-27 because no approved real beta content batch has been imported into production yet.
 - Current production Pages URL: `https://kairo.cfd`
 - Current production API URL: `https://kairo.cfd/api`
 - Historical Worker API URL: `https://kairo-worker-prod.348421501.workers.dev`
@@ -43,6 +44,7 @@ Task: KAIRO Production Deploy & Smoke Test V1
   - Demo identity/session behavior is still used.
   - Admin is protected by demo header/session logic plus `ADMIN_API_TOKEN` and must not be treated as final production auth.
   - Seed content is still partially demo content.
+  - `content/beta-import.reviewed-2026-06-27.json` is placeholder/example content only and must not be live-applied.
   - No full authentication or analytics pipeline is in place yet.
   - Run a D1 backup/export before replacing seed/demo data with real beta data.
   - On 2026-06-27, `workers.dev` API probes from the current network timed out before Worker runtime and produced no `wrangler tail` events; Pages and D1 remained reachable.
@@ -63,6 +65,9 @@ Task: KAIRO Production Deploy & Smoke Test V1
 - Production D1 pre-import snapshot helper `npm run db:backup:remote` was verified and wrote a local ignored snapshot with expected table counts.
 - `KAIRO_PAGES_URL=https://kairo.cfd KAIRO_API_BASE_URL=https://kairo.cfd ADMIN_API_TOKEN=... npm run verify:production` passed with API health, D1-backed bounties, admin no-role `403`, admin no-token `403`, admin token `200`, and D1 counts.
 - `KAIRO_PAGES_URL=https://kairo.cfd KAIRO_API_BASE_URL=https://kairo.cfd KAIRO_CUSTOM_DOMAIN=kairo.cfd ADMIN_API_TOKEN=... npm run verify:beta:go-live` passed with the custom domain root check and no remaining domain warning.
+- `set -a; source .env; set +a; npm run verify:beta:go-live` passed locally on 2026-06-27 after sourcing the production admin token from `.env`.
+- `npm run verify:operations` still fails exactly one check, `Real beta import`, because no approved real-content batch has been applied yet.
+- `npm run content:beta:import -- --help` now documents the import modes and refuses `--apply` for example/template or placeholder-marked content.
 
 ## D1 notes
 
@@ -108,3 +113,4 @@ Task: KAIRO Production Deploy & Smoke Test V1
 - Worker rollback target: Cloudflare deployment version before `ba40b2c9-2774-421b-89dd-3b9e87870831`
 - Do not run remote seed again unless the production dataset needs to be regenerated intentionally.
 - Before real beta data is imported, capture a D1 backup/export so seed overwrite or content mistakes can be recovered.
+- Latest recorded pre-import backup during this blocker pass: `backups/d1/kairo-prod-snapshot-2026-06-27T09-35-34-518Z.json`

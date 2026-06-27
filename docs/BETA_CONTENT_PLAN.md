@@ -94,13 +94,31 @@ This plan prepares real beta content without introducing investment, trading, yi
 
 ## Import Workflow
 
-Use `content/beta-import.example.json` as the working template for real beta content. Keep each batch small enough for review: 3-5 Catalysts, 10-20 Dormant Giants, and only verified Builder submissions.
+Use `content/beta-import.template.json` as the working template for real beta content. Keep each batch small enough for review: 3-5 Catalysts, 10-20 Dormant Giants, and only verified Builder submissions.
+
+Do not apply `content/beta-import.example.json` or `content/beta-import.reviewed-2026-06-27.json` to production. Both remain placeholder/example content and are not approved operating data.
+
+Approval rule:
+
+- Real beta content must be approved by the project owner or the assigned content reviewer before `--apply`.
+- The approval source should be recorded in the reviewed JSON metadata or the operator notes.
+- If approved real content is not available, stop before apply and keep the operations launch blocked.
+
+JSON shape reference:
+
+| Section | Runtime key | Required import fields |
+| --- | --- | --- |
+| Dormant Giants | `tokens[]` | `id`, `name`, `symbol`, `chain`, `contractAddress`, `websiteUrl`, `twitterUrl`, `telegramUrl`, `status` |
+| Catalysts | `catalysts[]` | `id`, `tokenId`, `createdBy`, `title`, `description`, `rewardText`, `rewardType`, `fundingStatus`, `contactInfo`, `deadline`, `status`, `featured` |
+| Builder submissions | `submissions[]` | `id`, `bountyId`, `builderId`, `name`, `tagline`, `demoUrl`, `githubUrl`, `videoUrl`, `screenshotUrl`, `description`, `status`, `deliveryStatus` |
+| Curated runtime placements | `curatedItems[]` | `id`, `itemType`, `placement`, `targetType`, `targetId`, `title`, `description`, `imageUrl`, `externalUrl`, `sortOrder`, `status` |
+| Reward Records / Funding Events | `fundingEvents[]` | `id`, `bountyId`, `actorId`, `eventType`, `amountText`, `proofUrl`, `note` |
 
 Generate reviewable SQL:
 
 ```bash
-npm run content:beta:verify
-npm run content:beta:sql
+node scripts/verify-beta-import.mjs content/<reviewed-file>.json
+node scripts/generate-beta-import-sql.mjs content/<reviewed-file>.json content/<reviewed-file>.sql
 ```
 
 Or run the full reviewed-content prepare flow in one step:
@@ -110,6 +128,12 @@ npm run content:beta:import
 ```
 
 That workflow captures a fresh D1 snapshot, verifies the reviewed JSON, and regenerates the reviewed SQL without applying production writes.
+
+Operator help:
+
+```bash
+npm run content:beta:import -- --help
+```
 
 The verify command checks references, public-safe wording, obvious secret leakage, URL shape, and placeholder/example-domain warnings. The SQL command writes `content/beta-import.generated.sql`. Review the generated SQL before applying it to D1.
 
@@ -138,6 +162,8 @@ You can also route through npm while keeping the same arguments:
 ```bash
 npm run content:beta:import -- content/<reviewed-file>.json --apply
 ```
+
+The import script now refuses `--apply` for files that still look like example/template content or still contain obvious placeholder/example markers.
 
 Post-import checks:
 

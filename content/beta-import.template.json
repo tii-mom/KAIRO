@@ -1,0 +1,84 @@
+{
+  "generatedAt": "REPLACE_WITH_UTC_TIMESTAMP",
+  "_approval": {
+    "approvedBy": "PROJECT_OWNER_OR_CONTENT_REVIEWER_HANDLE",
+    "approvedAt": "REPLACE_WITH_UTC_TIMESTAMP",
+    "sourceSummary": "List the approved source doc, message, or issue for each batch. Do not commit sensitive notes or secrets.",
+    "doNotApply": "Do not run --apply until this file contains approved real content only."
+  },
+  "_fieldMap": {
+    "tokens": [
+      "id",
+      "name",
+      "symbol",
+      "chain",
+      "contractAddress",
+      "websiteUrl",
+      "twitterUrl",
+      "telegramUrl",
+      "status"
+    ],
+    "catalysts": [
+      "id",
+      "tokenId",
+      "createdBy",
+      "title",
+      "description",
+      "rewardText",
+      "rewardType",
+      "fundingStatus",
+      "contactInfo",
+      "deadline",
+      "status",
+      "featured"
+    ],
+    "submissions": [
+      "id",
+      "bountyId",
+      "builderId",
+      "name",
+      "tagline",
+      "demoUrl",
+      "githubUrl",
+      "videoUrl",
+      "screenshotUrl",
+      "description",
+      "status",
+      "deliveryStatus"
+    ],
+    "curatedItems": [
+      "id",
+      "itemType",
+      "placement",
+      "targetType",
+      "targetId",
+      "title",
+      "description",
+      "imageUrl",
+      "externalUrl",
+      "sortOrder",
+      "status"
+    ],
+    "fundingEvents": [
+      "id",
+      "bountyId",
+      "actorId",
+      "eventType",
+      "amountText",
+      "proofUrl",
+      "note"
+    ]
+  },
+  "_batchGuidance": {
+    "tokens": "10-20 approved Dormant Giant candidates preferred",
+    "catalysts": "3-5 approved real beta Catalysts preferred",
+    "submissions": "Include only already approved builder submissions/placeholders",
+    "fundingEvents": "Include only evidence-backed Reward Records / Funding Events",
+    "publicCopy": "Use neutral wording only. No investment, trading, yield, guaranteed reward, guaranteed airdrop, custody, or escrow-service claims."
+  },
+  "tokens": [],
+  "catalysts": [],
+  "submissions": [],
+  "curatedItems": [],
+  "fundingEvents": []
+}

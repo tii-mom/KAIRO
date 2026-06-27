@@ -5,7 +5,24 @@ import { spawnSync } from 'node:child_process';
 
 const defaultInput = process.env.KAIRO_BETA_IMPORT_FILE || 'content/beta-import.reviewed-2026-06-27.json';
 const defaultMode = process.env.KAIRO_BETA_IMPORT_MODE || '--prepare';
-const [, , inputArg = defaultInput, modeArg = defaultMode] = process.argv;
+const args = process.argv.slice(2);
+
+if (args.includes('--help') || args.includes('-h')) {
+  console.log('Usage: node scripts/import-beta-content.mjs <input.json> [--prepare|--apply]');
+  console.log(`Default input: ${defaultInput}`);
+  console.log(`Default mode: ${defaultMode}`);
+  console.log('Modes:');
+  console.log('  --prepare  Verify JSON, back up production D1, and regenerate reviewed SQL only.');
+  console.log('  --apply    Apply the reviewed SQL to production after passing all safeguards.');
+  console.log('Safety rules:');
+  console.log('  - --apply refuses files whose names still look like example/template content.');
+  console.log('  - --apply refuses payloads that still contain obvious placeholder/example markers.');
+  console.log('  - Do not apply content until the project owner/content reviewer has approved the batch.');
+  process.exit(0);
+}
+
+const inputArg = args.find((arg) => !arg.startsWith('--')) || defaultInput;
+const modeArg = args.find((arg) => ['--prepare', '--apply'].includes(arg)) || defaultMode;
 
 if (!inputArg) {
   console.error('Usage: node scripts/import-beta-content.mjs <input.json> [--prepare|--apply]');
@@ -28,6 +45,17 @@ const baseName = path.basename(inputPath, path.extname(inputPath));
 const outputSqlPath = path.join(path.dirname(inputPath), `${baseName}.sql`);
 const databaseName = process.env.KAIRO_D1_DATABASE || 'kairo-prod';
 const environment = process.env.KAIRO_WRANGLER_ENV || 'production';
+const placeholderMarkers = [
+  'example.org',
+  'example.com',
+  'token-real-example',
+  'bounty-real-example',
+  'submission-real-example',
+  'curated-real-example',
+  'funding-event-real-example',
+  'example dormant network',
+  'ops@example.org',
+];
 
 function run(label, command, args, options = {}) {
   console.log(`\n== ${label} ==`);
@@ -43,6 +71,26 @@ function run(label, command, args, options = {}) {
   if (result.error) throw result.error;
   if (result.status !== 0) throw new Error(`${label} failed with exit code ${result.status}`);
   return result;
+}
+
+function collectStrings(value, bucket = []) {
+  if (typeof value === 'string') bucket.push(value);
+  else if (Array.isArray(value)) value.forEach((entry) => collectStrings(entry, bucket));
+  else if (value && typeof value === 'object') Object.values(value).forEach((entry) => collectStrings(entry, bucket));
+  return bucket;
+}
+
+function assertApplySafe() {
+  const lowerBaseName = baseName.toLowerCase();
+  if (lowerBaseName.includes('example') || lowerBaseName.includes('template')) {
+    throw new Error(`Refusing to apply placeholder file ${path.relative(process.cwd(), inputPath)}. Use an approved reviewed real-content file instead.`);
+  }
+
+  const lowerPayloadText = collectStrings(payload).join('\n').toLowerCase();
+  const matchedMarker = placeholderMarkers.find((marker) => lowerPayloadText.includes(marker));
+  if (matchedMarker) {
+    throw new Error(`Refusing to apply placeholder/example content. Found marker: ${matchedMarker}`);
+  }
 }
 
 function queryCount(table) {
@@ -92,6 +140,10 @@ function printPostApplyCounts() {
 }
 
 function main() {
+  if (modeArg === '--apply') {
+    assertApplySafe();
+  }
+
   run('Backup production D1', 'npm', ['run', 'db:backup:remote']);
   run('Verify beta import JSON', 'node', ['scripts/verify-beta-import.mjs', inputArg]);
   run('Generate beta import SQL', 'node', ['scripts/generate-beta-import-sql.mjs', inputArg, path.relative(process.cwd(), outputSqlPath)]);

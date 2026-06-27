@@ -123,6 +123,7 @@ Close criteria:
 - Demo identity/session behavior is still used.
 - Admin access uses demo role headers plus the `ADMIN_API_TOKEN` shared secret for controlled beta operations.
 - Seed content is still partially demo content.
+- `content/beta-import.reviewed-2026-06-27.json` is still placeholder/example content and must not be applied to production.
 - Full authentication is not implemented yet.
 - No analytics pipeline is implemented yet.
 - The extra `kairo-api-prod` Worker exists but is not the current production path.
@@ -161,13 +162,22 @@ The command writes a timestamped JSON snapshot under `backups/d1/`, which is ign
 Recommended import path:
 
 1. Run `npm run db:backup:remote` and record the snapshot filename.
-2. Copy `content/beta-import.example.json` into a dated local working file.
+2. Copy `content/beta-import.template.json` into a dated local working file.
 3. Replace placeholder entries with reviewed real Catalysts, Dormant Giants, Builder submissions, and Funding Events.
 4. Run `node scripts/verify-beta-import.mjs <input.json>`.
 5. Run `node scripts/generate-beta-import-sql.mjs <input.json> <output.sql>`.
 6. Review generated SQL for public-safe wording and correct IDs.
 7. Apply the SQL with `npx wrangler d1 execute kairo-prod --remote --env production --file=<output.sql>`.
 8. Re-run row-count checks and open the affected production pages.
+
+If approved real beta content is not available, stop after step 1, keep the operations gate blocked, and record the blocker in `docs/BETA_COHORT_OPERATIONS.md`.
+
+Who can approve future imports:
+
+- Project owner, or
+- the assigned content reviewer recorded in the operator roster
+
+The reviewed file should record who approved the batch and when. Example/template content must never be applied as production content.
 
 Stop the import if any record includes private keys, sensitive personal data, confidential reward evidence, price predictions, trading instructions, or unreviewed sponsor claims.
 

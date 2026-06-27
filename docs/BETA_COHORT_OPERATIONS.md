@@ -99,7 +99,7 @@ Before importing real content:
 
 | Date | Snapshot file | Import file | Operator | Result |
 | --- | --- | --- | --- | --- |
-| 2026-06-27 | kairo-prod-snapshot-2026-06-27T08-23-57-461Z.json | beta-import.reviewed-2026-06-27.json | tii-mom | Reviewed JSON and SQL prepared; pending first real content source approval before live apply |
+| 2026-06-27 | kairo-prod-snapshot-2026-06-27T09-35-34-518Z.json | beta-import.template.json (not applied) | tii-mom | No approved real beta content batch is available in-repo; template and operator docs were updated, and live apply remains blocked pending project-owner or content-reviewer approval. |
 
 ## Exit Criteria For Private Beta
 
