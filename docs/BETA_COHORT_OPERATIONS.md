@@ -6,16 +6,16 @@ Use this document as the live operating sheet for the first invite-only beta coh
 
 ## Current Beta Entry
 
-- Current Pages URL: `https://e43fa2e9.kairo-5vg.pages.dev`
+- Current Pages URL: `https://kairo.cfd`
 - API path: same-origin `/api/*`
 - Feedback form: `https://github.com/tii-mom/KAIRO/issues/new?template=private-beta-feedback.yml`
 - Required gate before invites:
 
 ```bash
-KAIRO_PAGES_URL="https://e43fa2e9.kairo-5vg.pages.dev" KAIRO_API_BASE_URL="https://e43fa2e9.kairo-5vg.pages.dev" ADMIN_API_TOKEN="..." npm run verify:beta:go-live
+KAIRO_PAGES_URL="https://kairo.cfd" KAIRO_API_BASE_URL="https://kairo.cfd" ADMIN_API_TOKEN="..." npm run verify:beta:go-live
 ```
 
-The custom-domain warning is acceptable for invite-only beta only. It is not acceptable for public launch.
+The custom domain is now live on `kairo.cfd`. Continue to use the gate above before each invite batch.
 
 ## Operator Roster
 

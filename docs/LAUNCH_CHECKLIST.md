@@ -203,7 +203,7 @@ Note: the current app also exposes Catalyst creation at `/catalysts/create`; ver
 8. Set `VITE_KAIRO_API_BASE_URL` if the Worker is not same-origin.
 9. Verify CORS and API base URL behavior.
 10. Run production smoke tests.
-11. Before public launch, bind and verify a custom domain in Cloudflare Pages. `kairo-5vg.pages.dev` preview URLs are acceptable only for invite-only beta.
+11. Public launch domain is `https://kairo.cfd`. Keep `kairo-5vg.pages.dev` preview URLs for rollback/debug use only.
 
 ## I. Rollback Notes
 

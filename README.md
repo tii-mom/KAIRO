@@ -118,7 +118,7 @@ KAIRO Private Beta is invite-only and intended for workflow and community-signal
 
 Current production resources:
 
-- Current Pages + same-origin API deploy: `https://e43fa2e9.kairo-5vg.pages.dev`
+- Current Pages + same-origin API deploy: `https://kairo.cfd`
 - Historical Worker API: `https://kairo-worker-prod.348421501.workers.dev`
 - Previous verified Pages deploy: `https://c03bea43.kairo-5vg.pages.dev`
 - Beta information route: `/beta`
@@ -255,13 +255,13 @@ curl -H "x-kairo-role: admin" -H "x-kairo-user-id: user-demo-admin" -H "x-kairo-
 Run the production readiness gate before inviting a beta cohort. For the current Pages same-origin API path:
 
 ```bash
-KAIRO_PAGES_URL="https://e43fa2e9.kairo-5vg.pages.dev" KAIRO_API_BASE_URL="https://e43fa2e9.kairo-5vg.pages.dev" ADMIN_API_TOKEN="..." npm run verify:production
+KAIRO_PAGES_URL="https://kairo.cfd" KAIRO_API_BASE_URL="https://kairo.cfd" ADMIN_API_TOKEN="..." npm run verify:production
 ```
 
 Run the invite-only beta go-live gate before sending the first cohort invites:
 
 ```bash
-KAIRO_PAGES_URL="https://e43fa2e9.kairo-5vg.pages.dev" KAIRO_API_BASE_URL="https://e43fa2e9.kairo-5vg.pages.dev" ADMIN_API_TOKEN="..." npm run verify:beta:go-live
+KAIRO_PAGES_URL="https://kairo.cfd" KAIRO_API_BASE_URL="https://kairo.cfd" ADMIN_API_TOKEN="..." npm run verify:beta:go-live
 ```
 
 ## Proof of Support Flow

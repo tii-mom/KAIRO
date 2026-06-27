@@ -30,10 +30,11 @@ Task: KAIRO Production Deploy & Smoke Test V1
 ## Private Beta status
 
 - Current recommendation: invite-only Private Beta can continue on the Pages same-origin API path while `workers.dev` reachability remains unreliable from the current network.
-- Current production API URL: `https://e43fa2e9.kairo-5vg.pages.dev/api`
+- Current production Pages URL: `https://kairo.cfd`
+- Current production API URL: `https://kairo.cfd/api`
 - Historical Worker API URL: `https://kairo-worker-prod.348421501.workers.dev`
 - Latest verified Pages URL: `https://c03bea43.kairo-5vg.pages.dev`
-- Latest Private Beta Pages URL: `https://e43fa2e9.kairo-5vg.pages.dev`
+- Latest Private Beta Pages URL: `https://kairo.cfd`
 - Beta support routes:
   - `/beta`
   - `/feedback`
@@ -55,12 +56,13 @@ Task: KAIRO Production Deploy & Smoke Test V1
 - `npm run verify:copy`: passed
 - `npm run verify:routes`: passed
 - Production Pages bundle rebuilt with same-origin API requests; it contains no `localhost:8787`, `workers.dev`, or `kairo-worker-prod` API base.
-- Pages TLS verified with `curl -Iv` for both `kairo-5vg.pages.dev` and the latest deployment URL
+- Pages TLS verified with `curl -Iv` for both `kairo-5vg.pages.dev` and `kairo.cfd`
 - Browser smoke test loaded the homepage and core runtime layout successfully
 - `/api/admin/stats` returned `403` without admin headers and `403` with admin headers but no production token; admin-token `200` check passed after setting the Pages production `ADMIN_API_TOKEN` secret.
-- Private Beta Pages deployment `https://e43fa2e9.kairo-5vg.pages.dev` contains `/beta`, `/feedback`, the GitHub feedback issue form link, the admin token input, and the live same-origin API path.
+- Private Beta Pages deployment `https://kairo.cfd` contains `/beta`, `/feedback`, the GitHub feedback issue form link, the admin token input, and the live same-origin API path.
 - Production D1 pre-import snapshot helper `npm run db:backup:remote` was verified and wrote a local ignored snapshot with expected table counts.
-- `KAIRO_PAGES_URL=https://e43fa2e9.kairo-5vg.pages.dev KAIRO_API_BASE_URL=https://e43fa2e9.kairo-5vg.pages.dev ADMIN_API_TOKEN=... npm run verify:production` passed with API health, D1-backed bounties, admin no-role `403`, admin no-token `403`, admin token `200`, and D1 counts.
+- `KAIRO_PAGES_URL=https://kairo.cfd KAIRO_API_BASE_URL=https://kairo.cfd ADMIN_API_TOKEN=... npm run verify:production` passed with API health, D1-backed bounties, admin no-role `403`, admin no-token `403`, admin token `200`, and D1 counts.
+- `KAIRO_PAGES_URL=https://kairo.cfd KAIRO_API_BASE_URL=https://kairo.cfd KAIRO_CUSTOM_DOMAIN=kairo.cfd ADMIN_API_TOKEN=... npm run verify:beta:go-live` passed with the custom domain root check and no remaining domain warning.
 
 ## D1 notes
 
