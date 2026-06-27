@@ -24,7 +24,8 @@
     "verify:beta:go-live": "node scripts/verify-private-beta-go-live.mjs",
     "verify:operations": "node scripts/verify-operations-readiness.mjs",
     "verify:production": "node scripts/verify-production-readiness.mjs",
-    "verify:routes": "node scripts/verify-api-routes.mjs"
+    "verify:routes": "node scripts/verify-api-routes.mjs",
+    "verify:real-beta-content": "node scripts/verify-real-beta-content-readiness.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

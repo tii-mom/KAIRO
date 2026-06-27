@@ -1,0 +1,79 @@
+{
+  "generatedAt": "2026-06-27T08:30:00.000Z",
+  "_approval": {
+    "approvedBy": "PROJECT_OWNER_OR_CONTENT_REVIEWER_HANDLE",
+    "approvedAt": "REPLACE_WITH_UTC_TIMESTAMP",
+    "doNotApply": "WARNING: Do not import this template into live production. Use only for drafting real reviewed content."
+  },
+  "tokens": [
+    {
+      "id": "REPLACE_WITH_REAL_TOKEN_ID",
+      "name": "REPLACE_WITH_REAL_PROJECT_NAME",
+      "symbol": "REPLACE_WITH_REAL_SYMBOL",
+      "chain": "REPLACE_WITH_REAL_CHAIN",
+      "contractAddress": "REPLACE_WITH_REAL_CONTRACT_ADDRESS",
+      "websiteUrl": "REPLACE_WITH_REAL_WEBSITE_URL",
+      "twitterUrl": "REPLACE_WITH_REAL_TWITTER_URL",
+      "telegramUrl": "REPLACE_WITH_REAL_TELEGRAM_URL",
+      "status": "sleeping"
+    }
+  ],
+  "catalysts": [
+    {
+      "id": "REPLACE_WITH_REAL_BOUNTY_ID",
+      "tokenId": "REPLACE_WITH_REAL_TOKEN_ID",
+      "createdBy": "REPLACE_WITH_REAL_CREATOR_USER_ID",
+      "title": "REPLACE_WITH_REAL_CATALYST_TITLE",
+      "description": "REPLACE_WITH_REAL_CATALYST_DESCRIPTION",
+      "rewardText": "REPLACE_WITH_REAL_REWARD_RECORD",
+      "rewardType": "offchain",
+      "fundingStatus": "unverified",
+      "contactInfo": "REPLACE_WITH_APPROVED_CONTACT",
+      "deadline": "2026-08-15T23:59:59.000Z",
+      "status": "pending_review",
+      "featured": false
+    }
+  ],
+  "submissions": [
+    {
+      "id": "REPLACE_WITH_REAL_SUBMISSION_ID",
+      "bountyId": "REPLACE_WITH_REAL_BOUNTY_ID",
+      "builderId": "REPLACE_WITH_REAL_BUILDER_USER_ID",
+      "name": "REPLACE_WITH_REAL_SUBMISSION_NAME",
+      "tagline": "REPLACE_WITH_REAL_SUBMISSION_TAGLINE",
+      "demoUrl": "REPLACE_WITH_REAL_DEMO_URL",
+      "githubUrl": "REPLACE_WITH_REAL_GITHUB_URL",
+      "videoUrl": "",
+      "screenshotUrl": "",
+      "description": "REPLACE_WITH_REAL_SUBMISSION_DESCRIPTION",
+      "status": "submitted",
+      "deliveryStatus": "submitted_for_review"
+    }
+  ],
+  "curatedItems": [
+    {
+      "id": "REPLACE_WITH_REAL_CURATED_ID",
+      "itemType": "dormant_giant",
+      "placement": "dormant_giant",
+      "targetType": "token",
+      "targetId": "REPLACE_WITH_REAL_TOKEN_ID",
+      "title": "REPLACE_WITH_REAL_CURATED_TITLE",
+      "description": "REPLACE_WITH_REAL_CURATED_DESCRIPTION",
+      "imageUrl": "",
+      "externalUrl": "REPLACE_WITH_REAL_WEBSITE_URL",
+      "sortOrder": 100,
+      "status": "active"
+    }
+  ],
+  "fundingEvents": [
+    {
+      "id": "REPLACE_WITH_REAL_FUNDING_EVENT_ID",
+      "bountyId": "REPLACE_WITH_REAL_BOUNTY_ID",
+      "actorId": "REPLACE_WITH_REAL_CREATOR_USER_ID",
+      "eventType": "admin_note",
+      "amountText": "REPLACE_WITH_REAL_REWARD_RECORD",
+      "proofUrl": "REPLACE_WITH_REAL_EVIDENCE_URL",
+      "note": "Funding Event: REPLACE_WITH_REAL_FUNDING_EVENT_NOTE"
+    }
+  ]
+}
