@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
-import { Trophy } from 'lucide-react';
+import { useEffect, useState, type FC } from 'react';
+import { Crown, Orbit, Radar, Trophy, Users } from 'lucide-react';
 import { getLeaderboard, type LeaderboardResponse } from '../lib/api';
-import { EmptyState, ErrorState, LoadingState } from './pageUtils';
+import { formatMomentumCount } from '../lib/formatters';
+import { DataRow, EmptyPanel, PageHero, Panel, StatusChip } from '../components/runtimeUi';
+import { ErrorState, LoadingState } from './pageUtils';
 
 type LeaderboardRow = Record<string, unknown>;
 
@@ -27,37 +29,326 @@ export default function LeaderboardPage() {
     void load();
   }, []);
 
-  if (isLoading) return <LoadingState label="Loading leaderboard..." />;
+  if (isLoading) return <LoadingState label="Connecting to KAIRO Grid telemetry..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
 
+  const hottest = (leaderboard?.hottestCatalysts ?? []) as LeaderboardRow[];
+  const builders = (leaderboard?.topBuilders ?? []) as LeaderboardRow[];
+  const rewardVisible = (leaderboard?.confirmedRewardCatalysts ?? []) as LeaderboardRow[];
+  const boosted = (leaderboard?.mostBoostedSubmissions ?? []) as LeaderboardRow[];
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#ffd285]"><Trophy className="h-4 w-4" /> KAIRO Score</div>
-      <h1 className="text-3xl font-black text-white">Leaderboards built from valid Momentum and support data</h1>
-      <section className="grid gap-4 lg:grid-cols-2">
-        <LeaderboardCard title="Hottest Catalysts" rows={(leaderboard?.hottestCatalysts ?? []) as LeaderboardRow[]} labelKey="title" valueKey="momentum_score" />
-        <LeaderboardCard title="Confirmed Reward Catalysts" rows={(leaderboard?.confirmedRewardCatalysts ?? []) as LeaderboardRow[]} labelKey="title" valueKey="boost_count" />
-        <LeaderboardCard title="Top Builders" rows={(leaderboard?.topBuilders ?? []) as LeaderboardRow[]} labelKey="builder_name" valueKey="total_score" />
-        <LeaderboardCard title="Most Boosted Submissions" rows={(leaderboard?.mostBoostedSubmissions ?? []) as LeaderboardRow[]} labelKey="name" valueKey="boost_count" />
-        <LeaderboardCard title="Dormant Giants" rows={(leaderboard?.dormantGiants ?? []) as LeaderboardRow[]} labelKey="title" valueKey="sort_order" />
-        <LeaderboardCard title="Breakout Stories" rows={(leaderboard?.breakoutStories ?? []) as LeaderboardRow[]} labelKey="title" valueKey="sort_order" />
-        <LeaderboardCard title="Comeback Hall" rows={(leaderboard?.comebackHall ?? []) as LeaderboardRow[]} labelKey="title" valueKey="sort_order" />
-        <LeaderboardCard title="Genesis Candidates" rows={(leaderboard?.genesisCandidates ?? []) as LeaderboardRow[]} labelKey="title" valueKey="sort_order" />
-      </section>
+    <div className="space-y-8 pb-12">
+      {/* Grid Hero */}
+      <PageHero
+        eyebrow="The Grid Registry"
+        title="Ecosystem Momentum & Rankings Console"
+        description="Verify Catalyst activity, builder delivery indicators, support multipliers, and comeback milestones on a shared telemetry board."
+        stats={[
+          { label: 'Hottest Lanes', value: hottest.length, detail: 'Catalysts ranked by momentum' },
+          { label: 'Active Builders', value: builders.length, detail: 'Score-based output ranks', tone: 'sky' },
+          { label: 'Confirmed Reward', value: rewardVisible.length, detail: 'Verified coordinate rewards', tone: 'emerald' },
+        ]}
+        aside={
+          <Panel eyebrow="Platform Leader" title="Front Runner" icon={Crown}>
+            <div className="glass-panel p-4 border-[#ffb95f]/30 relative overflow-hidden">
+              <div className="absolute inset-0 bg-[#ffb95f]/5 blur-[20px] pointer-events-none" />
+              <div className="relative z-10">
+                <div className="text-[9px] font-mono uppercase tracking-widest text-[#ffb95f]">Current Leaderboard Lane</div>
+                <div className="mt-2 text-base font-bold text-white tracking-tight leading-tight">
+                  {String(hottest[0]?.title ?? 'Awaiting telemetry')}
+                </div>
+                <div className="mt-1 font-mono text-xs text-[#ffb95f]">
+                  Momentum: {formatMomentumCount(Number(hottest[0]?.momentum_score ?? 0))} PTS
+                </div>
+              </div>
+            </div>
+          </Panel>
+        }
+      />
+
+      {/* Navigation tabs header sub-menu */}
+      <div className="w-full overflow-x-auto scrollbar-none border-b border-white/10 pb-1">
+        <div className="flex gap-6 min-w-max px-1 font-mono text-[10px] uppercase tracking-wider text-white/50">
+          <span className="text-[#ffb95f] font-bold border-b border-[#ffb95f] pb-2">Top Builders</span>
+          <span className="hover:text-white cursor-pointer pb-2 transition-colors">Hottest Catalysts</span>
+          <span className="hover:text-white cursor-pointer pb-2 transition-colors">Dormant Giants</span>
+          <span className="hover:text-white cursor-pointer pb-2 transition-colors">Breakout Stories</span>
+          <span className="hover:text-white cursor-pointer pb-2 transition-colors">Comeback Hall</span>
+          <span className="hover:text-white cursor-pointer pb-2 transition-colors">Genesis Candidates</span>
+        </div>
+      </div>
+
+      {/* Main lists */}
+      <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+        <Panel eyebrow="Heat Map" title="Hottest Catalysts" description="Lanes sorted by support injections and builder actions.">
+          <RankList rows={hottest} labelKey="title" valueKey="momentum_score" valueFormatter={formatCompactValue} tone="gold" />
+        </Panel>
+
+        <Panel eyebrow="Builder Board" title="Top Builders" description="Reputation scores earned by shipping functional solutions." icon={Users}>
+          <RankList
+            rows={builders}
+            labelKey="builder_name"
+            valueKey="total_score"
+            subtitleKey="completed_count"
+            subtitleLabel="completed"
+            valueFormatter={formatCompactValue}
+            tone="sky"
+          />
+        </Panel>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Panel eyebrow="Public Evidence" title="Confirmed Reward Catalysts" description="Catalyst lanes with verified coordination contracts." icon={Radar}>
+          <RankList
+            rows={rewardVisible}
+            labelKey="title"
+            valueKey="boost_count"
+            subtitleKey="momentum_score"
+            subtitleLabel="momentum"
+            valueFormatter={(value) => `${String(value ?? 0)} boosts`}
+            tone="emerald"
+          />
+        </Panel>
+
+        <Panel eyebrow="Support Surges" title="Most Boosted Solutions" description="Top-supported builder proposals ranked by total boosts." icon={Trophy}>
+          <RankList
+            rows={boosted}
+            labelKey="name"
+            valueKey="boost_count"
+            subtitleKey="builder_name"
+            subtitleLabel="builder"
+            valueFormatter={(value) => `${String(value ?? 0)} boosts`}
+            tone="gold"
+          />
+        </Panel>
+      </div>
+
+      {/* Comeback highlight grids */}
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Panel eyebrow="Comeback Tracks" title="Dormant Giants & Breakout Stories" icon={Orbit}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <MiniRankPanel
+              title="Dormant Giants"
+              rows={(leaderboard?.dormantGiants ?? []) as LeaderboardRow[]}
+              labelKey="title"
+              valueKey="sort_order"
+            />
+            <MiniRankPanel
+              title="Breakout Stories"
+              rows={(leaderboard?.breakoutStories ?? []) as LeaderboardRow[]}
+              labelKey="title"
+              valueKey="sort_order"
+            />
+          </div>
+        </Panel>
+
+        <Panel eyebrow="Ecosystem Highlights" title="Comeback Hall & Genesis Candidates" icon={Trophy}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <MiniRankPanel
+              title="Comeback Hall"
+              rows={(leaderboard?.comebackHall ?? []) as LeaderboardRow[]}
+              labelKey="title"
+              valueKey="sort_order"
+            />
+            <MiniRankPanel
+              title="Genesis Candidates"
+              rows={(leaderboard?.genesisCandidates ?? []) as LeaderboardRow[]}
+              labelKey="title"
+              valueKey="sort_order"
+            />
+          </div>
+        </Panel>
+      </div>
     </div>
   );
 }
 
-function LeaderboardCard({ title, rows, labelKey, valueKey }: { title: string; rows: LeaderboardRow[]; labelKey: string; valueKey: string }) {
+const RankList: FC<{
+  rows: LeaderboardRow[];
+  labelKey: string;
+  valueKey: string;
+  subtitleKey?: string;
+  subtitleLabel?: string;
+  valueFormatter: (value: unknown) => string;
+  tone: 'gold' | 'sky' | 'emerald';
+}> = ({
+  rows,
+  labelKey,
+  valueKey,
+  subtitleKey,
+  subtitleLabel,
+  valueFormatter,
+  tone,
+}) => {
+  if (!rows.length) {
+    return <EmptyPanel title="Awaiting ranking metrics" description="Telemetries will stream here once platform actions occur." />;
+  }
+
   return (
-    <div className="rounded-3xl border border-white/10 bg-[#0c0e14]/70 p-6">
-      <h2 className="mb-4 text-sm font-black uppercase tracking-[0.18em] text-white/60">{title}</h2>
-      {rows.length ? rows.map((row, index) => (
-        <div key={`${String(row[labelKey] ?? row.id)}-${index}`} className="flex items-center justify-between border-b border-white/5 py-4 last:border-0">
-          <span className="text-white/70">#{index + 1} {String(row[labelKey] ?? row.title ?? 'Unknown')}</span>
-          <span className="font-mono font-black text-[#ffd285]">{String(row[valueKey] ?? 0)}</span>
-        </div>
-      )) : <EmptyState title={`No ${title} yet`} description="Seed content and valid runtime activity will populate this section." />}
+    <div className="grid gap-3">
+      {rows.map((row, index) => {
+        const title = String(row[labelKey] ?? row.title ?? 'Unknown');
+        const subtitleValue = subtitleKey ? String(row[subtitleKey] ?? '0') : null;
+        const valNum = Number(row[valueKey] ?? 0);
+        
+        const maxVal = Number(rows[0]?.[valueKey] ?? 100);
+        const percent = maxVal > 0 ? Math.min(100, Math.round((valNum / maxVal) * 100)) : 0;
+
+        const rank = index + 1;
+
+        if (rank === 1) {
+          return (
+            <div key={`${title}-${index}`} className="glass-card rounded-xl p-4 sm:p-6 glow-active flex flex-col sm:flex-row sm:items-center gap-6 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-300">
+              <div className="absolute inset-0 bg-energy-line pointer-events-none" />
+              <div className="flex-shrink-0 flex items-center gap-2 sm:flex-col sm:justify-center w-16 z-10">
+                <span className="rank-red font-mono text-xl font-bold uppercase tracking-wider flex items-center gap-1">
+                  🏆 #1
+                </span>
+              </div>
+              <div className="flex-grow z-10 min-w-0">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h3 className="text-base font-bold text-white tracking-tight truncate">{title}</h3>
+                  <StatusChip tone="red">Ignited</StatusChip>
+                </div>
+                {subtitleValue ? (
+                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">{subtitleLabel ?? subtitleKey}: {subtitleValue}</p>
+                ) : (
+                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">Ranked Core Runner</p>
+                )}
+              </div>
+              <div className="flex flex-col items-end gap-1.5 min-w-[150px] z-10 font-mono text-xs mt-3 sm:mt-0">
+                <div className="flex justify-between w-full">
+                  <span className="text-white/40">SCORE</span>
+                  <span className="text-[#EE1C25] font-bold">{valueFormatter(row[valueKey])}</span>
+                </div>
+                <div className="w-full progress-bar-bg">
+                  <div className="progress-bar-fill-red" style={{ width: `${percent}%` }} />
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        if (rank === 2) {
+          return (
+            <div key={`${title}-${index}`} className="glass-card rounded-xl p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-6 hover:border-white/10 transition-colors">
+              <div className="flex-shrink-0 flex items-center gap-2 sm:flex-col sm:justify-center w-16">
+                <span className="rank-silver font-mono text-xl font-bold uppercase tracking-wider">
+                  🥈 #2
+                </span>
+              </div>
+              <div className="flex-grow min-w-0">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h3 className="text-base font-bold text-white tracking-tight truncate">{title}</h3>
+                  <StatusChip tone="slate">Silver</StatusChip>
+                </div>
+                {subtitleValue ? (
+                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">{subtitleLabel ?? subtitleKey}: {subtitleValue}</p>
+                ) : (
+                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">Ranked Contributor</p>
+                )}
+              </div>
+              <div className="flex flex-col items-end gap-1.5 min-w-[150px] font-mono text-xs mt-3 sm:mt-0">
+                <div className="flex justify-between w-full">
+                  <span className="text-white/40">SCORE</span>
+                  <span className="text-white font-bold">{valueFormatter(row[valueKey])}</span>
+                </div>
+                <div className="w-full progress-bar-bg">
+                  <div className="progress-bar-fill" style={{ width: `${percent}%` }} />
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        if (rank === 3) {
+          return (
+            <div key={`${title}-${index}`} className="glass-card rounded-xl p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-6 hover:border-white/10 transition-colors">
+              <div className="flex-shrink-0 flex items-center gap-2 sm:flex-col sm:justify-center w-16">
+                <span className="rank-bronze font-mono text-xl font-bold uppercase tracking-wider">
+                  🥉 #3
+                </span>
+              </div>
+              <div className="flex-grow min-w-0">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h3 className="text-base font-bold text-white tracking-tight truncate">{title}</h3>
+                  <StatusChip tone="gold">Bronze</StatusChip>
+                </div>
+                {subtitleValue ? (
+                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">{subtitleLabel ?? subtitleKey}: {subtitleValue}</p>
+                ) : (
+                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">Ranked Contributor</p>
+                )}
+              </div>
+              <div className="flex flex-col items-end gap-1.5 min-w-[150px] font-mono text-xs mt-3 sm:mt-0">
+                <div className="flex justify-between w-full">
+                  <span className="text-white/40">SCORE</span>
+                  <span className="text-white font-bold">{valueFormatter(row[valueKey])}</span>
+                </div>
+                <div className="w-full progress-bar-bg">
+                  <div className="progress-bar-fill" style={{ width: `${percent}%` }} />
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div key={`${title}-${index}`} className="glass-panel p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors bg-[#0c0e14]/50">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="text-xs font-mono font-bold text-white/40 w-6">#{rank}</div>
+              <div className="min-w-0">
+                <h4 className="text-sm font-bold text-white tracking-tight truncate">{title}</h4>
+                {subtitleValue ? (
+                  <p className="text-[10px] font-mono text-white/40 uppercase mt-0.5">{subtitleLabel ?? subtitleKey}: {subtitleValue}</p>
+                ) : null}
+              </div>
+            </div>
+            <div className="flex items-center gap-4 shrink-0 font-mono text-xs mt-2 sm:mt-0 self-end sm:self-auto">
+              <span className="text-white/60 font-bold">{valueFormatter(row[valueKey])}</span>
+              <StatusChip tone="slate">ranked</StatusChip>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
+};
+
+const MiniRankPanel: FC<{
+  title: string;
+  rows: LeaderboardRow[];
+  labelKey: string;
+  valueKey: string;
+}> = ({
+  title,
+  rows,
+  labelKey,
+  valueKey,
+}) => {
+  return (
+    <div className="glass-panel p-4 flex flex-col justify-between bg-[#0c0e14]/40">
+      <div className="text-[10px] font-mono uppercase tracking-widest text-white/40 mb-3 border-b border-white/5 pb-2">{title}</div>
+      <div className="grid gap-3">
+        {rows.length ? (
+          rows.slice(0, 5).map((row, index) => (
+            <DataRow
+              key={`${String(row[labelKey] ?? row.id)}-${index}`}
+              rank={index + 1}
+              title={String(row[labelKey] ?? 'Unknown')}
+              value={String(row[valueKey] ?? 0)}
+              badge={<StatusChip tone="slate">tracked</StatusChip>}
+            />
+          ))
+        ) : (
+          <EmptyPanel title={`No ${title}`} description="Tracking queue is currently empty." />
+        )}
+      </div>
+    </div>
+  );
+};
+
+function formatCompactValue(value: unknown) {
+  return formatMomentumCount(Number(value ?? 0));
 }
