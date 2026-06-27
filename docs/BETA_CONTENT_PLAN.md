@@ -103,6 +103,14 @@ npm run content:beta:verify
 npm run content:beta:sql
 ```
 
+Or run the full reviewed-content prepare flow in one step:
+
+```bash
+npm run content:beta:import
+```
+
+That workflow captures a fresh D1 snapshot, verifies the reviewed JSON, and regenerates the reviewed SQL without applying production writes.
+
 The verify command checks references, public-safe wording, obvious secret leakage, URL shape, and placeholder/example-domain warnings. The SQL command writes `content/beta-import.generated.sql`. Review the generated SQL before applying it to D1.
 
 Capture a read-only production snapshot before applying real beta content:
@@ -117,6 +125,18 @@ Apply only after backup/export and review:
 
 ```bash
 npx wrangler d1 execute kairo-prod --remote --env production --file=content/beta-import.generated.sql
+```
+
+When a reviewed file is ready for production apply, use:
+
+```bash
+node scripts/import-beta-content.mjs content/<reviewed-file>.json --apply
+```
+
+You can also route through npm while keeping the same arguments:
+
+```bash
+npm run content:beta:import -- content/<reviewed-file>.json --apply
 ```
 
 Post-import checks:

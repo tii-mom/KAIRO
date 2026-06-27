@@ -154,6 +154,7 @@ Operational notes:
 | `npm run db:migrate:remote` | Apply D1 migrations to the configured remote database. |
 | `npm run db:backup:remote` | Capture a timestamped read-only production D1 JSON snapshot under `backups/d1/`. |
 | `npm run content:beta:sql` | Generate reviewable SQL from the beta content JSON template. |
+| `npm run content:beta:import` | Run the reviewed beta import workflow in prepare mode for the default reviewed JSON, or pass another file/mode with `--`. |
 | `npm run deploy:pages:api` | Build and deploy Pages with same-origin `/api/*` Functions bound to production D1. |
 | `npm run deploy:worker` | Deploy the Worker with Wrangler. |
 | `npm run verify:copy` | Scan public runtime code for forbidden public copy. |
