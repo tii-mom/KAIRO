@@ -19,6 +19,7 @@ import {
   patchAdminSupportEventValidityStatus,
   type AdminStats,
 } from '../lib/api';
+import { EmptyPanel, PageHero, Panel } from '../components/runtimeUi';
 import { ErrorState, LoadingState } from './pageUtils';
 
 const adminIdentity = { id: 'user-demo-admin', role: 'admin' as const, label: 'Demo Admin' };
@@ -74,175 +75,289 @@ export default function AdminPage() {
     sessionStorage.setItem(adminTokenStorageKey, adminToken.trim());
     setAdminToken(adminToken.trim());
     setMessage('Admin token saved for this browser session.');
+    setTimeout(() => setMessage(null), 3000);
   };
 
   const withRefresh = async (action: () => Promise<unknown>, success: string) => {
     await action();
     setMessage(success);
     await load();
+    setTimeout(() => setMessage(null), 3000);
   };
 
-  if (isLoading) return <LoadingState label="Loading admin operations..." />;
+  if (isLoading) return <LoadingState label="Loading admin operations console..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8">
-        <h1 className="text-4xl font-black text-white">Admin Operations V1</h1>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-white/60">Operational review surface for Catalyst moderation, Reward Records, validity checks, curated content, and launch stats. Requests are sent with `x-kairo-role: admin`.</p>
-        {message ? <div className="mt-4 text-sm text-[#ffd285]">{message}</div> : null}
-      </section>
+    <div className="space-y-8 pb-12">
+      <PageHero
+        eyebrow="Admin Hub"
+        title="Protocol Governance & Review Console"
+        description="Operator controls for Catalyst validations, solution audits, support verification, and comeback highlight items."
+        stats={[
+          { label: 'Total Catalysts', value: stats?.bounties ?? 0, detail: 'Tracked in admin dashboard' },
+          { label: 'Submissions Queue', value: stats?.submissions ?? 0, detail: 'Requiring verification review', tone: 'sky' },
+          { label: 'Support Signals', value: stats?.supportEvents ?? 0, detail: 'Recorded validity events', tone: 'emerald' },
+        ]}
+      />
 
-      <section className="rounded-2xl border border-[#ffd285]/20 bg-[#ffd285]/10 p-5">
-        <div className="flex items-start gap-3">
-          <ShieldAlert className="mt-1 h-5 w-5 shrink-0 text-[#ffd285]" />
-          <div>
-            <h2 className="text-lg font-black text-white">Private beta admin warning</h2>
-            <p className="mt-2 max-w-4xl text-sm leading-7 text-white/70">
-              Production admin requests require the demo admin role header plus the private beta admin token. Do not publish the admin route broadly, and replace this shared-token gate with stronger operator auth before open beta or public launch.
-            </p>
-            <form onSubmit={saveAdminToken} className="mt-4 flex max-w-2xl flex-col gap-3 sm:flex-row">
-              <input
-                value={adminToken}
-                onChange={(event) => setAdminToken(event.target.value)}
-                type="password"
-                placeholder="Private beta admin token"
-                className="min-w-0 flex-1 rounded-xl border border-[#ffd285]/20 bg-[#05070d] px-4 py-2 text-sm text-white outline-none focus:border-[#ffd285]/60"
+      {/* Admin Auth Notice */}
+      <Panel eyebrow="Access Control" title="Private Beta Admin Gate" icon={ShieldAlert}>
+        <div className="rounded border border-[#ffb95f]/20 bg-[#ffb95f]/5 p-5">
+          <p className="max-w-4xl text-xs sm:text-sm leading-6 text-[#ffb95f] mb-4 font-sans">
+            Operations require the private beta admin authorization token. Save your token value below to authenticate session API triggers.
+          </p>
+          <form onSubmit={saveAdminToken} className="flex max-w-2xl flex-col gap-3 sm:flex-row">
+            <input
+              value={adminToken}
+              onChange={(event) => setAdminToken(event.target.value)}
+              type="password"
+              placeholder="Private beta admin token"
+              className="kairo-form-field flex-1"
+            />
+            <button type="submit" className="btn-primary px-6 py-2.5 text-xs font-bold uppercase tracking-wider">
+              Save Token
+            </button>
+          </form>
+          {message ? <div className="mt-3 text-xs font-mono text-[#ffb95f]">{message}</div> : null}
+        </div>
+      </Panel>
+
+      <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+        
+        {/* Catalyst Reviews */}
+        <Panel eyebrow="Review queue" title="Catalyst Review Dashboard">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row">
+            <input value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} placeholder="Filter by status (e.g. active)" className="kairo-form-field" />
+            <input value={fundingStatusFilter} onChange={(event) => setFundingStatusFilter(event.target.value)} placeholder="Filter by funding status (e.g. paid)" className="kairo-form-field" />
+          </div>
+          <div className="grid gap-3">
+            {bounties.slice(0, 12).map((bounty) => (
+              <AdminRow
+                key={String(bounty.id)}
+                title={String(bounty.title)}
+                subtitle={`Status: ${String(bounty.status)} · Funding: ${String(bounty.funding_status)}`}
+                actions={[
+                  {
+                    label: 'Mark Active',
+                    onClick: () => withRefresh(() => patchAdminBountyStatus(String(bounty.id), 'active', options), 'Catalyst marked active.'),
+                  },
+                  {
+                    label: 'Mark Paid',
+                    onClick: () => withRefresh(() => patchAdminBountyFundingStatus(String(bounty.id), 'paid', options), 'Funding Status updated.'),
+                  },
+                  {
+                    label: 'Add Funding Event',
+                    onClick: () =>
+                      withRefresh(
+                        () => createAdminFundingEvent(String(bounty.id), { note: 'Reward confirmed by KAIRO', amountText: 'Manual admin note' }, options),
+                        'Funding Event added.',
+                      ),
+                  },
+                ]}
               />
-              <button type="submit" className="rounded-full bg-[#ffd285] px-5 py-2 text-sm font-black text-[#05070d]">
-                Save token
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-5">
-        <Stat label="Catalysts" value={stats?.bounties ?? 0} />
-        <Stat label="Submissions" value={stats?.submissions ?? 0} />
-        <Stat label="Boosts" value={stats?.boosts ?? 0} />
-        <Stat label="Support Events" value={stats?.supportEvents ?? 0} />
-        <Stat label="Active Curated" value={stats?.activeCuratedItems ?? 0} />
-      </section>
-
-      <section className="rounded-2xl border border-white/10 bg-[#0c0e14]/70 p-6">
-        <div className="mb-4 flex gap-3">
-          <input value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} placeholder="Filter by status" className="rounded-xl border border-white/10 bg-[#05070d] px-4 py-2 text-sm text-white" />
-          <input value={fundingStatusFilter} onChange={(event) => setFundingStatusFilter(event.target.value)} placeholder="Filter by funding_status" className="rounded-xl border border-white/10 bg-[#05070d] px-4 py-2 text-sm text-white" />
-        </div>
-        <div className="space-y-4">
-          {bounties.slice(0, 12).map((bounty) => (
-            <div key={String(bounty.id)} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <div className="font-black text-white">{String(bounty.title)}</div>
-              <div className="mt-1 text-sm text-white/50">{String(bounty.status)} · {String(bounty.funding_status)}</div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button type="button" onClick={() => void withRefresh(() => patchAdminBountyStatus(String(bounty.id), 'active', options), 'Catalyst marked active.')} className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/80">Mark active</button>
-                <button type="button" onClick={() => void withRefresh(() => patchAdminBountyFundingStatus(String(bounty.id), 'paid', options), 'Funding Status updated.')} className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/80">Mark paid</button>
-                <button type="button" onClick={() => void withRefresh(() => createAdminFundingEvent(String(bounty.id), { note: 'Reward confirmed by KAIRO', amountText: 'Manual admin note' }, options), 'Funding Event added.')} className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/80">Add Funding Event</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <GridSection title="Submissions">
-        {submissions.slice(0, 10).map((submission) => (
-          <div key={String(submission.id)}>
-            <RowCard title={String(submission.name)} subtitle={`${String(submission.status)} · ${String(submission.delivery_status)}`}>
-              <button type="button" onClick={() => void withRefresh(() => patchAdminSubmissionStatus(String(submission.id), 'winner', options), 'Submission status updated.')} className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/80">Mark winner</button>
-              <button type="button" onClick={() => void withRefresh(() => patchAdminSubmissionDeliveryStatus(String(submission.id), 'completed', options), 'Delivery Status updated.')} className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/80">Mark completed</button>
-            </RowCard>
-          </div>
-        ))}
-      </GridSection>
-
-      <GridSection title="Boosts">
-        {boosts.slice(0, 10).map((boost) => (
-          <div key={String(boost.id)}>
-            <RowCard title={String(boost.id)} subtitle={`${String(boost.validity_status)} · ${String(boost.source)}`}>
-              <button type="button" onClick={() => void withRefresh(() => patchAdminBoostValidityStatus(String(boost.id), 'valid', options), 'Boost marked valid.')} className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/80">Valid</button>
-              <button type="button" onClick={() => void withRefresh(() => patchAdminBoostValidityStatus(String(boost.id), 'suspicious', options), 'Boost marked suspicious.')} className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/80">Suspicious</button>
-              <button type="button" onClick={() => void withRefresh(() => patchAdminBoostValidityStatus(String(boost.id), 'invalid', options), 'Boost marked invalid.')} className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/80">Invalid</button>
-            </RowCard>
-          </div>
-        ))}
-      </GridSection>
-
-      <GridSection title="Support Events">
-        {supportEvents.slice(0, 10).map((event) => (
-          <div key={String(event.id)}>
-            <RowCard title={String(event.event_type)} subtitle={`${String(event.validity_status)} · ${String(event.user_id)}`}>
-              <button type="button" onClick={() => void withRefresh(() => patchAdminSupportEventValidityStatus(String(event.id), 'valid', options), 'Support event marked valid.')} className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/80">Valid</button>
-              <button type="button" onClick={() => void withRefresh(() => patchAdminSupportEventValidityStatus(String(event.id), 'suspicious', options), 'Support event marked suspicious.')} className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/80">Suspicious</button>
-              <button type="button" onClick={() => void withRefresh(() => patchAdminSupportEventValidityStatus(String(event.id), 'invalid', options), 'Support event marked invalid.')} className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/80">Invalid</button>
-            </RowCard>
-          </div>
-        ))}
-      </GridSection>
-
-      <section className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-white/10 bg-[#0c0e14]/70 p-6">
-          <h2 className="text-lg font-black text-white">Curated Items</h2>
-          <div className="mt-4 space-y-3">
-            {curatedItems.slice(0, 10).map((item) => (
-              <div key={String(item.id)}>
-                <RowCard title={String(item.title)} subtitle={`${String(item.item_type)} · ${String(item.status)}`}>
-                  <button type="button" onClick={() => void withRefresh(() => patchAdminCuratedItem(String(item.id), { status: item.status === 'hidden' ? 'active' : 'hidden' }, options), 'Curated item updated.')} className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/80">{String(item.status) === 'hidden' ? 'Unhide' : 'Hide'}</button>
-                </RowCard>
-              </div>
             ))}
           </div>
-        </section>
+        </Panel>
 
-        <section className="rounded-2xl border border-white/10 bg-[#0c0e14]/70 p-6">
-          <h2 className="text-lg font-black text-white">Create Curated Item</h2>
-          <form
-            className="mt-4 space-y-3"
-            onSubmit={(event: FormEvent<HTMLFormElement>) => {
-              event.preventDefault();
-              const form = new FormData(event.currentTarget);
-              void withRefresh(
-                () =>
-                  createAdminCuratedItem(
-                    {
-                      itemType: String(form.get('itemType') ?? 'featured_catalyst'),
-                      placement: String(form.get('placement') ?? 'home'),
-                      targetType: String(form.get('targetType') ?? 'external'),
-                      targetId: String(form.get('targetId') ?? '') || undefined,
-                      title: String(form.get('title') ?? ''),
-                      description: String(form.get('description') ?? ''),
-                      sortOrder: Number(form.get('sortOrder') ?? 0),
-                      status: 'active',
-                    },
-                    options,
-                  ),
-                'Curated item created.',
-              );
-            }}
-          >
-            <input name="itemType" placeholder="itemType" className="w-full rounded-xl border border-white/10 bg-[#05070d] px-4 py-2 text-sm text-white" />
-            <input name="placement" placeholder="placement" className="w-full rounded-xl border border-white/10 bg-[#05070d] px-4 py-2 text-sm text-white" />
-            <input name="targetType" placeholder="targetType" className="w-full rounded-xl border border-white/10 bg-[#05070d] px-4 py-2 text-sm text-white" />
-            <input name="targetId" placeholder="targetId" className="w-full rounded-xl border border-white/10 bg-[#05070d] px-4 py-2 text-sm text-white" />
-            <input name="title" placeholder="title" className="w-full rounded-xl border border-white/10 bg-[#05070d] px-4 py-2 text-sm text-white" />
-            <textarea name="description" placeholder="description" className="w-full rounded-xl border border-white/10 bg-[#05070d] px-4 py-2 text-sm text-white" />
-            <input name="sortOrder" type="number" placeholder="sortOrder" className="w-full rounded-xl border border-white/10 bg-[#05070d] px-4 py-2 text-sm text-white" />
-            <button type="submit" className="rounded-full bg-[#ffd285] px-4 py-2 text-sm font-black text-[#05070d]">Create</button>
-          </form>
-        </section>
-      </section>
+        {/* Curated list / metrics */}
+        <div className="grid gap-6">
+          <Panel eyebrow="Telemetry stats" title="Platform Statistics">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <MetricBox label="Total Boosts" value={String(stats?.boosts ?? 0)} />
+              <MetricBox label="Curated Items" value={String(stats?.activeCuratedItems ?? 0)} />
+              <MetricBox label="Submissions" value={String(stats?.submissions ?? 0)} />
+              <MetricBox label="Catalysts" value={String(stats?.bounties ?? 0)} />
+            </div>
+          </Panel>
+
+          <Panel eyebrow="Curator Lane" title="Publish Curated Comeback Story">
+            <form
+              className="space-y-4"
+              onSubmit={(event: FormEvent<HTMLFormElement>) => {
+                event.preventDefault();
+                const form = new FormData(event.currentTarget);
+                void withRefresh(
+                  () =>
+                    createAdminCuratedItem(
+                      {
+                        itemType: String(form.get('itemType') ?? 'featured_catalyst'),
+                        placement: String(form.get('placement') ?? 'home'),
+                        targetType: String(form.get('targetType') ?? 'external'),
+                        targetId: String(form.get('targetId') ?? '') || undefined,
+                        title: String(form.get('title') ?? ''),
+                        description: String(form.get('description') ?? ''),
+                        sortOrder: Number(form.get('sortOrder') ?? 0),
+                        status: 'active',
+                      },
+                      options,
+                    ),
+                  'Curated item created.',
+                );
+              }}
+            >
+              <input name="itemType" placeholder="Item Type (e.g. featured_catalyst)" className="kairo-form-field" required />
+              <input name="placement" placeholder="Placement Slot (e.g. home)" className="kairo-form-field" required />
+              <input name="targetType" placeholder="Target Type (e.g. external)" className="kairo-form-field" required />
+              <input name="targetId" placeholder="Target ID Reference" className="kairo-form-field" />
+              <input name="title" placeholder="Curated Item Title" className="kairo-form-field" required />
+              <textarea name="description" placeholder="Description content..." className="kairo-form-field min-h-24 resize-y" required />
+              <input name="sortOrder" type="number" placeholder="Sort Order Rank (e.g. 0)" className="kairo-form-field" required />
+              <button type="submit" className="btn-primary px-6 py-2 text-xs font-bold uppercase tracking-wider">
+                Publish Highlight
+              </button>
+            </form>
+          </Panel>
+        </div>
+      </div>
+
+      {/* Builder Submission Reviews */}
+      <GridSection title="Solution Submissions Audits">
+        {submissions.slice(0, 10).map((submission) => (
+          <AdminRow
+            key={String(submission.id)}
+            title={String(submission.name)}
+            subtitle={`Status: ${String(submission.status)} · Delivery: ${String(submission.delivery_status)}`}
+            actions={[
+              {
+                label: 'Mark Winner',
+                onClick: () => withRefresh(() => patchAdminSubmissionStatus(String(submission.id), 'winner', options), 'Submission status updated.'),
+              },
+              {
+                label: 'Mark Completed',
+                onClick: () =>
+                  withRefresh(() => patchAdminSubmissionDeliveryStatus(String(submission.id), 'completed', options), 'Delivery Status updated.'),
+              },
+            ]}
+          />
+        ))}
+      </GridSection>
+
+      <div className="grid gap-6 xl:grid-cols-3">
+        {/* Boost verification */}
+        <GridSection title="Boost Signal Audits">
+          {boosts.slice(0, 10).map((boost) => (
+            <AdminRow
+              key={String(boost.id)}
+              title={`Boost ID: ${String(boost.id).slice(0, 8)}...`}
+              subtitle={`Status: ${String(boost.validity_status)} · Source: ${String(boost.source)}`}
+              actions={[
+                {
+                  label: 'Valid',
+                  onClick: () => withRefresh(() => patchAdminBoostValidityStatus(String(boost.id), 'valid', options), 'Boost marked valid.'),
+                },
+                {
+                  label: 'Suspicious',
+                  onClick: () =>
+                    withRefresh(() => patchAdminBoostValidityStatus(String(boost.id), 'suspicious', options), 'Boost marked suspicious.'),
+                },
+                {
+                  label: 'Invalid',
+                  onClick: () => withRefresh(() => patchAdminBoostValidityStatus(String(boost.id), 'invalid', options), 'Boost marked invalid.'),
+                },
+              ]}
+            />
+          ))}
+        </GridSection>
+
+        {/* Support event logs */}
+        <GridSection title="Timeline Event Audits">
+          {supportEvents.slice(0, 10).map((event) => (
+            <AdminRow
+              key={String(event.id)}
+              title={String(event.event_type)}
+              subtitle={`Status: ${String(event.validity_status)} · User: ${String(event.user_id).slice(0, 8)}...`}
+              actions={[
+                {
+                  label: 'Valid',
+                  onClick: () =>
+                    withRefresh(() => patchAdminSupportEventValidityStatus(String(event.id), 'valid', options), 'Support event marked valid.'),
+                },
+                {
+                  label: 'Suspicious',
+                  onClick: () =>
+                    withRefresh(() => patchAdminSupportEventValidityStatus(String(event.id), 'suspicious', options), 'Support event marked suspicious.'),
+                },
+                {
+                  label: 'Invalid',
+                  onClick: () =>
+                    withRefresh(() => patchAdminSupportEventValidityStatus(String(event.id), 'invalid', options), 'Support event marked invalid.'),
+                },
+              ]}
+            />
+          ))}
+        </GridSection>
+
+        {/* Curator content list */}
+        <GridSection title="Curated Comeback Items">
+          {curatedItems.slice(0, 10).map((item) => (
+            <AdminRow
+              key={String(item.id)}
+              title={String(item.title)}
+              subtitle={`Type: ${String(item.item_type)} · Status: ${String(item.status)}`}
+              actions={[
+                {
+                  label: String(item.status) === 'hidden' ? 'Unhide' : 'Hide',
+                  onClick: () =>
+                    withRefresh(
+                      () => patchAdminCuratedItem(String(item.id), { status: item.status === 'hidden' ? 'active' : 'hidden' }, options),
+                      'Curated item updated.',
+                    ),
+                },
+              ]}
+            />
+          ))}
+        </GridSection>
+      </div>
     </div>
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
-  return <div className="rounded-2xl border border-white/10 bg-[#0c0e14]/70 p-4"><div className="text-[10px] uppercase text-white/35">{label}</div><div className="mt-2 text-2xl font-black text-white">{value}</div></div>;
+function MetricBox({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="glass-panel p-4 border-white/5 bg-[#050608]">
+      <div className="text-[9px] font-mono uppercase tracking-wider text-white/30">{label}</div>
+      <div className="mt-1.5 font-mono text-xl font-bold text-white">{value}</div>
+    </div>
+  );
 }
 
 function GridSection({ title, children }: { title: string; children: ReactNode }) {
-  return <section className="rounded-2xl border border-white/10 bg-[#0c0e14]/70 p-6"><h2 className="mb-4 text-lg font-black text-white">{title}</h2><div className="space-y-3">{children}</div></section>;
+  return (
+    <Panel eyebrow="Operator audit" title={title}>
+      <div className="grid gap-3">
+        {children || <EmptyPanel title={`No ${title.toLowerCase()} recorded`} description="Current audit queue is empty." />}
+      </div>
+    </Panel>
+  );
 }
 
-function RowCard({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
-  return <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"><div className="font-black text-white">{title}</div><div className="mt-1 text-sm text-white/50">{subtitle}</div><div className="mt-3 flex flex-wrap gap-2">{children}</div></div>;
+function AdminRow({
+  title,
+  subtitle,
+  actions,
+  key,
+}: {
+  key?: string | number;
+  title: string;
+  subtitle: string;
+  actions: Array<{ label: string; onClick: () => Promise<unknown> }>;
+}) {
+  return (
+    <div className="glass-panel p-4 hover:border-white/10 transition-colors">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <div className="text-sm font-bold tracking-tight text-white">{title}</div>
+          <div className="mt-1 text-xs text-white/50">{subtitle}</div>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {actions.map((action) => (
+            <button key={action.label} type="button" onClick={() => void action.onClick()} className="btn-ghost px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider">
+              {action.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }

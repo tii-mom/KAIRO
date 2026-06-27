@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
-import { Award, Flame, FlaskConical, HeartHandshake, MessageSquare, ShieldCheck, Sparkles, Trophy } from 'lucide-react';
+import { Activity, Award, Flame, FlaskConical, HeartHandshake, MessageSquare, ShieldCheck, Sparkles, Trophy } from 'lucide-react';
+import { SignalTicker, cx } from './components/runtimeUi';
 
 const navItems = [
   { to: '/', label: 'Catalysts', icon: Sparkles },
@@ -11,45 +12,92 @@ const navItems = [
   { to: '/feedback', label: 'Feedback', icon: MessageSquare },
 ];
 
+const tickerItems = [
+  { label: 'REVIVAL RUNTIME', value: 'V2 ACTIVE', tone: 'gold' as const },
+  { label: 'STATUS', value: 'PRIVATE BETA', tone: 'sky' as const },
+  { label: 'COGNITIVE RADAR', value: 'MOMENTUM FEED', tone: 'emerald' as const },
+  { label: 'EVIDENCE LOG', value: 'PUBLIC SAFE REWARDS', tone: 'gold' as const },
+  { label: 'TRUST PROOF', value: 'SUPPORT TRAIL', tone: 'sky' as const },
+  { label: 'OPERATIONS', value: 'GOVERNANCE ONLINE', tone: 'rose' as const },
+];
+
 export default function RuntimeV2Shell() {
   return (
-    <div className="min-h-screen bg-[#05070d] text-white">
-      <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(255,210,133,0.18),transparent_32%),radial-gradient(circle_at_80%_10%,rgba(34,211,238,0.12),transparent_28%)]" />
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#05070d]/85 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#ffd285] text-[#05070d] shadow-[0_0_30px_rgba(255,210,133,0.28)]">
-              <Flame className="h-5 w-5" />
-            </span>
-            <div>
-              <div className="font-mono text-lg font-black tracking-[0.24em]">KAIRO</div>
-              <div className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/40">Runtime V2</div>
+    <div className="kairo-root text-white flex flex-col min-h-screen">
+      <SignalTicker items={tickerItems} />
+      <header className="sticky top-0 z-30 border-b border-white/5 bg-[#0c0e14]/80 backdrop-blur-xl">
+        <div className="kairo-shell py-4">
+          <div className="glass-panel flex flex-col gap-4 px-4 py-4 lg:flex-row lg:items-center lg:justify-between lg:px-5">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:gap-6">
+              <Link to="/" className="flex items-center gap-3">
+                <span className="grid h-12 w-12 place-items-center rounded border border-[#EE1C25]/30 bg-gradient-to-b from-[#EE1C25]/20 to-[#EE1C25]/5 text-[#EE1C25] shadow-[0_0_15px_rgba(238,28,37,0.2)]">
+                  <Flame className="h-5 w-5 animate-pulse" />
+                </span>
+                <div>
+                  <div className="font-mono text-lg font-bold tracking-[0.25em] text-[#ffb95f]">KAIRO</div>
+                  <div className="mt-0.5 text-[9px] uppercase font-mono tracking-[0.2em] text-white/40">Resurrection Platform</div>
+                </div>
+              </Link>
+              <div className="grid gap-2 sm:grid-cols-3 xl:min-w-[420px]">
+                <StatusMetric label="Telemetry Shell" value="Command Consoles" />
+                <StatusMetric label="Ecosystem Scope" value="Resurrection Signal" />
+                <StatusMetric label="Protocol Guardrail" value="Zero Financial Flows" />
+              </div>
             </div>
-          </Link>
-          <nav className="flex gap-2 overflow-x-auto">
-            {navItems.map(({ to, label, icon: Icon }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={to === '/'}
-                className={({ isActive }) =>
-                  `flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold transition ${
-                    isActive
-                      ? 'border-[#ffd285]/40 bg-[#ffd285]/15 text-[#ffd285]'
-                      : 'border-white/10 bg-white/[0.03] text-white/55 hover:border-white/20 hover:text-white'
-                  }`
-                }
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-              </NavLink>
-            ))}
-          </nav>
+            <nav className="scrollbar-none flex gap-1.5 overflow-x-auto py-1">
+              {navItems.map(({ to, label, icon: Icon }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={to === '/'}
+                  className={({ isActive }) =>
+                    cx(
+                      'px-3.5 py-2 font-mono text-[10px] tracking-wider uppercase border border-transparent rounded hover:border-[#ffb95f]/20 hover:bg-white/[0.03] text-white/60 transition-all duration-200 shrink-0 flex items-center gap-1.5',
+                      isActive && 'border-[#ffb95f]/30 bg-[#ffb95f]/10 text-[#ffb95f]'
+                    )
+                  }
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {label}
+                </NavLink>
+              ))}
+            </nav>
+          </div>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-5 py-8">
+      <main className="kairo-shell py-6 sm:py-8 flex-grow">
         <Outlet />
       </main>
+      <footer className="w-full border-t border-white/5 bg-[#0c0e14]/90 py-10 mt-12">
+        <div className="kairo-shell flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-3">
+            <span className="w-2 h-2 rounded-full bg-[#EE1C25] shadow-[0_0_8px_rgba(238,28,37,0.8)] animate-pulse" />
+            <div className="text-xl font-bold font-sans tracking-tight text-[#ffb95f]">KAIRO</div>
+          </div>
+          <div className="text-white/40 font-mono text-[10px] uppercase tracking-widest text-center">
+            © 2026 KAIRO Protocol. Reignite the Dormant.
+          </div>
+          <div className="flex flex-wrap justify-center gap-6 font-mono text-[10px] uppercase tracking-wider">
+            <a className="text-white/50 hover:text-[#ffb95f]" href="#">Platform</a>
+            <a className="text-white/50 hover:text-[#ffb95f]" href="#">Governance</a>
+            <a className="text-white/50 hover:text-[#ffb95f]" href="#">Docs</a>
+            <a className="text-white/50 hover:text-[#ffb95f]" href="#">X</a>
+            <a className="text-white/50 hover:text-[#ffb95f]" href="#">Telegram</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+function StatusMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded border border-white/5 bg-white/[0.01] px-3 py-2 flex items-center justify-between gap-4">
+      <div className="min-w-0">
+        <div className="text-[8px] font-mono uppercase tracking-widest text-white/30">{label}</div>
+        <div className="mt-0.5 text-[11px] font-medium text-white/70 truncate">{value}</div>
+      </div>
+      <Activity className="h-3.5 w-3.5 text-[#ffb95f] shrink-0 opacity-70" />
     </div>
   );
 }

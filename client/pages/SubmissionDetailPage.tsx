@@ -4,6 +4,7 @@ import { Flame, Github, Globe, PlayCircle } from 'lucide-react';
 import { boostSubmission, getSubmission } from '../lib/api';
 import type { SubmissionRecord } from '../../shared/domain';
 import { ErrorState, LoadingState } from './pageUtils';
+import { ActionButton, StatusChip } from '../components/runtimeUi';
 
 export default function SubmissionDetailPage() {
   const { id } = useParams();
@@ -31,7 +32,7 @@ export default function SubmissionDetailPage() {
   }, [id]);
 
   if (!id) return <Navigate to="/catalysts" replace />;
-  if (isLoading) return <LoadingState label="Loading submission..." />;
+  if (isLoading) return <LoadingState label="Loading Solution details..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   if (!submission) return <Navigate to="/catalysts" replace />;
 
@@ -46,18 +47,55 @@ export default function SubmissionDetailPage() {
   };
 
   return (
-    <article className="rounded-2xl border border-white/5 bg-[#0c0e14]/50 p-6">
-      <Link to={`/catalysts/${submission.bountyId}`} className="text-sm font-bold text-[#ffd285]">Back to Catalyst</Link>
-      <h1 className="mt-4 text-3xl font-black text-white">{submission.name}</h1>
-      <p className="mt-2 text-white/50">Builder {submission.builderId} · {submission.status} · Delivery {submission.deliveryStatus}</p>
-      <p className="mt-6 max-w-3xl leading-relaxed text-white/70">{submission.description ?? submission.tagline}</p>
-      <div className="mt-6 flex flex-wrap gap-4 text-sm">
-        {submission.demoUrl ? <a className="flex items-center gap-2 text-[#ffd285]" href={submission.demoUrl}><Globe className="h-4 w-4" />Demo</a> : null}
-        {submission.githubUrl ? <a className="flex items-center gap-2 text-[#ffd285]" href={submission.githubUrl}><Github className="h-4 w-4" />GitHub</a> : null}
-        {submission.videoUrl ? <a className="flex items-center gap-2 text-[#ffd285]" href={submission.videoUrl}><PlayCircle className="h-4 w-4" />Video</a> : null}
-        <button type="button" onClick={handleBoost} className="flex items-center gap-2 text-[#ffd285]"><Flame className="h-4 w-4" />Boost</button>
+    <article className="glass-panel p-6 sm:p-8 max-w-4xl mx-auto space-y-6 pb-12">
+      <Link to={`/catalysts/${submission.bountyId}`} className="text-xs font-mono font-bold uppercase tracking-wider text-[#ffb95f] hover:underline">
+        ← Back to Catalyst Lane
+      </Link>
+      
+      <div className="border-b border-white/5 pb-4">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">{submission.name}</h1>
+        <div className="mt-2 text-xs text-white/50 font-mono uppercase tracking-wider flex flex-wrap gap-4 items-center">
+          <span>Builder ID: {submission.builderId}</span>
+          <StatusChip tone={submission.status === 'approved' ? 'emerald' : 'gold'}>{submission.status}</StatusChip>
+          <span>Delivery: <strong className="text-white">{submission.deliveryStatus}</strong></span>
+        </div>
       </div>
-      {boostMessage ? <p className="mt-4 text-sm text-[#ffd285]">{boostMessage}</p> : null}
+
+      <div className="font-sans text-sm text-white/70 leading-relaxed max-w-3xl">
+        <p className="font-bold text-white mb-2">{submission.tagline}</p>
+        <p>{submission.description}</p>
+      </div>
+
+      <div className="mt-6 flex flex-wrap gap-4 border-t border-white/5 pt-6">
+        {submission.demoUrl ? (
+          <a className="btn-ghost px-4 py-2 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5" href={submission.demoUrl} target="_blank" rel="noopener noreferrer">
+            <Globe className="h-3.5 w-3.5" />
+            Live Demo
+          </a>
+        ) : null}
+        {submission.githubUrl ? (
+          <a className="btn-ghost px-4 py-2 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5" href={submission.githubUrl} target="_blank" rel="noopener noreferrer">
+            <Github className="h-3.5 w-3.5" />
+            GitHub Repo
+          </a>
+        ) : null}
+        {submission.videoUrl ? (
+          <a className="btn-ghost px-4 py-2 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5" href={submission.videoUrl} target="_blank" rel="noopener noreferrer">
+            <PlayCircle className="h-3.5 w-3.5" />
+            Explainer Video
+          </a>
+        ) : null}
+        <ActionButton onClick={handleBoost} tone="ignite" className="px-6 py-2 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5">
+          <Flame className="h-3.5 w-3.5 animate-pulse" />
+          Boost Solution ({submission.boostCount} boosts)
+        </ActionButton>
+      </div>
+
+      {boostMessage ? (
+        <div className="rounded border border-white/5 bg-[#050608] p-3 text-xs font-mono text-[#ffb95f] mt-4">
+          {boostMessage}
+        </div>
+      ) : null}
     </article>
   );
 }

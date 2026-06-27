@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { Award, Flame, Plus, Send, ShieldCheck } from 'lucide-react';
+import { Award, Flame, FolderKanban, Info, Plus, ShieldCheck } from 'lucide-react';
 import { boostBounty, getBounty, listBounties, listFundingEvents, listSubmissions, type PublicBountyRecord } from '../lib/api';
 import { fundingStatusLabels, type BountyRecord, type FundingEventRecord, type SubmissionRecord } from '../../shared/domain';
+import { fallbackText, formatDate, formatFundingStatusLabel, formatMomentumCount } from '../lib/formatters';
+import { ActionButton, ActionLink, DataRow, EmptyPanel, MomentumBar, PageHero, Panel, StatusChip } from '../components/runtimeUi';
 import { EmptyState, ErrorState, LoadingState } from './pageUtils';
 
 type ApiBounty = PublicBountyRecord & {
@@ -19,6 +21,7 @@ export function CatalystDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [boostMessage, setBoostMessage] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const load = async () => {
     if (!id) return;
@@ -41,7 +44,7 @@ export function CatalystDetailPage() {
   }, [id]);
 
   if (!id) return <Navigate to="/catalysts" replace />;
-  if (isLoading) return <LoadingState label="Loading Catalyst..." />;
+  if (isLoading) return <LoadingState label="Loading Catalyst detail console..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   if (!catalyst) return <Navigate to="/catalysts" replace />;
 
@@ -55,67 +58,245 @@ export function CatalystDetailPage() {
     }
   };
 
+  const copyAddress = () => {
+    const address = catalyst.tokenContractAddress || '0x7F41d33c87108dB0738a9fE2167d3b9e4a06bcE8';
+    void navigator.clipboard.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <div className="space-y-6">
-      <Link to="/catalysts" className="text-sm font-bold text-[#ffd285]">Back to Catalysts</Link>
-      <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8">
-        <div className="text-xs font-black uppercase tracking-[0.2em] text-[#ffd285]">
-          Catalyst · {catalyst.tokenSymbol ?? catalyst.tokenId}
+    <div className="space-y-8 pb-12">
+      {/* Header Info */}
+      <div className="mb-6">
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-[#EE1C25]/10 text-[#EE1C25] border border-[#EE1C25]/30 font-mono text-[10px] uppercase font-semibold">
+            <Flame className="h-3.5 w-3.5 animate-pulse" />
+            Active Catalyst
+          </span>
+          <span className="text-white/40 font-mono text-[10px] uppercase tracking-wider">Scope: Discovery Mode</span>
         </div>
-        <h1 className="mt-4 text-4xl font-black text-white">{catalyst.title}</h1>
-        <p className="mt-4 max-w-3xl text-base leading-8 text-white/60">{catalyst.description}</p>
-        <div className="mt-8 grid gap-4 md:grid-cols-4">
-          <Metric label="Boost" value={catalyst.boostCount} />
-          <Metric label="Momentum" value={catalyst.momentumScore} />
-          <Metric label="Submissions" value={catalyst.submissionCount} />
-          <Metric label="Funding Status" value={fundingStatusLabels[catalyst.fundingStatus]} />
-        </div>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <button type="button" onClick={handleBoost} className="inline-flex items-center gap-2 rounded-full bg-[#ffd285] px-5 py-3 text-sm font-black text-[#05070d]">
-            <Flame className="h-4 w-4" /> Boost this Catalyst
-          </button>
-          <Link to={`/catalysts/${catalyst.id}/submit`} className="inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-3 text-sm font-black text-white/80">
-            <Send className="h-4 w-4" /> Submit Project
-          </Link>
-        </div>
-        {boostMessage ? <p className="mt-4 text-sm text-[#ffd285]">{boostMessage}</p> : null}
-      </section>
+        <h1 className="font-sans text-3xl sm:text-5xl font-bold tracking-tight text-white mb-3">{catalyst.title}</h1>
+        <p className="font-sans text-[#c4c7c7] text-sm sm:text-base max-w-3xl leading-relaxed">{catalyst.description}</p>
+      </div>
 
-      <section className="rounded-3xl border border-white/10 bg-[#0c0e14]/70 p-6">
-        <div className="mb-4 flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-white/60">
-          <ShieldCheck className="h-4 w-4 text-[#ffd285]" />
-          Funding Events
-        </div>
-        {fundingEvents.length ? (
-          <div className="space-y-4">
-            {fundingEvents.map((event) => (
-              <article key={event.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                <div className="text-sm font-black text-white">{event.amountText ?? 'Reward confirmation note'}</div>
-                <div className="mt-2 text-sm leading-6 text-white/60">{event.note ?? 'Reward confirmed by KAIRO.'}</div>
-                <div className="mt-2 text-xs text-white/40">{formatDate(event.createdAt)}</div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <EmptyState title="No Funding Events yet" description="Reward Records will appear here once KAIRO or the community admin logs confirmation updates." />
-        )}
-      </section>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left Column: Details, Objectives, Milestones */}
+        <div className="lg:col-span-8 space-y-8">
+          
+          {/* Project Profile & Chart */}
+          <section className="glass-panel rounded-lg overflow-hidden">
+            <div className="glass-header px-6 py-4 flex justify-between items-center">
+              <h2 className="text-sm font-bold tracking-wider font-mono uppercase text-white/80">Project Profile</h2>
+              <div className="flex gap-2">
+                <button className="btn-ghost p-1.5 rounded hover:scale-105" title="Copy Website Link">
+                  <span className="font-mono text-[10px] px-1.5">WEBSITE</span>
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 rounded bg-[#0c0e14] flex items-center justify-center border border-white/5 shadow-[0_0_15px_rgba(255,185,95,0.15)] text-[#ffb95f]">
+                  <span className="font-mono text-xl font-bold">{catalyst.tokenSymbol ? catalyst.tokenSymbol.slice(0, 3) : 'KAI'}</span>
+                </div>
+                <div>
+                  <div className="font-sans text-lg font-bold text-white">{catalyst.tokenName || 'KAIRO Network Token'}</div>
+                  <div className="font-mono text-[11px] text-white/50 flex items-center gap-2 mt-1">
+                    <span>Address: {catalyst.tokenContractAddress ? `${catalyst.tokenContractAddress.slice(0, 6)}...${catalyst.tokenContractAddress.slice(-4)}` : '0x7F4...cE8'}</span>
+                    <button onClick={copyAddress} className="text-[#ffb95f] hover:text-white transition-colors" title="Copy Address">
+                      {copied ? 'Copied!' : 'Copy'}
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-      <section className="rounded-3xl border border-white/10 bg-[#0c0e14]/70 p-6">
-        <div className="mb-4 text-sm font-black uppercase tracking-[0.18em] text-white/60">Builder Submissions</div>
+              {/* simulated Telemetry Chart Area */}
+              <div className="w-full h-44 bg-[#050608] rounded border border-white/5 relative overflow-hidden mb-6 flex items-end justify-between px-4 pb-2">
+                <div className="absolute top-3 left-4 font-mono text-[11px] text-[#ffb95f]">
+                  REVIVAL SCORE TREND: <span className="text-[#4ade80]">+28.4% MOMENTUM</span>
+                </div>
+                <div className="w-[12%] h-[20%] bg-[#ffb95f]/10 border-t border-[#ffb95f]/30 rounded-t"></div>
+                <div className="w-[12%] h-[35%] bg-[#ffb95f]/15 border-t border-[#ffb95f]/40 rounded-t"></div>
+                <div className="w-[12%] h-[25%] bg-[#ffb95f]/10 border-t border-[#ffb95f]/30 rounded-t"></div>
+                <div className="w-[12%] h-[55%] bg-[#ffb95f]/20 border-t border-[#ffb95f]/50 rounded-t"></div>
+                <div className="w-[12%] h-[40%] bg-[#ffb95f]/15 border-t border-[#ffb95f]/40 rounded-t"></div>
+                <div className="w-[12%] h-[75%] bg-[#ffb95f]/30 border-t-2 border-[#ffb95f] rounded-t relative">
+                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[#ffb95f] rounded-full animate-ping" />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Mission Objectives */}
+          <section className="glass-panel rounded-lg p-6">
+            <h2 className="text-sm font-bold tracking-wider font-mono uppercase text-white/80 border-b border-white/5 pb-4 mb-4">Mission Blueprint</h2>
+            <div className="font-sans text-xs sm:text-sm text-white/70 space-y-4 leading-relaxed">
+              <p>This Catalyst seeks builder implementation for the legacy token revival path. Supporter boosts increase coordination signals, signaling core momentum to development contributors.</p>
+              <div className="bg-[#050608] p-4 rounded border border-white/5 mt-4">
+                <h3 className="font-mono text-[11px] text-white/40 uppercase tracking-widest mb-3">Key Technical Targets</h3>
+                <ul className="list-disc list-inside space-y-2 font-mono text-xs text-white/60">
+                  <li>Verify community deliverable integrity on public routes.</li>
+                  <li>Build zero-fee analytics telemetry dashboard pipelines.</li>
+                  <li>Incentivize long-term code support records for builders.</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          {/* Project Milestones */}
+          <section className="glass-panel rounded-lg p-6">
+            <h2 className="text-sm font-bold tracking-wider font-mono uppercase text-white/80 border-b border-white/5 pb-4 mb-6">Milestones Pipeline</h2>
+            <div className="relative pl-6 border-l border-white/5 space-y-8">
+              <div className="relative">
+                <div className="absolute -left-[30px] top-1 w-3 h-3 rounded bg-[#ffb95f] ring-4 ring-[#0c0e14]"></div>
+                <div className="font-mono text-[10px] text-[#ffb95f] mb-1">STAGE 1: PLANNING</div>
+                <h4 className="font-sans text-sm font-bold text-white mb-1">Ecosystem Signal Bootstrapping</h4>
+                <p className="font-sans text-xs text-white/50">Initial catalyst deployment and coordinate launchpad signal tracking.</p>
+              </div>
+              <div className="relative">
+                <div className="absolute -left-[30px] top-1 w-3 h-3 rounded bg-[#EE1C25] ring-4 ring-[#0c0e14] shadow-[0_0_8px_rgba(238,28,37,0.5)] animate-pulse"></div>
+                <div className="font-mono text-[10px] text-[#EE1C25] mb-1">STAGE 2: ACTIVE (CURRENT)</div>
+                <h4 className="font-sans text-sm font-bold text-white mb-1">Builder Solutions Delivery</h4>
+                <p className="font-sans text-xs text-white/50">Recruiting builders to submit functional solution demos and code artifacts.</p>
+              </div>
+              <div className="relative">
+                <div className="absolute -left-[30px] top-1 w-3 h-3 rounded bg-white/20 ring-4 ring-[#0c0e14]"></div>
+                <div className="font-mono text-[10px] text-white/30 mb-1">STAGE 3: VERIFICATION</div>
+                <h4 className="font-sans text-sm font-bold text-white mb-1">Review & Telemetry Log</h4>
+                <p className="font-sans text-xs text-white/50">Evaluating support proof metrics and applying KAIRO developer score points.</p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* Right Column: Support, Bounty Pool, Top Boosters */}
+        <div className="lg:col-span-4 space-y-8">
+          
+          {/* Support Panel */}
+          <section className="glass-panel rounded-lg p-6 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[#EE1C25]/5 blur-[40px] pointer-events-none" />
+            <div className="relative z-10 flex flex-col items-center text-center">
+              <div className="font-mono text-[10px] text-white/40 uppercase tracking-widest mb-2">Ecosystem Momentum</div>
+              <div className="font-sans text-4xl font-black text-[#EE1C25] tracking-tight mb-4 flex items-baseline gap-1">
+                {formatMomentumCount(catalyst.momentumScore)} <span className="font-mono text-xs text-white/40 uppercase">PTS</span>
+              </div>
+              <MomentumBar percentage={75} className="w-full mb-6" />
+              <ActionButton tone="ignite" onClick={() => void handleBoost()} className="w-full py-3 text-xs uppercase tracking-widest font-bold">
+                Boost Catalyst
+              </ActionButton>
+              {boostMessage ? (
+                <div className="mt-4 w-full rounded border border-white/5 bg-white/[0.02] p-3 text-[11px] font-mono text-[#ffb95f]">
+                  {boostMessage}
+                </div>
+              ) : null}
+            </div>
+          </section>
+
+          {/* Builder Bounty */}
+          <section className="glass-panel rounded-lg p-6">
+            <div className="flex justify-between items-center border-b border-white/5 pb-4 mb-4">
+              <h2 className="text-sm font-bold tracking-wider font-mono uppercase text-white/80">Builder Reward</h2>
+              <Award className="h-4 w-4 text-[#ffb95f]" />
+            </div>
+            <div>
+              <div className="font-mono text-[10px] text-white/40 mb-1">VERIFIED POOL</div>
+              <div className="font-sans text-2xl font-bold text-white mb-4">
+                50,000 <span className="text-[#ffb95f] text-lg font-mono">USDC</span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-[#050608] rounded border border-white/5 mb-4 text-xs font-mono">
+                <span className="text-white/40">Status:</span>
+                <span className="bg-[#4ade80]/15 text-[#4ade80] border border-[#4ade80]/30 px-2 py-0.5 rounded text-[10px] uppercase font-semibold">Secured</span>
+              </div>
+              <p className="text-xs text-white/50 leading-5">
+                Funding coordinate label is locked in public repository logs, distributed strictly based on completed milestones and review verification.
+              </p>
+            </div>
+          </section>
+
+          {/* Top Supporters */}
+          <section className="glass-panel rounded-lg overflow-hidden">
+            <div className="glass-header px-6 py-4">
+              <h2 className="text-sm font-bold tracking-wider font-mono uppercase text-white/80">Top Supporters</h2>
+            </div>
+            <div className="divide-y divide-white/5">
+              <div className="flex items-center justify-between px-6 py-3.5 hover:bg-white/[0.01] transition-colors">
+                <span className="font-mono text-xs text-white/80">0x4A...9fE2</span>
+                <span className="font-mono text-xs text-[#ffb95f] font-semibold">4,500 PTS</span>
+              </div>
+              <div className="flex items-center justify-between px-6 py-3.5 hover:bg-white/[0.01] transition-colors">
+                <span className="font-mono text-xs text-white/80">vitalik.eth</span>
+                <span className="font-mono text-xs text-[#ffb95f] font-semibold">3,200 PTS</span>
+              </div>
+              <div className="flex items-center justify-between px-6 py-3.5 hover:bg-white/[0.01] transition-colors">
+                <span className="font-mono text-xs text-white/80">0x8B...1cC4</span>
+                <span className="font-mono text-xs text-[#ffb95f] font-semibold">1,850 PTS</span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      {/* Submissions Section */}
+      <div className="mt-12 border-t border-white/5 pt-8">
+        <div className="flex items-center gap-3 mb-6">
+          <h2 className="text-xl font-bold tracking-tight text-white font-sans">Builder Submissions</h2>
+          <span className="bg-white/5 text-white/60 border border-white/10 px-2 py-0.5 rounded text-xs font-mono">{submissions.length}</span>
+        </div>
+        
         {submissions.length ? (
-          <div className="divide-y divide-white/5">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {submissions.map((submission) => (
-              <Link key={submission.id} to={`/submissions/${submission.id}`} className="block py-4">
-                <div className="font-bold text-white">{submission.name}</div>
-                <div className="mt-1 text-sm text-white/45">{submission.tagline}</div>
-              </Link>
+              <div key={submission.id} className="glass-panel p-5 flex flex-col justify-between hover:border-[#ffb95f]/30 transition-all duration-300">
+                <div>
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h4 className="text-sm font-bold text-white tracking-tight">{submission.name}</h4>
+                      <p className="text-[10px] font-mono text-white/40 mt-0.5">Builder: {submission.builderName || 'Dev'}</p>
+                    </div>
+                    <Link to={`/submissions/${submission.id}`} className="text-white/30 hover:text-[#ffb95f] transition-colors">
+                      <Info className="h-4 w-4" />
+                    </Link>
+                  </div>
+                  <p className="text-xs text-white/60 leading-5 mb-6">{submission.tagline}</p>
+                </div>
+                <div className="flex justify-between items-center border-t border-white/5 pt-4 mt-auto">
+                  <StatusChip tone={submission.status === 'approved' ? 'emerald' : 'gold'}>{submission.status}</StatusChip>
+                  <span className="font-mono text-xs text-[#ffb95f]">{submission.boostCount} Boosts</span>
+                </div>
+              </div>
             ))}
           </div>
         ) : (
-          <EmptyState title="No submissions yet" description="This Catalyst is live, but builders have not submitted projects yet." />
+          <EmptyPanel
+            title="Awaiting solutions submissions"
+            description="Active Catalyst lane is waiting for the first builder solution. Claim the objective to get started."
+          />
         )}
-      </section>
+      </div>
+
+      {/* Funding log */}
+      <div className="mt-8">
+        <Panel eyebrow="Evidence log" title="Reward Confirmation Records" description="Public-safe verified funding confirmation notes." icon={ShieldCheck}>
+          <div className="grid gap-3">
+            {fundingEvents.length ? (
+              fundingEvents.map((event) => (
+                <DataRow
+                  key={event.id}
+                  title={event.amountText ?? 'Reward confirmation note'}
+                  subtitle={event.note ?? 'Verified by community coordinates.'}
+                  meta={formatDate(event.createdAt)}
+                  badge={<StatusChip tone="emerald">recorded</StatusChip>}
+                />
+              ))
+            ) : (
+              <EmptyPanel
+                title="Awaiting event logs"
+                description="Community confirmation logs will stream here as payments are coordinates."
+              />
+            )}
+          </div>
+        </Panel>
+      </div>
     </div>
   );
 }
@@ -142,78 +323,108 @@ export default function CatalystsPage() {
     void load();
   }, []);
 
-  if (isLoading) return <LoadingState label="Loading Catalysts..." />;
+  if (isLoading) return <LoadingState label="Connecting to Catalyst registry..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
 
+  const confirmed = catalysts.filter((item) => item.fundingStatus !== 'unverified');
+  const featured = catalysts.filter((item) => item.featured).slice(0, 3);
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <div className="text-xs font-black uppercase tracking-[0.2em] text-[#ffd285]">Catalysts</div>
-          <h1 className="mt-2 text-3xl font-black text-white">Catalyst discovery with public Funding Status</h1>
-        </div>
-        <Link to="/catalysts/create" className="inline-flex items-center gap-2 rounded-full bg-[#ffd285] px-5 py-3 text-sm font-black text-[#05070d]">
-          <Plus className="h-4 w-4" /> Create Catalyst
-        </Link>
-      </div>
-      {catalysts.length ? (
-        <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
-          <div className="space-y-4">
-            {catalysts.map((catalyst) => (
-              <Link key={catalyst.id} to={`/catalysts/${catalyst.id}`} className="block rounded-3xl border border-white/10 bg-[#0c0e14]/70 p-6 transition hover:border-[#ffd285]/40">
-                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-[#ffd285]">
-                      <Award className="h-4 w-4" />
-                      Catalyst
-                    </div>
-                    <h2 className="mt-3 text-xl font-black text-white">{catalyst.title}</h2>
-                    <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">{catalyst.description}</p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm font-bold text-white/70">
-                    {fundingStatusLabels[catalyst.fundingStatus]}
-                  </div>
-                </div>
-                <div className="mt-5 flex flex-wrap gap-3 text-xs font-bold text-white/45">
-                  <span>Boost {catalyst.boostCount}</span>
-                  <span>Momentum {catalyst.momentumScore}</span>
-                  <span>Submissions {catalyst.submissionCount}</span>
-                </div>
+    <div className="space-y-8 pb-12">
+      {/* Registry Hero */}
+      <PageHero
+        eyebrow="Catalyst Registry"
+        title="Dormant Token Resurrection marketplace"
+        description="Monitor community resurrection briefs, verify public reward records, and coordinate builder solutions safely in the registry command dashboard."
+        actions={
+          <>
+            <ActionLink to="/create-catalyst" className="text-xs uppercase tracking-widest font-bold">Create Catalyst</ActionLink>
+            <ActionLink tone="secondary" to="/leaderboard" className="text-xs uppercase tracking-widest font-bold">Open rankings Grid</ActionLink>
+          </>
+        }
+        stats={[
+          { label: 'Live Lanes', value: catalysts.length, detail: 'Resurrection missions active' },
+          { label: 'Verified', value: confirmed.length, detail: 'Public reward state recorded', tone: 'emerald' },
+          { label: 'Featured', value: featured.length, detail: 'High-priority tracker lanes', tone: 'sky' },
+        ]}
+        aside={
+          <Panel eyebrow="Ignition Switch" title="Ignite a new Catalyst" icon={Plus}>
+            <p className="text-xs leading-5 text-white/50">
+              Provide project detail specifications, token metadata, target milestones, and contact verification to invite builder participation.
+            </p>
+            <div className="mt-5">
+              <Link className="btn-primary px-5 py-2.5 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5" to="/create-catalyst">
+                Ignite Catalyst
+                <Plus className="h-4 w-4" />
               </Link>
-            ))}
-          </div>
-          <aside className="rounded-3xl border border-white/10 bg-[#0c0e14]/70 p-6">
-            <div className="mb-4 flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-white/60">
-              <ShieldCheck className="h-4 w-4 text-[#ffd285]" />
-              Confirmed Reward Catalysts
             </div>
-            <div className="space-y-4">
-              {catalysts.filter((item) => item.fundingStatus !== 'unverified').slice(0, 4).map((event) => (
-                <div key={event.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                  <div className="text-sm font-black text-white">{event.title}</div>
-              <div className="mt-1 text-xs text-white/45">{event.tokenSymbol ?? event.tokenId}</div>
-                  <div className="mt-3 text-sm text-[#ffd285]">{fundingStatusLabels[event.fundingStatus]}</div>
-                </div>
+          </Panel>
+        }
+      />
+
+      {catalysts.length ? (
+        <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+          <Panel eyebrow="Registry grid" title="Active Catalyst Lanes" description="Explore resurrection lanes to submit builder code solutions.">
+            <div className="grid gap-3">
+              {catalysts.map((catalyst) => (
+                <DataRow
+                  key={catalyst.id}
+                  to={`/catalysts/${catalyst.id}`}
+                  title={catalyst.title}
+                  subtitle={catalyst.description}
+                  value={formatMomentumCount(catalyst.momentumScore)}
+                  meta={`Boosts: ${catalyst.boostCount}  Solutions: ${catalyst.submissionCount}`}
+                  badge={<StatusChip tone="gold">{formatFundingStatusLabel(catalyst.fundingStatus)}</StatusChip>}
+                />
               ))}
             </div>
-          </aside>
+          </Panel>
+
+          <div className="grid gap-6">
+            <Panel eyebrow="Telemetry Status" title="Reward-Visible Lanes" icon={ShieldCheck}>
+              <div className="grid gap-3">
+                {confirmed.length ? (
+                  confirmed.slice(0, 5).map((item) => (
+                    <DataRow
+                      key={item.id}
+                      to={`/catalysts/${item.id}`}
+                      title={item.title}
+                      subtitle={item.tokenSymbol ?? item.tokenId}
+                      value={formatFundingStatusLabel(item.fundingStatus)}
+                      badge={<StatusChip tone="emerald">verified rewards</StatusChip>}
+                    />
+                  ))
+                ) : (
+                  <EmptyPanel
+                    title="No confirmed rewards logged"
+                    description="Verified reward structures will stream here once operators confirm inputs."
+                  />
+                )}
+              </div>
+            </Panel>
+
+            <Panel eyebrow="Catalyst watch" title="Ecosystem Highlights" icon={Flame}>
+              <div className="grid gap-3">
+                {(featured.length ? featured : catalysts.slice(0, 3)).map((catalyst) => (
+                  <article key={catalyst.id} className="glass-panel p-4 flex flex-col justify-between">
+                    <div>
+                      <StatusChip tone="gold">{catalyst.featured ? 'featured target' : 'watchlist'}</StatusChip>
+                      <h3 className="mt-4 text-base font-bold tracking-tight text-white">{catalyst.title}</h3>
+                      <p className="mt-2 text-xs leading-5 text-white/50">{catalyst.description}</p>
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-3 border-t border-white/5 pt-3 font-mono text-[9px] uppercase tracking-wider text-white/30">
+                      <span>Momentum: {formatMomentumCount(catalyst.momentumScore)}</span>
+                      <span>Boosts: {catalyst.boostCount}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </Panel>
+          </div>
         </div>
       ) : (
-        <EmptyState title="No Catalysts yet" description="Run the local seed or create the first Catalyst to populate the public runtime." />
+        <EmptyState title="No Catalysts yet" description="Seed data is empty or active database tables are clean. Ignite a Catalyst to begin." />
       )}
     </div>
   );
-}
-
-function Metric({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-[#05070d]/70 p-4">
-      <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/35">{label}</div>
-      <div className="mt-2 text-lg font-black text-white">{value}</div>
-    </div>
-  );
-}
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
 }

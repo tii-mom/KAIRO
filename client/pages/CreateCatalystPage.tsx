@@ -1,8 +1,9 @@
 import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Flame } from 'lucide-react';
 import { createBounty } from '../lib/api';
 import { ErrorState } from './pageUtils';
+import { FormField, FormTextArea, ActionButton } from '../components/runtimeUi';
 
 export default function CreateCatalystPage() {
   const navigate = useNavigate();
@@ -39,45 +40,50 @@ export default function CreateCatalystPage() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <section className="rounded-2xl border border-white/5 bg-[#0c0e14]/50 p-6">
-        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#ffd285]"><Sparkles className="h-4 w-4" />Create Catalyst</div>
-        <h1 className="mt-3 text-3xl font-black text-white">Publish a comeback Catalyst</h1>
-        <p className="mt-2 max-w-2xl text-white/60">Describe the token context, builder objective, reward record, and contact details for review.</p>
+    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto pb-12">
+      {/* Title Header */}
+      <section className="glass-panel p-6 sm:p-8">
+        <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-[#ffb95f]">
+          <Flame className="h-4 w-4 text-[#EE1C25] animate-pulse" />
+          Ignite Catalyst Flow
+        </div>
+        <h1 className="mt-4 text-3xl font-bold tracking-tight text-white leading-none">Ignite a Resurrection Catalyst</h1>
+        <p className="mt-2 text-xs text-white/50 leading-5">
+          Specify token metadata, builder core objectives, reward verification structures, and contact endpoints to list this Catalyst lane on KAIRO.
+        </p>
       </section>
 
-      <section className="grid gap-4 rounded-2xl border border-white/5 bg-[#0c0e14]/50 p-6 md:grid-cols-2">
-        <Field name="tokenName" label="Token name" required />
-        <Field name="tokenSymbol" label="Token symbol" required />
-        <Field name="chain" label="Chain" required />
-        <Field name="rewardText" label="Reward record" />
-        <Field name="contactInfo" label="Contact" />
-        <Field name="deadline" label="Deadline" type="datetime-local" />
-        <Field name="websiteUrl" label="Website URL" type="url" />
-        <Field name="twitterUrl" label="X URL" type="url" />
-        <Field name="telegramUrl" label="Telegram URL" type="url" />
-        <Field name="title" label="Catalyst title" className="md:col-span-2" required />
-        <label className="md:col-span-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-white/45">Description</span>
-          <textarea name="description" required minLength={20} rows={6} className="mt-2 w-full rounded-2xl border border-white/10 bg-[#05070d] px-4 py-3 text-sm text-white outline-none focus:border-[#ffd285]/50" />
-        </label>
+      {/* Input Section */}
+      <section className="glass-panel p-6 sm:p-8 space-y-6">
+        <div className="grid gap-6 sm:grid-cols-2">
+          <FormField name="tokenName" label="Token Name" placeholder="e.g. DeFi Liquidity Engine" required />
+          <FormField name="tokenSymbol" label="Token Symbol" placeholder="e.g. DLE" required />
+          <FormField name="chain" label="Target Protocol Chain" placeholder="e.g. Ethereum, Arbitrum" required />
+          <FormField name="rewardText" label="Reward Structure Record" placeholder="e.g. 50,000 USDC via Milestone logs" />
+          <FormField name="contactInfo" label="Coordinator Contact Details" placeholder="e.g. telegram handle / email" />
+          <FormField name="deadline" label="Submission Deadline" type="datetime-local" />
+          <FormField name="websiteUrl" label="Website URL" type="url" placeholder="https://" />
+          <FormField name="twitterUrl" label="X (Twitter) URL" type="url" placeholder="https://x.com/" />
+          <FormField name="telegramUrl" label="Telegram Channel URL" type="url" placeholder="https://t.me/" />
+        </div>
+
+        <div className="border-t border-white/5 pt-6 space-y-6">
+          <FormField name="title" label="Catalyst Objective Title" placeholder="e.g. Cross-Chain Routing Engine Implementation" required />
+          <FormTextArea name="description" label="Detailed Objective Brief" placeholder="Explain the token context, builder requirements, and how the solution revives token utility..." required minLength={20} rows={6} />
+        </div>
       </section>
 
       {error ? <ErrorState message={error} /> : null}
 
-      <button type="submit" disabled={isSubmitting} className="inline-flex items-center gap-2 rounded-full bg-[#ffd285] px-6 py-3 text-sm font-black text-[#05070d] disabled:opacity-60">
-        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-        Create Catalyst
-      </button>
+      <div className="flex items-center gap-4">
+        <ActionButton type="submit" disabled={isSubmitting} tone="ignite" className="px-8 py-3.5 text-xs font-bold uppercase tracking-widest">
+          {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin text-white" /> : null}
+          Ignite Catalyst
+        </ActionButton>
+        <ActionButton type="button" onClick={() => navigate('/catalysts')} tone="secondary" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider">
+          Cancel
+        </ActionButton>
+      </div>
     </form>
-  );
-}
-
-function Field({ name, label, type = 'text', required = false, className = '' }: { name: string; label: string; type?: string; required?: boolean; className?: string }) {
-  return (
-    <label className={className}>
-      <span className="text-xs font-bold uppercase tracking-wider text-white/45">{label}</span>
-      <input name={name} type={type} required={required} className="mt-2 w-full rounded-2xl border border-white/10 bg-[#05070d] px-4 py-3 text-sm text-white outline-none focus:border-[#ffd285]/50" />
-    </label>
   );
 }

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { Orbit, Radar } from 'lucide-react';
 import { listCuratedItemsByType } from '../lib/api';
 import type { CuratedItemRecord } from '../../shared/domain';
-import { EmptyState, ErrorState, LoadingState } from './pageUtils';
+import { DataRow, EmptyPanel, PageHero, Panel, StatusChip } from '../components/runtimeUi';
+import { ErrorState, LoadingState } from './pageUtils';
 
 export default function DormantGiantsPage() {
   const [giants, setGiants] = useState<CuratedItemRecord[]>([]);
@@ -25,21 +27,50 @@ export default function DormantGiantsPage() {
     void load();
   }, []);
 
-  if (isLoading) return <LoadingState label="Loading Dormant Giants..." />;
+  if (isLoading) return <LoadingState label="Loading Dormant Giants telemetry watchlist..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
 
-  return giants.length ? (
-    <div className="space-y-4">
-      <h1 className="text-3xl font-black text-white">Dormant Giants</h1>
-      {giants.map((item) => (
-        <article key={item.id} className="rounded-2xl border border-white/5 bg-[#0c0e14]/50 p-5">
-          <div className="text-xs font-bold text-[#ffd285]">{(item.itemType ?? 'curated item').replace(/_/g, ' ')}</div>
-          <h2 className="mt-1 text-xl font-black text-white">{item.title}</h2>
-          <p className="mt-2 text-white/60">{item.description}</p>
-        </article>
-      ))}
+  return (
+    <div className="space-y-8 pb-12">
+      <PageHero
+        eyebrow="Giant Watchlist"
+        title="Dormant Giant Token watchlist and metrics"
+        description="A registry dashboard tracking high-potential legacy tokens with established communities, historical scale, and high comeback potential."
+        stats={[
+          { label: 'Ecosystems Tracked', value: giants.length, detail: 'Dormant Giant records verified' },
+          { label: 'Lane Type', value: 'Editorial', detail: 'Curated by community operations', tone: 'sky' },
+          { label: 'Target Focus', value: 'Comeback', detail: 'Reactivating developer attention pipelines', tone: 'emerald' },
+        ]}
+        aside={
+          <Panel eyebrow="Platform boundary" title="Watchlist Disclaimer" icon={Radar}>
+            <p className="text-xs leading-5 text-white/50">
+              Giant Watchlist is for community signal and coordination tracking, containing zero buy/sell metrics or trading services.
+            </p>
+          </Panel>
+        }
+      />
+
+      <Panel eyebrow="Telemetry logs" title="Dormant Giant watchlist records" icon={Orbit}>
+        {giants.length ? (
+          <div className="grid gap-3">
+            {giants.map((item, index) => (
+              <DataRow
+                key={item.id}
+                rank={index + 1}
+                title={item.title}
+                subtitle={item.description ?? 'Curated watchlist record.'}
+                badge={<StatusChip tone="gold">{(item.itemType ?? 'curated').replace(/_/g, ' ')}</StatusChip>}
+                value={`slot: ${index + 1}`}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyPanel
+            title="Watchlist registry is empty"
+            description="Giant logs will stream here once operators verify ecosystem records."
+          />
+        )}
+      </Panel>
     </div>
-  ) : (
-    <EmptyState title="No Dormant Giants yet" description="Seed curated dormant giant entries to keep this launch section populated." />
   );
 }

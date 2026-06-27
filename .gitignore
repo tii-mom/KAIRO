@@ -8,3 +8,6 @@ coverage/
 !.env.example
 content/*.generated.sql
 backups/
+design-reference/
+.ai-bridge/
+
