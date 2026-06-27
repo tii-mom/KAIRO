@@ -172,6 +172,7 @@ Note: the current app also exposes Catalyst creation at `/catalysts/create`; ver
 - `ADMIN_API_TOKEN="..." npm run verify:production` passes.
 - `ADMIN_API_TOKEN="..." npm run verify:beta:go-live` passes, with only the custom-domain warning allowed for invite-only beta.
 - `npm run db:backup:remote` is run and the snapshot filename is recorded before importing real beta data or rerunning seed.
+- `npm run content:beta:verify` passes for the reviewed import JSON.
 - Real beta content SQL is generated from reviewed JSON and reviewed before apply.
 - Post-import row counts and public pages are verified.
 

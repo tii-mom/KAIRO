@@ -162,10 +162,11 @@ Recommended import path:
 1. Run `npm run db:backup:remote` and record the snapshot filename.
 2. Copy `content/beta-import.example.json` into a dated local working file.
 3. Replace placeholder entries with reviewed real Catalysts, Dormant Giants, Builder submissions, and Funding Events.
-4. Run `node scripts/generate-beta-import-sql.mjs <input.json> <output.sql>`.
-5. Review generated SQL for public-safe wording and correct IDs.
-6. Apply the SQL with `npx wrangler d1 execute kairo-prod --remote --env production --file=<output.sql>`.
-7. Re-run row-count checks and open the affected production pages.
+4. Run `node scripts/verify-beta-import.mjs <input.json>`.
+5. Run `node scripts/generate-beta-import-sql.mjs <input.json> <output.sql>`.
+6. Review generated SQL for public-safe wording and correct IDs.
+7. Apply the SQL with `npx wrangler d1 execute kairo-prod --remote --env production --file=<output.sql>`.
+8. Re-run row-count checks and open the affected production pages.
 
 Stop the import if any record includes private keys, sensitive personal data, confidential reward evidence, price predictions, trading instructions, or unreviewed sponsor claims.
 

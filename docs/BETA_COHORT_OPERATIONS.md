@@ -86,9 +86,10 @@ Before importing real content:
 
 1. Run `npm run db:backup:remote`.
 2. Record the generated snapshot filename.
-3. Review `content/beta-import.generated.sql` for public-safe wording.
-4. Apply only reviewed content.
-5. Re-run `npm run verify:beta:go-live`.
+3. Run `npm run content:beta:verify`.
+4. Review `content/beta-import.generated.sql` for public-safe wording.
+5. Apply only reviewed content.
+6. Re-run `npm run verify:beta:go-live`.
 
 | Date | Snapshot file | Import file | Operator | Result |
 | --- | --- | --- | --- | --- |

@@ -99,10 +99,11 @@ Use `content/beta-import.example.json` as the working template for real beta con
 Generate reviewable SQL:
 
 ```bash
+npm run content:beta:verify
 npm run content:beta:sql
 ```
 
-The command writes `content/beta-import.generated.sql`. Review the generated SQL before applying it to D1.
+The verify command checks references, public-safe wording, obvious secret leakage, URL shape, and placeholder/example-domain warnings. The SQL command writes `content/beta-import.generated.sql`. Review the generated SQL before applying it to D1.
 
 Capture a read-only production snapshot before applying real beta content:
 
