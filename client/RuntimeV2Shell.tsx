@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
-import { Activity, Award, Flame, FlaskConical, HeartHandshake, MessageSquare, ShieldCheck, Sparkles, Trophy } from 'lucide-react';
+import { Activity, Award, FlaskConical, HeartHandshake, MessageSquare, ShieldCheck, Sparkles, Trophy } from 'lucide-react';
 import { SignalTicker, cx } from './components/runtimeUi';
 
 const navItems = [
@@ -30,9 +30,11 @@ export default function RuntimeV2Shell() {
           <div className="glass-panel flex flex-col gap-4 px-4 py-4 lg:flex-row lg:items-center lg:justify-between lg:px-5">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:gap-6">
               <Link to="/" className="flex items-center gap-3">
-                <span className="grid h-12 w-12 place-items-center rounded border border-[#EE1C25]/30 bg-gradient-to-b from-[#EE1C25]/20 to-[#EE1C25]/5 text-[#EE1C25] shadow-[0_0_15px_rgba(238,28,37,0.2)]">
-                  <Flame className="h-5 w-5 animate-pulse" />
-                </span>
+                <img
+                  src="/kairo-logo-dark.png"
+                  alt="KAIRO"
+                  className="h-12 w-12 rounded-lg object-cover drop-shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+                />
                 <div>
                   <div className="font-mono text-lg font-bold tracking-[0.25em] text-[#ffb95f]">KAIRO</div>
                   <div className="mt-0.5 text-[9px] uppercase font-mono tracking-[0.2em] text-white/40">Resurrection Platform</div>
@@ -71,7 +73,11 @@ export default function RuntimeV2Shell() {
       <footer className="w-full border-t border-white/5 bg-[#0c0e14]/90 py-10 mt-12">
         <div className="kairo-shell flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-3">
-            <span className="w-2 h-2 rounded-full bg-[#EE1C25] shadow-[0_0_8px_rgba(238,28,37,0.8)] animate-pulse" />
+            <img
+              src="/kairo-logo-dark.png"
+              alt="KAIRO"
+              className="h-8 w-8 rounded-lg object-cover opacity-90"
+            />
             <div className="text-xl font-bold font-sans tracking-tight text-[#ffb95f]">KAIRO</div>
           </div>
           <div className="text-white/40 font-mono text-[10px] uppercase tracking-widest text-center">
