@@ -21,12 +21,15 @@ Task: KAIRO Production Deploy & Smoke Test V1
   - `https://f828a223.kairo-5vg.pages.dev`
   - `https://6f92ba0d.kairo-5vg.pages.dev`
   - `https://c03bea43.kairo-5vg.pages.dev`
+  - `https://14f5594c.kairo-5vg.pages.dev`
+  - `https://5d787a18.kairo-5vg.pages.dev`
 
 ## Private Beta status
 
 - Current recommendation: invite-only Private Beta can begin after operators confirm the cohort and feedback channel.
 - Production API URL: `https://kairo-worker-prod.348421501.workers.dev`
 - Latest verified Pages URL: `https://c03bea43.kairo-5vg.pages.dev`
+- Latest Private Beta Pages URL: `https://5d787a18.kairo-5vg.pages.dev`
 - Beta support routes:
   - `/beta`
   - `/feedback`
@@ -48,6 +51,7 @@ Task: KAIRO Production Deploy & Smoke Test V1
 - Pages TLS verified with `curl -Iv` for both `kairo-5vg.pages.dev` and the latest deployment URL
 - Browser smoke test loaded the homepage and core runtime layout successfully
 - `/api/admin/stats` returned `403` without admin headers and `200` with demo admin headers
+- Private Beta Pages deployment `https://5d787a18.kairo-5vg.pages.dev` contains `/beta`, `/feedback`, the GitHub feedback tracker link, and the live Worker API base URL.
 
 ## D1 notes
 

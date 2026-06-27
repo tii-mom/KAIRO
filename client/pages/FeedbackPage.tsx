@@ -64,8 +64,8 @@ export default function FeedbackPage() {
         </div>
       </section>
 
-      <a href="mailto:beta-feedback@example.com?subject=KAIRO%20Private%20Beta%20Feedback" className="inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-2 text-sm font-bold text-white/80 transition hover:border-white/25 hover:text-white">
-        Email feedback contact placeholder
+      <a href="https://github.com/tii-mom/KAIRO/issues" className="inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-2 text-sm font-bold text-white/80 transition hover:border-white/25 hover:text-white">
+        Open feedback tracker
         <ExternalLink className="h-4 w-4" />
       </a>
     </div>
