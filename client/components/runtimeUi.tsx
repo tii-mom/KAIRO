@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, TextareaHTMLAttributes, ReactNode, FC } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronRight, type LucideIcon } from 'lucide-react';
+export { AnimatedCounter } from './AnimatedCounter';
 
 export type Tone = 'gold' | 'sky' | 'emerald' | 'rose' | 'slate' | 'red';
 
@@ -354,3 +355,14 @@ export function FormTextArea({
     </div>
   );
 }
+
+import { usePointerGlow } from '../hooks/usePointerGlow';
+
+export const PointerGlowCard: FC<{ className?: string; children: ReactNode }> = ({ className = '', children }) => {
+  const ref = usePointerGlow();
+  return (
+    <div ref={ref} className={cx(className, 'pointer-glow-card')}>
+      {children}
+    </div>
+  );
+};

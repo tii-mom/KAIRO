@@ -18,12 +18,22 @@
 
 :root {
   color-scheme: dark;
+  --kairo-canvas: #07080a;
   --kairo-bg: #0c0e14;
   --kairo-bg-soft: #12131a;
-  --kairo-surface: rgba(18, 19, 26, 0.7);
+  --kairo-surface: #0c0e14;
   --kairo-surface-strong: rgba(12, 14, 20, 0.85);
+  --kairo-recessed: #030406;
+  --kairo-elevated: #12131a;
   --kairo-line: rgba(255, 255, 255, 0.05);
   --kairo-line-strong: rgba(255, 185, 95, 0.2);
+  
+  --kairo-border-soft: rgba(255, 255, 255, 0.06);
+  --kairo-border-hot: rgba(255, 185, 95, 0.28);
+  --kairo-border-red: rgba(238, 28, 37, 0.32);
+  --kairo-glow-amber: rgba(255, 185, 95, 0.18);
+  --kairo-glow-red: rgba(238, 28, 37, 0.18);
+
   --kairo-text: #e2e1eb;
   --kairo-text-soft: #c4c7c7;
   --kairo-gold: #ffb95f;
@@ -37,26 +47,23 @@
 }
 
 html {
-  background:
-    radial-gradient(circle at top left, rgba(255, 185, 95, 0.12), transparent 30%),
-    radial-gradient(circle at 88% 8%, rgba(238, 28, 37, 0.06), transparent 28%),
-    linear-gradient(180deg, #0c0e14 0%, #12131a 45%, #050608 100%);
+  background-color: var(--kairo-canvas);
 }
 
 body {
   min-height: 100dvh;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    radial-gradient(circle at top left, rgba(255, 185, 95, 0.06), transparent 30%),
-    radial-gradient(circle at 85% 10%, rgba(238, 28, 37, 0.05), transparent 25%),
-    linear-gradient(180deg, #0c0e14 0%, #12131a 45%, #050608 100%);
+  background-color: var(--kairo-canvas);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    radial-gradient(circle at 10% 15%, var(--kairo-glow-amber), transparent 45%),
+    radial-gradient(circle at 85% 20%, var(--kairo-glow-red), transparent 40%);
   background-size:
-    40px 40px,
-    40px 40px,
-    auto,
+    48px 48px,
+    48px 48px,
     auto,
     auto;
+  background-attachment: fixed;
   color: var(--kairo-text);
   font-family: var(--font-sans);
 }
@@ -479,6 +486,90 @@ textarea:focus-visible {
   .kairo-shell {
     padding-inline: 1rem;
   }
+}
+
+/* Smoked Obsidian Depth & Card Tokens */
+.kairo-depth-canvas { background-color: var(--kairo-canvas); }
+.kairo-depth-card { background-color: var(--kairo-surface); border: 1px solid var(--kairo-border-soft); }
+.kairo-depth-recessed { background-color: var(--kairo-recessed); }
+.kairo-depth-elevated { background-color: var(--kairo-elevated); }
+.kairo-hot-border { border-color: var(--kairo-border-hot) !important; }
+.kairo-red-border { border-color: var(--kairo-border-red) !important; }
+.kairo-recessed-slot { background-color: var(--kairo-recessed); border: 1px solid var(--kairo-border-soft); }
+
+/* Tactile Button Scaled States */
+.btn-primary:active,
+.btn-ignite:active,
+.btn-ghost:active,
+.btn-secondary:active,
+button:active {
+  transform: scale(0.98);
+}
+.btn-primary,
+.btn-ignite,
+.btn-ghost,
+.btn-secondary,
+button {
+  transition: transform 150ms ease, background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+
+/* Reusable Pointer Glow Class */
+.pointer-glow-card {
+  position: relative;
+}
+.pointer-glow-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: radial-gradient(
+    600px circle at var(--pointer-x, 0px) var(--pointer-y, 0px),
+    rgba(255, 185, 95, 0.15),
+    transparent 40%
+  );
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.pointer-glow-card:hover::before {
+  opacity: 1;
+}
+
+/* Light 3D Tilt Effect on Desktop Hover */
+@media (min-width: 1024px) {
+  .kairo-tilt {
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+    transform-style: preserve-3d;
+  }
+  .kairo-tilt:hover {
+    transform: translateY(-2px) rotateX(1.5deg) rotateY(-1.5deg);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .kairo-tilt:hover {
+      transform: none !important;
+    }
+    .pointer-glow-card::before {
+      display: none !important;
+    }
+  }
+}
+
+/* Success micro feedback pulse animation */
+@keyframes success-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 185, 95, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(255, 185, 95, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 185, 95, 0);
+  }
+}
+.animate-success-pulse {
+  animation: success-pulse 0.7s ease-out;
 }
 
 

@@ -13,7 +13,7 @@ import {
 import { getLeaderboard, listBounties, listCuratedItemsByPlacement, type LeaderboardResponse } from '../lib/api';
 import type { BountyRecord, CuratedItemRecord } from '../../shared/domain';
 import { formatFundingStatusLabel, formatMomentumCount } from '../lib/formatters';
-import { ActionLink, EmptyPanel, Panel, StatusChip } from '../components/runtimeUi';
+import { ActionLink, EmptyPanel, Panel, StatusChip, AnimatedCounter, PointerGlowCard } from '../components/runtimeUi';
 import { ErrorState, LoadingState } from './pageUtils';
 
 export default function RuntimeHomePage() {
@@ -88,7 +88,7 @@ export default function RuntimeHomePage() {
 
           {/* Right Column: Telemetry Console */}
           <div className="lg:col-span-5 w-full">
-            <div className="glass-panel p-5 bg-[#050608]/90 border-white/5 relative overflow-hidden group hover:border-[#ffb95f]/20 transition-all duration-300">
+            <PointerGlowCard className="glass-panel p-5 bg-[#050608]/90 border-white/5 relative overflow-hidden group hover:border-[#ffb95f]/20 transition-all duration-300 kairo-tilt">
               <div className="absolute inset-0 bg-energy-line opacity-30 pointer-events-none" />
               
               <div className="flex justify-between items-center border-b border-white/5 pb-3 mb-4 z-10 relative">
@@ -104,15 +104,21 @@ export default function RuntimeHomePage() {
               <div className="space-y-4 z-10 relative">
                 <div className="flex justify-between items-center py-2 border-b border-white/5">
                   <span className="text-[10px] font-mono text-white/40 uppercase">ACTIVE CATALYSTS</span>
-                  <span className="font-mono text-sm font-bold text-white">{catalysts.length}</span>
+                  <span className="font-mono text-sm font-bold text-white">
+                    <AnimatedCounter value={catalysts.length} />
+                  </span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-white/5">
                   <span className="text-[10px] font-mono text-white/40 uppercase">SUPPORT PROOFS</span>
-                  <span className="font-mono text-sm font-bold text-white">{leaderboard?.mostBoostedSubmissions.length ?? 0}</span>
+                  <span className="font-mono text-sm font-bold text-white">
+                    <AnimatedCounter value={leaderboard?.mostBoostedSubmissions.length ?? 0} />
+                  </span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-white/5">
                   <span className="text-[10px] font-mono text-white/40 uppercase">SIGNAL LANES</span>
-                  <span className="font-mono text-sm font-bold text-white">{curatedItems.length}</span>
+                  <span className="font-mono text-sm font-bold text-white">
+                    <AnimatedCounter value={curatedItems.length} />
+                  </span>
                 </div>
                 <div className="flex justify-between items-center py-2">
                   <span className="text-[10px] font-mono text-white/40 uppercase">NETWORK STATE</span>
@@ -121,7 +127,7 @@ export default function RuntimeHomePage() {
                   </span>
                 </div>
               </div>
-            </div>
+            </PointerGlowCard>
           </div>
         </div>
       </section>
@@ -140,7 +146,7 @@ export default function RuntimeHomePage() {
             {(featured.length ? featured : curatedItems.slice(0, 3)).map((item) => {
               const cRec = catalysts.find((c) => String(c.id) === String(item.targetId));
               return (
-                <div key={item.id} className="glass-panel p-4 hover:border-white/10 transition-colors bg-[#050608]/50">
+                <PointerGlowCard key={item.id} className="glass-panel p-4 hover:border-[#ffb95f]/30 transition-all duration-300 bg-[#050608]/50 kairo-tilt">
                   <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
@@ -155,7 +161,9 @@ export default function RuntimeHomePage() {
                         <>
                           <div className="text-left min-w-[70px]">
                             <div className="text-[8px] text-white/30 uppercase">MOMENTUM</div>
-                            <div className="text-white font-bold">{formatMomentumCount(cRec.momentumScore)}</div>
+                            <div className="text-white font-bold">
+                              <AnimatedCounter value={cRec.momentumScore} formatter={formatMomentumCount} />
+                            </div>
                           </div>
                           <div className="text-left min-w-[90px]">
                             <div className="text-[8px] text-white/30 uppercase">REWARD</div>
@@ -178,7 +186,7 @@ export default function RuntimeHomePage() {
                       </Link>
                     </div>
                   </div>
-                </div>
+                </PointerGlowCard>
               );
             })}
             {!featured.length && !curatedItems.length ? (

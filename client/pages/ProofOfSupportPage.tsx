@@ -2,7 +2,7 @@ import { useEffect, useState, type FC } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Award, Copy, Flame, Share2, ShieldCheck, Sparkles, Activity } from 'lucide-react';
 import { getProofOfSupport, getProofOfSupportByUser, type ProofOfSupport, type SupportEvent } from '../lib/api';
-import { ActionButton, DataRow, EmptyPanel, PageHero, Panel, StatusChip, MomentumBar } from '../components/runtimeUi';
+import { ActionButton, DataRow, EmptyPanel, PageHero, Panel, StatusChip, MomentumBar, AnimatedCounter, PointerGlowCard } from '../components/runtimeUi';
 import { ErrorState, LoadingState } from './pageUtils';
 
 export default function ProofOfSupportPage() {
@@ -91,31 +91,44 @@ export default function ProofOfSupportPage() {
       {/* Supporter Impact Summary Modules */}
       {proof && (
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="glass-panel p-5 bg-[#050608]/30">
+          <PointerGlowCard className="glass-panel p-5 bg-[#050608]/30 kairo-tilt">
             <span className="text-[9px] font-mono text-white/40 uppercase tracking-wider block">SUPPORT POINTS</span>
-            <div className="text-2xl font-bold text-white mt-1.5 font-mono">{proof.points.totalPoints}</div>
-            <div className="text-[10px] text-white/40 mt-1 font-mono">Share: {proof.points.sharePoints} pts</div>
-          </div>
+            <div className="text-2xl font-bold text-white mt-1.5 font-mono">
+              <AnimatedCounter value={proof.points.totalPoints} />
+            </div>
+            <div className="text-[10px] text-white/40 mt-1 font-mono">
+              Share: <AnimatedCounter value={proof.points.sharePoints} /> pts
+            </div>
+          </PointerGlowCard>
           
-          <div className="glass-panel p-5 bg-[#050608]/30">
+          <PointerGlowCard className="glass-panel p-5 bg-[#050608]/30 kairo-tilt">
             <span className="text-[9px] font-mono text-white/40 uppercase tracking-wider block">ACTIVE MULTIPLIER</span>
-            <div className="text-2xl font-bold text-[#ffb95f] mt-1.5 font-mono">{getMultiplierVal(proof.supporterLevel)}</div>
+            <div className="text-2xl font-bold text-[#ffb95f] mt-1.5 font-mono">
+              <AnimatedCounter 
+                value={proof.supporterLevel.toLowerCase().includes('elite') ? 1.5 : proof.supporterLevel.toLowerCase().includes('pro') ? 1.25 : 1.0} 
+                formatter={(v) => `${v.toFixed(2)}x`} 
+              />
+            </div>
             <div className="mt-2.5">
               <MomentumBar percentage={getMultiplierPercent(proof.supporterLevel)} className="h-1.5" />
             </div>
-          </div>
+          </PointerGlowCard>
 
-          <div className="glass-panel p-5 bg-[#050608]/30">
+          <PointerGlowCard className="glass-panel p-5 bg-[#050608]/30 kairo-tilt">
             <span className="text-[9px] font-mono text-white/40 uppercase tracking-wider block">REFERRAL POINTS</span>
-            <div className="text-2xl font-bold text-white mt-1.5 font-mono">{proof.points.referralPoints}</div>
+            <div className="text-2xl font-bold text-white mt-1.5 font-mono">
+              <AnimatedCounter value={proof.points.referralPoints} />
+            </div>
             <div className="text-[10px] text-white/40 mt-1 font-mono">Earned from coordinate signups</div>
-          </div>
+          </PointerGlowCard>
 
-          <div className="glass-panel p-5 bg-[#050608]/30">
+          <PointerGlowCard className="glass-panel p-5 bg-[#050608]/30 kairo-tilt">
             <span className="text-[9px] font-mono text-white/40 uppercase tracking-wider block">VERIFIED ACTIVITY</span>
-            <div className="text-2xl font-bold text-[#4ade80] mt-1.5 font-mono">{proof.validBoostCount} Boosts</div>
+            <div className="text-2xl font-bold text-[#4ade80] mt-1.5 font-mono">
+              <AnimatedCounter value={proof.validBoostCount} /> Boosts
+            </div>
             <div className="text-[10px] text-white/40 mt-1 font-mono">Status: active verification</div>
-          </div>
+          </PointerGlowCard>
         </section>
       )}
 

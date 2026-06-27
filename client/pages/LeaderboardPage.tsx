@@ -2,7 +2,7 @@ import { useEffect, useState, type FC } from 'react';
 import { Crown, Orbit, Radar, Trophy, Users } from 'lucide-react';
 import { getLeaderboard, type LeaderboardResponse } from '../lib/api';
 import { formatMomentumCount } from '../lib/formatters';
-import { DataRow, EmptyPanel, PageHero, Panel, StatusChip } from '../components/runtimeUi';
+import { DataRow, EmptyPanel, PageHero, Panel, StatusChip, AnimatedCounter, PointerGlowCard } from '../components/runtimeUi';
 import { ErrorState, LoadingState } from './pageUtils';
 
 type LeaderboardRow = Record<string, unknown>;
@@ -199,7 +199,7 @@ const RankList: FC<{
 
         if (rank === 1) {
           return (
-            <div key={`${title}-${index}`} className="glass-card rounded-xl p-4 sm:p-6 glow-active flex flex-col sm:flex-row sm:items-center gap-6 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-300">
+            <PointerGlowCard key={`${title}-${index}`} className="glass-card rounded-xl p-4 sm:p-6 glow-active flex flex-col sm:flex-row sm:items-center gap-6 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-300 kairo-tilt">
               <div className="absolute inset-0 bg-energy-line pointer-events-none" />
               <div className="flex-shrink-0 flex items-center gap-2 sm:flex-col sm:justify-center w-16 z-10">
                 <span className="rank-red font-mono text-xl font-bold uppercase tracking-wider flex items-center gap-1">
@@ -220,19 +220,21 @@ const RankList: FC<{
               <div className="flex flex-col items-end gap-1.5 min-w-[150px] z-10 font-mono text-xs mt-3 sm:mt-0">
                 <div className="flex justify-between w-full">
                   <span className="text-white/40">SCORE</span>
-                  <span className="text-[#EE1C25] font-bold">{valueFormatter(row[valueKey])}</span>
+                  <span className="text-[#EE1C25] font-bold">
+                    <AnimatedCounter value={valNum} formatter={valueFormatter} />
+                  </span>
                 </div>
                 <div className="w-full progress-bar-bg">
                   <div className="progress-bar-fill-red" style={{ width: `${percent}%` }} />
                 </div>
               </div>
-            </div>
+            </PointerGlowCard>
           );
         }
 
         if (rank === 2) {
           return (
-            <div key={`${title}-${index}`} className="glass-card rounded-xl p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-6 hover:border-white/10 transition-colors">
+            <PointerGlowCard key={`${title}-${index}`} className="glass-card rounded-xl p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-6 hover:border-white/10 transition-colors kairo-tilt">
               <div className="flex-shrink-0 flex items-center gap-2 sm:flex-col sm:justify-center w-16">
                 <span className="rank-silver font-mono text-xl font-bold uppercase tracking-wider">
                   🥈 #2
@@ -252,19 +254,21 @@ const RankList: FC<{
               <div className="flex flex-col items-end gap-1.5 min-w-[150px] font-mono text-xs mt-3 sm:mt-0">
                 <div className="flex justify-between w-full">
                   <span className="text-white/40">SCORE</span>
-                  <span className="text-white font-bold">{valueFormatter(row[valueKey])}</span>
+                  <span className="text-white font-bold">
+                    <AnimatedCounter value={valNum} formatter={valueFormatter} />
+                  </span>
                 </div>
                 <div className="w-full progress-bar-bg">
                   <div className="progress-bar-fill" style={{ width: `${percent}%` }} />
                 </div>
               </div>
-            </div>
+            </PointerGlowCard>
           );
         }
 
         if (rank === 3) {
           return (
-            <div key={`${title}-${index}`} className="glass-card rounded-xl p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-6 hover:border-white/10 transition-colors">
+            <PointerGlowCard key={`${title}-${index}`} className="glass-card rounded-xl p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-6 hover:border-white/10 transition-colors kairo-tilt">
               <div className="flex-shrink-0 flex items-center gap-2 sm:flex-col sm:justify-center w-16">
                 <span className="rank-bronze font-mono text-xl font-bold uppercase tracking-wider">
                   🥉 #3
@@ -284,13 +288,15 @@ const RankList: FC<{
               <div className="flex flex-col items-end gap-1.5 min-w-[150px] font-mono text-xs mt-3 sm:mt-0">
                 <div className="flex justify-between w-full">
                   <span className="text-white/40">SCORE</span>
-                  <span className="text-white font-bold">{valueFormatter(row[valueKey])}</span>
+                  <span className="text-white font-bold">
+                    <AnimatedCounter value={valNum} formatter={valueFormatter} />
+                  </span>
                 </div>
                 <div className="w-full progress-bar-bg">
                   <div className="progress-bar-fill" style={{ width: `${percent}%` }} />
                 </div>
               </div>
-            </div>
+            </PointerGlowCard>
           );
         }
 
