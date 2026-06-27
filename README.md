@@ -122,6 +122,7 @@ Current production resources:
 - Latest verified Pages deploy: `https://c03bea43.kairo-5vg.pages.dev`
 - Beta information route: `/beta`
 - Feedback route: `/feedback`
+- Feedback issue form: `https://github.com/tii-mom/KAIRO/issues/new?template=private-beta-feedback.yml`
 
 Operational notes:
 

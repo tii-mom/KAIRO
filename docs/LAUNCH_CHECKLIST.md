@@ -161,6 +161,8 @@ Note: the current app also exposes Catalyst creation at `/catalysts/create`; ver
 - Production Pages URL is documented.
 - `/beta` explains the invite-only beta scope and Phase 0 limits.
 - `/feedback` provides a copyable feedback template.
+- GitHub private beta feedback issue form exists.
+- Feedback owner and triage cadence are assigned before invites.
 - `docs/PRIVATE_BETA_RUNBOOK.md` is current.
 - `docs/BETA_CONTENT_PLAN.md` is current.
 - Admin operators understand that demo header/session logic is not final production auth.

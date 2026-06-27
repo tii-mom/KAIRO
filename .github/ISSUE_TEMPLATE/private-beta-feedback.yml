@@ -1,0 +1,79 @@
+name: KAIRO Private Beta Feedback
+description: Report a beta bug, workflow issue, or product clarity note.
+title: "[Beta Feedback]: "
+labels:
+  - beta-feedback
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing KAIRO. Do not include private keys, seed phrases, sensitive personal data, non-public credentials, or confidential project data.
+  - type: dropdown
+    id: role
+    attributes:
+      label: Tester role
+      options:
+        - Builder
+        - Supporter
+        - Admin/operator
+        - Project/community owner
+    validations:
+      required: true
+  - type: input
+    id: page-url
+    attributes:
+      label: Page URL
+      placeholder: https://be52293d.kairo-5vg.pages.dev/catalysts
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - blocker
+        - major
+        - minor
+        - idea
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the bug, confusing flow, or unclear content.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      description: Tell us what should have happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List the shortest path that reproduces the issue.
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. See ...
+  - type: input
+    id: evidence
+    attributes:
+      label: Screenshot or video link
+      description: Optional. Use a public-safe link only.
+  - type: input
+    id: contact
+    attributes:
+      label: Optional contact
+      description: Optional wallet, social, or email only if follow-up is needed.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety check
+      options:
+        - label: I did not include private keys, sensitive personal data, non-public credentials, or confidential project data.
+          required: true

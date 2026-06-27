@@ -9,6 +9,7 @@ Expected behavior:
 Screenshot or video link:
 Severity: blocker / major / minor / idea
 Optional contact:`;
+const feedbackIssueUrl = 'https://github.com/tii-mom/KAIRO/issues/new?template=private-beta-feedback.yml';
 
 export default function FeedbackPage() {
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
@@ -64,8 +65,8 @@ export default function FeedbackPage() {
         </div>
       </section>
 
-      <a href="https://github.com/tii-mom/KAIRO/issues" className="inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-2 text-sm font-bold text-white/80 transition hover:border-white/25 hover:text-white">
-        Open feedback tracker
+      <a href={feedbackIssueUrl} className="inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-2 text-sm font-bold text-white/80 transition hover:border-white/25 hover:text-white">
+        Open beta feedback form
         <ExternalLink className="h-4 w-4" />
       </a>
     </div>

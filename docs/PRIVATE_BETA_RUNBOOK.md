@@ -74,6 +74,10 @@ Testers should not expect:
 
 Use `/feedback` to copy the feedback template, then submit it in the private beta feedback channel or issue tracker.
 
+Preferred issue form:
+
+- `https://github.com/tii-mom/KAIRO/issues/new?template=private-beta-feedback.yml`
+
 Include:
 
 - Role: Builder / Supporter / Admin / Project owner.
@@ -92,6 +96,27 @@ Severity levels:
 - Idea: product or workflow suggestion for later.
 
 Do not include private keys, seed phrases, sensitive personal data, non-public credentials, or confidential project data.
+
+## Feedback Triage
+
+Operator cadence:
+
+- Review new beta feedback at least once per beta day.
+- Label valid issues with `beta-feedback` and one severity label: `severity:blocker`, `severity:major`, `severity:minor`, or `severity:idea`.
+- Add one owner or next action before closing the triage pass.
+
+Severity response:
+
+- Blocker: pause new invites, reproduce immediately, and either fix or document a workaround before continuing.
+- Major: keep beta running only if a clear workaround exists; prioritize before expanding the cohort.
+- Minor: batch into polish work unless it affects compliance, safety, or core comprehension.
+- Idea: keep for post-beta planning unless it clarifies the current Phase 0 workflow.
+
+Close criteria:
+
+- The issue has a verified fix, a documented workaround, or an explicit decision to defer.
+- Any production fix has passed `npm run verify:production`.
+- If the issue touches public copy, `npm run verify:copy` passes.
 
 ## Known Limitations
 
@@ -116,6 +141,7 @@ Do not include private keys, seed phrases, sensitive personal data, non-public c
 - Admin API requires `x-kairo-admin-token` in production.
 - `ADMIN_API_TOKEN="..." npm run verify:production` passes.
 - Forbidden copy scanner passes.
+- Beta feedback issue form exists and operator triage cadence is assigned.
 - Operators understand admin auth limitations.
 - Production D1 backup/export is captured before real beta data replaces seed/demo data.
 
