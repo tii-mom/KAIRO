@@ -28,7 +28,7 @@ Task: KAIRO Production Deploy & Smoke Test V1
 
 ## Private Beta status
 
-- Current recommendation: invite-only Private Beta can begin after operators confirm the cohort and feedback channel.
+- Current recommendation: pause new invite expansion until production API reachability is healthy from the tester network or a same-origin Pages Functions API path has the production `DB` binding configured.
 - Production API URL: `https://kairo-worker-prod.348421501.workers.dev`
 - Latest verified Pages URL: `https://c03bea43.kairo-5vg.pages.dev`
 - Latest Private Beta Pages URL: `https://530722fb.kairo-5vg.pages.dev`
@@ -42,6 +42,7 @@ Task: KAIRO Production Deploy & Smoke Test V1
   - Seed content is still partially demo content.
   - No full authentication or analytics pipeline is in place yet.
   - Run a D1 backup/export before replacing seed/demo data with real beta data.
+  - On 2026-06-27, `workers.dev` API probes from the current network timed out before Worker runtime and produced no `wrangler tail` events; Pages and D1 remained reachable.
 
 ## Validation summary
 
@@ -55,6 +56,7 @@ Task: KAIRO Production Deploy & Smoke Test V1
 - Browser smoke test loaded the homepage and core runtime layout successfully
 - `/api/admin/stats` returned `403` without admin headers, `403` with admin headers but no production token, and `200` with demo admin headers plus `x-kairo-admin-token`
 - Private Beta Pages deployment `https://530722fb.kairo-5vg.pages.dev` contains `/beta`, `/feedback`, the GitHub feedback issue form link, the admin token input, and the live Worker API base URL.
+- Production D1 pre-import snapshot helper `npm run db:backup:remote` was verified and wrote a local ignored snapshot with expected table counts.
 
 ## D1 notes
 
@@ -92,6 +94,8 @@ Task: KAIRO Production Deploy & Smoke Test V1
 
 - The `kairo-api-prod` Worker still exists as an extra deployment artifact, but the production path is healthy on `kairo-worker-prod`.
 - Keep the `VITE_KAIRO_API_BASE_URL` production setting pointed at the working Worker unless the app is switched to same-origin Pages Functions later.
+- Current network probes to both `kairo-worker-prod.348421501.workers.dev` and `kairo-api-prod.348421501.workers.dev` resolve to rotating non-Cloudflare-looking IPs and time out before TLS; `wrangler tail` shows no runtime hits during those probes.
+- A same-origin Pages Functions wrapper was tested on `https://b224a696.kairo-5vg.pages.dev`: `/api/health` worked, but D1-backed routes returned `DB` undefined because the Pages project has no production `DB` binding. Do not use this path until the Pages project binding is configured.
 
 ## Rollback notes
 

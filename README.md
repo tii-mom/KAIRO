@@ -151,6 +151,7 @@ Operational notes:
 | `npm run db:migrate:local` | Apply D1 migrations locally. |
 | `npm run db:seed:local` | Seed local D1 with launch demo data. |
 | `npm run db:migrate:remote` | Apply D1 migrations to the configured remote database. |
+| `npm run db:backup:remote` | Capture a timestamped read-only production D1 JSON snapshot under `backups/d1/`. |
 | `npm run content:beta:sql` | Generate reviewable SQL from the beta content JSON template. |
 | `npm run deploy:worker` | Deploy the Worker with Wrangler. |
 | `npm run verify:copy` | Scan public runtime code for forbidden public copy. |

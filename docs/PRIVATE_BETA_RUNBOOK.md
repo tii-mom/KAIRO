@@ -147,16 +147,23 @@ Close criteria:
 
 ## D1 Backup And Import Procedure
 
-Before importing real beta content, capture an export or backup from Cloudflare D1 using the dashboard or Wrangler-supported export workflow available for the account. Record the backup name, timestamp, and operator in the beta notes.
+Before importing real beta content, capture an export or backup from Cloudflare D1. The repo includes a read-only snapshot helper:
+
+```bash
+npm run db:backup:remote
+```
+
+The command writes a timestamped JSON snapshot under `backups/d1/`, which is ignored by git. By default it captures production table counts as a fast pre-import guard. Set `KAIRO_D1_BACKUP_INCLUDE_ROWS=1` to include table rows when an operator needs a fuller local export. Record the filename, timestamp, and operator in the beta notes. If the Cloudflare dashboard provides a native D1 backup/export for the account, capture that too.
 
 Recommended import path:
 
-1. Copy `content/beta-import.example.json` into a dated local working file.
-2. Replace placeholder entries with reviewed real Catalysts, Dormant Giants, Builder submissions, and Funding Events.
-3. Run `node scripts/generate-beta-import-sql.mjs <input.json> <output.sql>`.
-4. Review generated SQL for public-safe wording and correct IDs.
-5. Apply the SQL with `npx wrangler d1 execute kairo-prod --remote --env production --file=<output.sql>`.
-6. Re-run row-count checks and open the affected production pages.
+1. Run `npm run db:backup:remote` and record the snapshot filename.
+2. Copy `content/beta-import.example.json` into a dated local working file.
+3. Replace placeholder entries with reviewed real Catalysts, Dormant Giants, Builder submissions, and Funding Events.
+4. Run `node scripts/generate-beta-import-sql.mjs <input.json> <output.sql>`.
+5. Review generated SQL for public-safe wording and correct IDs.
+6. Apply the SQL with `npx wrangler d1 execute kairo-prod --remote --env production --file=<output.sql>`.
+7. Re-run row-count checks and open the affected production pages.
 
 Stop the import if any record includes private keys, sensitive personal data, confidential reward evidence, price predictions, trading instructions, or unreviewed sponsor claims.
 

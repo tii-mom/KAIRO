@@ -104,6 +104,14 @@ npm run content:beta:sql
 
 The command writes `content/beta-import.generated.sql`. Review the generated SQL before applying it to D1.
 
+Capture a read-only production snapshot before applying real beta content:
+
+```bash
+npm run db:backup:remote
+```
+
+Use `KAIRO_D1_BACKUP_INCLUDE_ROWS=1 npm run db:backup:remote` when the operator needs a fuller local row export in addition to the default table-count snapshot.
+
 Apply only after backup/export and review:
 
 ```bash
