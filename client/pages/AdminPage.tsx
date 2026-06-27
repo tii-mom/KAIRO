@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, FC } from 'react';
 import { FormEvent, useEffect, useState } from 'react';
 import { ShieldAlert } from 'lucide-react';
 import {
@@ -332,15 +332,17 @@ function GridSection({ title, children }: { title: string; children: ReactNode }
   );
 }
 
-function AdminRow({
-  title,
-  subtitle,
-  actions,
-}: {
+interface AdminRowProps {
   title: string;
   subtitle: string;
   actions: Array<{ label: string; onClick: () => Promise<unknown> }>;
-} & { key?: any }) {
+}
+
+const AdminRow: FC<AdminRowProps> = ({
+  title,
+  subtitle,
+  actions,
+}) => {
   return (
     <div className="glass-panel p-4 hover:border-white/10 transition-colors">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -358,4 +360,4 @@ function AdminRow({
       </div>
     </div>
   );
-}
+};

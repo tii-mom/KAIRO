@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FC } from 'react';
 import { Crown, Orbit, Radar, Trophy, Users } from 'lucide-react';
 import { getLeaderboard, type LeaderboardResponse } from '../lib/api';
 import { formatMomentumCount } from '../lib/formatters';
@@ -67,8 +67,20 @@ export default function LeaderboardPage() {
         }
       />
 
+      {/* Navigation tabs header sub-menu */}
+      <div className="w-full overflow-x-auto scrollbar-none border-b border-white/10 pb-1">
+        <div className="flex gap-6 min-w-max px-1 font-mono text-[10px] uppercase tracking-wider text-white/50">
+          <span className="text-[#ffb95f] font-bold border-b border-[#ffb95f] pb-2">Top Builders</span>
+          <span className="hover:text-white cursor-pointer pb-2 transition-colors">Hottest Catalysts</span>
+          <span className="hover:text-white cursor-pointer pb-2 transition-colors">Dormant Giants</span>
+          <span className="hover:text-white cursor-pointer pb-2 transition-colors">Breakout Stories</span>
+          <span className="hover:text-white cursor-pointer pb-2 transition-colors">Comeback Hall</span>
+          <span className="hover:text-white cursor-pointer pb-2 transition-colors">Genesis Candidates</span>
+        </div>
+      </div>
+
       {/* Main lists */}
-      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+      <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
         <Panel eyebrow="Heat Map" title="Hottest Catalysts" description="Lanes sorted by support injections and builder actions.">
           <RankList rows={hottest} labelKey="title" valueKey="momentum_score" valueFormatter={formatCompactValue} tone="gold" />
         </Panel>
@@ -152,15 +164,7 @@ export default function LeaderboardPage() {
   );
 }
 
-function RankList({
-  rows,
-  labelKey,
-  valueKey,
-  subtitleKey,
-  subtitleLabel,
-  valueFormatter,
-  tone,
-}: {
+const RankList: FC<{
   rows: LeaderboardRow[];
   labelKey: string;
   valueKey: string;
@@ -168,7 +172,15 @@ function RankList({
   subtitleLabel?: string;
   valueFormatter: (value: unknown) => string;
   tone: 'gold' | 'sky' | 'emerald';
-}) {
+}> = ({
+  rows,
+  labelKey,
+  valueKey,
+  subtitleKey,
+  subtitleLabel,
+  valueFormatter,
+  tone,
+}) => {
   if (!rows.length) {
     return <EmptyPanel title="Awaiting ranking metrics" description="Telemetries will stream here once platform actions occur." />;
   }
@@ -178,39 +190,149 @@ function RankList({
       {rows.map((row, index) => {
         const title = String(row[labelKey] ?? row.title ?? 'Unknown');
         const subtitleValue = subtitleKey ? String(row[subtitleKey] ?? '0') : null;
+        const valNum = Number(row[valueKey] ?? 0);
+        
+        const maxVal = Number(rows[0]?.[valueKey] ?? 100);
+        const percent = maxVal > 0 ? Math.min(100, Math.round((valNum / maxVal) * 100)) : 0;
+
+        const rank = index + 1;
+
+        if (rank === 1) {
+          return (
+            <div key={`${title}-${index}`} className="glass-card rounded-xl p-4 sm:p-6 glow-active flex flex-col sm:flex-row sm:items-center gap-6 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-300">
+              <div className="absolute inset-0 bg-energy-line pointer-events-none" />
+              <div className="flex-shrink-0 flex items-center gap-2 sm:flex-col sm:justify-center w-16 z-10">
+                <span className="rank-red font-mono text-xl font-bold uppercase tracking-wider flex items-center gap-1">
+                  🏆 #1
+                </span>
+              </div>
+              <div className="flex-grow z-10 min-w-0">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h3 className="text-base font-bold text-white tracking-tight truncate">{title}</h3>
+                  <StatusChip tone="red">Ignited</StatusChip>
+                </div>
+                {subtitleValue ? (
+                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">{subtitleLabel ?? subtitleKey}: {subtitleValue}</p>
+                ) : (
+                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">Ranked Core Runner</p>
+                )}
+              </div>
+              <div className="flex flex-col items-end gap-1.5 min-w-[150px] z-10 font-mono text-xs mt-3 sm:mt-0">
+                <div className="flex justify-between w-full">
+                  <span className="text-white/40">SCORE</span>
+                  <span className="text-[#EE1C25] font-bold">{valueFormatter(row[valueKey])}</span>
+                </div>
+                <div className="w-full progress-bar-bg">
+                  <div className="progress-bar-fill-red" style={{ width: `${percent}%` }} />
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        if (rank === 2) {
+          return (
+            <div key={`${title}-${index}`} className="glass-card rounded-xl p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-6 hover:border-white/10 transition-colors">
+              <div className="flex-shrink-0 flex items-center gap-2 sm:flex-col sm:justify-center w-16">
+                <span className="rank-silver font-mono text-xl font-bold uppercase tracking-wider">
+                  🥈 #2
+                </span>
+              </div>
+              <div className="flex-grow min-w-0">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h3 className="text-base font-bold text-white tracking-tight truncate">{title}</h3>
+                  <StatusChip tone="slate">Silver</StatusChip>
+                </div>
+                {subtitleValue ? (
+                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">{subtitleLabel ?? subtitleKey}: {subtitleValue}</p>
+                ) : (
+                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">Ranked Contributor</p>
+                )}
+              </div>
+              <div className="flex flex-col items-end gap-1.5 min-w-[150px] font-mono text-xs mt-3 sm:mt-0">
+                <div className="flex justify-between w-full">
+                  <span className="text-white/40">SCORE</span>
+                  <span className="text-white font-bold">{valueFormatter(row[valueKey])}</span>
+                </div>
+                <div className="w-full progress-bar-bg">
+                  <div className="progress-bar-fill" style={{ width: `${percent}%` }} />
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        if (rank === 3) {
+          return (
+            <div key={`${title}-${index}`} className="glass-card rounded-xl p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-6 hover:border-white/10 transition-colors">
+              <div className="flex-shrink-0 flex items-center gap-2 sm:flex-col sm:justify-center w-16">
+                <span className="rank-bronze font-mono text-xl font-bold uppercase tracking-wider">
+                  🥉 #3
+                </span>
+              </div>
+              <div className="flex-grow min-w-0">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h3 className="text-base font-bold text-white tracking-tight truncate">{title}</h3>
+                  <StatusChip tone="gold">Bronze</StatusChip>
+                </div>
+                {subtitleValue ? (
+                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">{subtitleLabel ?? subtitleKey}: {subtitleValue}</p>
+                ) : (
+                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">Ranked Contributor</p>
+                )}
+              </div>
+              <div className="flex flex-col items-end gap-1.5 min-w-[150px] font-mono text-xs mt-3 sm:mt-0">
+                <div className="flex justify-between w-full">
+                  <span className="text-white/40">SCORE</span>
+                  <span className="text-white font-bold">{valueFormatter(row[valueKey])}</span>
+                </div>
+                <div className="w-full progress-bar-bg">
+                  <div className="progress-bar-fill" style={{ width: `${percent}%` }} />
+                </div>
+              </div>
+            </div>
+          );
+        }
 
         return (
-          <DataRow
-            key={`${title}-${index}`}
-            rank={index + 1}
-            title={title}
-            subtitle={subtitleValue ? `${subtitleLabel ?? subtitleKey}: ${subtitleValue}` : undefined}
-            value={valueFormatter(row[valueKey])}
-            badge={<StatusChip tone={tone}>{index === 0 ? 'lead' : 'ranked'}</StatusChip>}
-          />
+          <div key={`${title}-${index}`} className="glass-panel p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors bg-[#0c0e14]/50">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="text-xs font-mono font-bold text-white/40 w-6">#{rank}</div>
+              <div className="min-w-0">
+                <h4 className="text-sm font-bold text-white tracking-tight truncate">{title}</h4>
+                {subtitleValue ? (
+                  <p className="text-[10px] font-mono text-white/40 uppercase mt-0.5">{subtitleLabel ?? subtitleKey}: {subtitleValue}</p>
+                ) : null}
+              </div>
+            </div>
+            <div className="flex items-center gap-4 shrink-0 font-mono text-xs mt-2 sm:mt-0 self-end sm:self-auto">
+              <span className="text-white/60 font-bold">{valueFormatter(row[valueKey])}</span>
+              <StatusChip tone="slate">ranked</StatusChip>
+            </div>
+          </div>
         );
       })}
     </div>
   );
-}
+};
 
-function MiniRankPanel({
-  title,
-  rows,
-  labelKey,
-  valueKey,
-}: {
+const MiniRankPanel: FC<{
   title: string;
   rows: LeaderboardRow[];
   labelKey: string;
   valueKey: string;
-}) {
+}> = ({
+  title,
+  rows,
+  labelKey,
+  valueKey,
+}) => {
   return (
-    <div className="glass-panel p-4 flex flex-col justify-between">
+    <div className="glass-panel p-4 flex flex-col justify-between bg-[#0c0e14]/40">
       <div className="text-[10px] font-mono uppercase tracking-widest text-white/40 mb-3 border-b border-white/5 pb-2">{title}</div>
       <div className="grid gap-3">
         {rows.length ? (
-          rows.map((row, index) => (
+          rows.slice(0, 5).map((row, index) => (
             <DataRow
               key={`${String(row[labelKey] ?? row.id)}-${index}`}
               rank={index + 1}
@@ -225,7 +347,7 @@ function MiniRankPanel({
       </div>
     </div>
   );
-}
+};
 
 function formatCompactValue(value: unknown) {
   return formatMomentumCount(Number(value ?? 0));

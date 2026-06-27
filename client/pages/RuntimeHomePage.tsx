@@ -13,7 +13,7 @@ import {
 import { getLeaderboard, listBounties, listCuratedItemsByPlacement, type LeaderboardResponse } from '../lib/api';
 import type { BountyRecord, CuratedItemRecord } from '../../shared/domain';
 import { formatFundingStatusLabel, formatMomentumCount } from '../lib/formatters';
-import { ActionLink, DataRow, EmptyPanel, Panel, StatusChip } from '../components/runtimeUi';
+import { ActionLink, EmptyPanel, Panel, StatusChip } from '../components/runtimeUi';
 import { ErrorState, LoadingState } from './pageUtils';
 
 export default function RuntimeHomePage() {
@@ -46,10 +46,9 @@ export default function RuntimeHomePage() {
     void load();
   }, []);
 
-  if (isLoading) return <LoadingState label="Loading KAIRO homepage..." />;
+  if (isLoading) return <LoadingState label="Loading KAIRO console..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
 
-  const banner = curatedItems.find((item) => item.itemType === 'homepage_banner');
   const featured = curatedItems.filter((item) => item.itemType === 'featured_catalyst').slice(0, 3);
   const hottest = (leaderboard?.hottestCatalysts ?? []).slice(0, 5);
   const mostBoosted = (leaderboard?.mostBoostedSubmissions ?? []).slice(0, 5);
@@ -58,67 +57,130 @@ export default function RuntimeHomePage() {
   return (
     <div className="space-y-8 pb-12">
       {/* Visual Hero Block */}
-      <section className="glass-panel p-6 sm:p-10 xl:p-12 relative overflow-hidden pulse-bg text-center">
+      <section className="glass-panel p-6 sm:p-10 xl:p-12 relative overflow-hidden pulse-bg">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0c0e14]/50 to-[#0c0e14] z-0 pointer-events-none" />
-        <div className="relative z-10 max-w-4xl mx-auto py-6">
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded border border-[#EE1C25]/30 bg-[#EE1C25]/5 mb-6 backdrop-blur-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#EE1C25] shadow-[0_0_5px_rgba(238,28,37,0.8)] animate-ping" />
-            <h2 className="font-mono text-[10px] text-[#EE1C25] tracking-[0.25em] uppercase font-bold">喚醒沉睡的代幣</h2>
+        
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          {/* Left Column: Headings & CTAs */}
+          <div className="lg:col-span-7 text-left space-y-6">
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded border border-[#EE1C25]/30 bg-[#EE1C25]/5 backdrop-blur-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#EE1C25] shadow-[0_0_5px_rgba(238,28,37,0.8)] animate-ping" />
+              <h2 className="font-mono text-[10px] text-[#EE1C25] tracking-[0.25em] uppercase font-bold">喚醒沉睡的代幣</h2>
+            </div>
+            <h1 className="font-sans text-3xl sm:text-5xl xl:text-6xl font-bold tracking-tight text-white leading-tight">
+              Reignite the <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ffb95f] via-[#ffd285] to-[#ffb95f] glow-text-primary">Dormant</span>
+            </h1>
+            <p className="font-sans text-sm sm:text-base text-[#c4c7c7] leading-relaxed max-w-xl">
+              The institutional resurrection platform for legacy tokens. Revitalize dormant token ecosystems through community coordination, builder solutions, and proof-supported momentum.
+            </p>
+            <div className="flex flex-wrap gap-3 items-center">
+              <Link to="/catalysts" className="btn-primary px-6 py-3 text-xs uppercase tracking-widest font-bold w-full sm:w-auto text-center">
+                Explore Catalysts
+              </Link>
+              <Link to="/create-catalyst" className="btn-ignite px-6 py-3 text-xs uppercase tracking-widest font-bold w-full sm:w-auto text-center">
+                Ignite a Catalyst
+              </Link>
+              <Link to="/leaderboard" className="btn-ghost px-6 py-3 text-xs uppercase tracking-widest font-bold w-full sm:w-auto text-center">
+                Explore The Grid
+              </Link>
+            </div>
           </div>
-          <h1 className="font-sans text-3xl sm:text-5xl xl:text-6xl font-bold tracking-tight text-white mb-6 leading-tight">
-            Reignite the <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ffb95f] via-[#ffd285] to-[#ffb95f] glow-text-primary">Dormant</span>
-          </h1>
-          <p className="font-sans text-sm sm:text-lg text-[#c4c7c7] max-w-2xl mx-auto mb-10 leading-relaxed">
-            The institutional resurrection platform for legacy tokens. Revitalize dormant token ecosystems through community coordination, builder solutions, and proof-supported momentum.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4 items-center">
-            <ActionLink to="/catalysts" className="w-full sm:w-auto text-xs uppercase tracking-widest font-bold">
-              Explore Catalysts
-            </ActionLink>
-            <ActionLink to="/create-catalyst" tone="ignite" className="w-full sm:w-auto text-xs uppercase tracking-widest font-bold">
-              Ignite a Catalyst
-            </ActionLink>
-          </div>
-        </div>
 
-        {/* Dynamic platform indicators */}
-        <div className="relative z-10 mt-12 grid gap-4 sm:grid-cols-3 max-w-5xl mx-auto border-t border-white/5 pt-8">
-          <div className="text-left px-4 py-2 border-l border-[#ffb95f]/25">
-            <div className="text-[9px] font-mono uppercase tracking-widest text-white/40">Active Catalysts</div>
-            <div className="mt-1 font-mono text-2xl font-bold text-white">{catalysts.length}</div>
-            <div className="text-[10px] text-white/50 mt-0.5">{confirmed.length} with confirmed public reward state</div>
-          </div>
-          <div className="text-left px-4 py-2 border-l border-[#4ade80]/25">
-            <div className="text-[9px] font-mono uppercase tracking-widest text-white/40">Support Proofs</div>
-            <div className="mt-1 font-mono text-2xl font-bold text-white">{leaderboard?.mostBoostedSubmissions.length ?? 0}</div>
-            <div className="text-[10px] text-white/50 mt-0.5">Visible submission-level support records</div>
-          </div>
-          <div className="text-left px-4 py-2 border-l border-[#ffddb8]/25">
-            <div className="text-[9px] font-mono uppercase tracking-widest text-white/40">Signal Lanes</div>
-            <div className="mt-1 font-mono text-2xl font-bold text-white">{curatedItems.length}</div>
-            <div className="text-[10px] text-white/50 mt-0.5">Curated momentum & comeback watch entries</div>
+          {/* Right Column: Telemetry Console */}
+          <div className="lg:col-span-5 w-full">
+            <div className="glass-panel p-5 bg-[#050608]/90 border-white/5 relative overflow-hidden group hover:border-[#ffb95f]/20 transition-all duration-300">
+              <div className="absolute inset-0 bg-energy-line opacity-30 pointer-events-none" />
+              
+              <div className="flex justify-between items-center border-b border-white/5 pb-3 mb-4 z-10 relative">
+                <span className="text-[10px] font-mono text-white/50 uppercase tracking-widest flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#EE1C25] animate-pulse" />
+                  Live Telemetry
+                </span>
+                <span className="text-[9px] font-mono text-[#ffb95f] bg-[#ffb95f]/10 border border-[#ffb95f]/20 px-2 py-0.5 rounded">
+                  CONSOLE V2
+                </span>
+              </div>
+
+              <div className="space-y-4 z-10 relative">
+                <div className="flex justify-between items-center py-2 border-b border-white/5">
+                  <span className="text-[10px] font-mono text-white/40 uppercase">ACTIVE CATALYSTS</span>
+                  <span className="font-mono text-sm font-bold text-white">{catalysts.length}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-white/5">
+                  <span className="text-[10px] font-mono text-white/40 uppercase">SUPPORT PROOFS</span>
+                  <span className="font-mono text-sm font-bold text-white">{leaderboard?.mostBoostedSubmissions.length ?? 0}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-white/5">
+                  <span className="text-[10px] font-mono text-white/40 uppercase">SIGNAL LANES</span>
+                  <span className="font-mono text-sm font-bold text-white">{curatedItems.length}</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-[10px] font-mono text-white/40 uppercase">NETWORK STATE</span>
+                  <span className="text-[9px] font-mono text-[#4ade80] uppercase tracking-wider font-semibold">
+                    ONLINE // SECURE
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Operational Panels */}
-      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+      <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+        
+        {/* Protocol Signal Board */}
         <Panel
           eyebrow="Momentum Board"
           title="Featured Catalyst Lanes"
-          description="Curated high-stakes resurrection briefs appear here first, then resolve into the general board."
+          description="Curated high-stakes resurrection briefs resolve into the general board."
           icon={Sparkles}
         >
           <div className="grid gap-3">
-            {(featured.length ? featured : curatedItems.slice(0, 3)).map((item) => (
-              <DataRow
-                key={item.id}
-                title={item.title}
-                subtitle={item.description ?? 'Curated ecosystem target'}
-                badge={<StatusChip tone="gold">{(item.itemType ?? 'curated').replace(/_/g, ' ')}</StatusChip>}
-                value={item.targetId ? `ID ${item.targetId}` : 'Featured'}
-              />
-            ))}
+            {(featured.length ? featured : curatedItems.slice(0, 3)).map((item) => {
+              const cRec = catalysts.find((c) => String(c.id) === String(item.targetId));
+              return (
+                <div key={item.id} className="glass-panel p-4 hover:border-white/10 transition-colors bg-[#050608]/50">
+                  <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-bold text-white">{item.title}</span>
+                        <StatusChip tone="gold">{(item.itemType ?? 'curated').replace(/_/g, ' ')}</StatusChip>
+                      </div>
+                      <p className="text-xs text-white/50 mt-1 max-w-xl">{item.description ?? 'Curated ecosystem lane'}</p>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-4 items-center text-xs font-mono">
+                      {cRec ? (
+                        <>
+                          <div className="text-left min-w-[70px]">
+                            <div className="text-[8px] text-white/30 uppercase">MOMENTUM</div>
+                            <div className="text-white font-bold">{formatMomentumCount(cRec.momentumScore)}</div>
+                          </div>
+                          <div className="text-left min-w-[90px]">
+                            <div className="text-[8px] text-white/30 uppercase">REWARD</div>
+                            <div className="text-[#ffb95f] font-semibold truncate max-w-[80px]" title={cRec.rewardText || 'Pending'}>
+                              {cRec.rewardText || 'Pending'}
+                            </div>
+                          </div>
+                          <div className="text-left min-w-[70px]">
+                            <div className="text-[8px] text-white/30 uppercase">STATUS</div>
+                            <div className="text-[#4ade80] font-semibold">{formatFundingStatusLabel(cRec.fundingStatus)}</div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-left text-white/30 italic text-[10px]">
+                          Target details loading...
+                        </div>
+                      )}
+                      <Link to={cRec ? `/catalysts/${cRec.id}` : '/catalysts'} className="btn-ghost px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider shrink-0">
+                        View Lane
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
             {!featured.length && !curatedItems.length ? (
               <EmptyPanel
                 title="No curated lanes published"
@@ -128,6 +190,7 @@ export default function RuntimeHomePage() {
           </div>
         </Panel>
 
+        {/* High Density Activity Stream */}
         <Panel
           eyebrow="Activity Feed"
           title="Hot Catalyst Stream"
@@ -136,16 +199,36 @@ export default function RuntimeHomePage() {
         >
           <div className="grid gap-3">
             {hottest.length ? (
-              hottest.map((row, index) => (
-                <DataRow
-                  key={`${String(row.id)}-${index}`}
-                  rank={index + 1}
-                  to={`/catalysts/${String(row.id)}`}
-                  title={String(row.title ?? 'Untitled Catalyst')}
-                  subtitle={`Momentum score: ${formatMomentumCount(Number(row.momentum_score ?? 0))}`}
-                  badge={<StatusChip tone={index === 0 ? 'red' : 'slate'}>{index === 0 ? 'top runner' : 'hot lane'}</StatusChip>}
-                />
-              ))
+              <div className="space-y-3 font-mono">
+                {hottest.map((row, index) => (
+                  <Link 
+                    key={`${String(row.id)}-${index}`}
+                    to={`/catalysts/${String(row.id)}`}
+                    className="flex items-center justify-between p-3 rounded border border-white/5 bg-[#050608]/70 hover:border-[#EE1C25]/20 hover:bg-[#EE1C25]/5 transition-all text-xs"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className={`text-[10px] font-bold shrink-0 ${index === 0 ? 'text-[#EE1C25]' : 'text-white/40'}`}>
+                        [{index + 1}]
+                      </span>
+                      <div className="min-w-0">
+                        <div className="truncate text-white font-semibold">{String(row.title ?? 'Untitled Catalyst')}</div>
+                        <div className="text-[9px] text-white/30 mt-0.5 uppercase">
+                          SIGNAL: {index === 0 ? 'IGNITED_RUNNER' : 'CATALYST_LANE'}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <div className="text-right">
+                        <div className="text-[#EE1C25] font-bold">{formatMomentumCount(Number(row.momentum_score ?? 0))}</div>
+                        <div className="text-[8px] text-white/30 uppercase">MOMENTUM</div>
+                      </div>
+                      <StatusChip tone={index === 0 ? 'red' : 'slate'}>
+                        {index === 0 ? 'ignited' : 'active'}
+                      </StatusChip>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             ) : (
               <EmptyPanel title="Awaiting stream signal" description="Lanes will populate here as booster actions happen." />
             )}
@@ -154,6 +237,8 @@ export default function RuntimeHomePage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+        
+        {/* Reward telemetry */}
         <Panel
           eyebrow="Reward Telemetry"
           title="Confirmed Public Reward Records"
@@ -164,15 +249,24 @@ export default function RuntimeHomePage() {
           <div className="grid gap-3">
             {confirmed.length ? (
               confirmed.map((item) => (
-                <DataRow
-                  key={item.id}
-                  to={`/catalysts/${item.id}`}
-                  title={item.title}
-                  subtitle={item.description}
-                  value={formatMomentumCount(item.momentumScore)}
-                  meta={`Status: ${formatFundingStatusLabel(item.fundingStatus)}`}
-                  badge={<StatusChip tone="emerald">{formatFundingStatusLabel(item.fundingStatus)}</StatusChip>}
-                />
+                <div key={item.id} className="glass-panel p-4 hover:border-white/10 transition-colors bg-[#050608]/50 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold text-white">{item.title}</span>
+                      <StatusChip tone="emerald">{formatFundingStatusLabel(item.fundingStatus)}</StatusChip>
+                    </div>
+                    <p className="text-xs text-white/50 mt-1 max-w-xl">{item.description}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-4 items-center text-xs font-mono">
+                    <div className="text-left">
+                      <div className="text-[8px] text-white/30 uppercase">MOMENTUM</div>
+                      <div className="text-white font-bold">{formatMomentumCount(item.momentumScore)}</div>
+                    </div>
+                    <Link to={`/catalysts/${item.id}`} className="btn-ghost px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider">
+                      Open Detail
+                    </Link>
+                  </div>
+                </div>
               ))
             ) : (
               <EmptyPanel
@@ -183,6 +277,7 @@ export default function RuntimeHomePage() {
           </div>
         </Panel>
 
+        {/* Proof Trail */}
         <Panel
           eyebrow="Proof Trail"
           title="Most Boosted Solution Feed"
@@ -193,15 +288,24 @@ export default function RuntimeHomePage() {
           <div className="grid gap-3">
             {mostBoosted.length ? (
               mostBoosted.map((row, index) => (
-                <DataRow
-                  key={`${String(row.id)}-${index}`}
-                  to={`/submissions/${String(row.id)}`}
-                  rank={index + 1}
-                  title={String(row.name ?? 'Untitled Solution')}
-                  subtitle={`Builder ID: ${String(row.builder_name ?? row.builder_id ?? 'unknown')}`}
-                  value={`${String(row.boost_count ?? 0)} boosts`}
-                  badge={<StatusChip tone="sky">proof event</StatusChip>}
-                />
+                <div key={`${String(row.id)}-${index}`} className="glass-panel p-4 hover:border-white/10 transition-colors bg-[#050608]/50 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold text-white">{String(row.name ?? 'Untitled Solution')}</span>
+                      <StatusChip tone="sky">proof event</StatusChip>
+                    </div>
+                    <p className="text-xs text-white/50 mt-1">Builder Reference ID: <strong className="text-white">{String(row.builder_name ?? row.builder_id ?? 'unknown')}</strong></p>
+                  </div>
+                  <div className="flex flex-wrap gap-4 items-center text-xs font-mono">
+                    <div className="text-left">
+                      <div className="text-[8px] text-white/30 uppercase">BOOSTS</div>
+                      <div className="text-white font-bold">{String(row.boost_count ?? 0)}</div>
+                    </div>
+                    <Link to={`/submissions/${String(row.id)}`} className="btn-ghost px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider">
+                      View Solution
+                    </Link>
+                  </div>
+                </div>
               ))
             ) : (
               <EmptyPanel
@@ -214,6 +318,7 @@ export default function RuntimeHomePage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+        {/* Protocol Links */}
         <Panel
           eyebrow="Protocol Links"
           title="Consoles & Fast Paths"
@@ -244,6 +349,7 @@ export default function RuntimeHomePage() {
           </div>
         </Panel>
 
+        {/* Comeback highlights */}
         <Panel
           eyebrow="Resurrection Stories"
           title="Comeback Pulse"
@@ -254,13 +360,15 @@ export default function RuntimeHomePage() {
             {curatedItems.slice(0, 4).map((item) => (
               <article
                 key={item.id}
-                className="glass-panel p-4 flex flex-col justify-between"
+                className="glass-panel p-4 flex flex-col justify-between hover:border-white/15 transition-all bg-[#0c0e14]/40"
               >
                 <div>
-                  <StatusChip tone="gold">{(item.itemType ?? 'curated').replace(/_/g, ' ')}</StatusChip>
-                  <h3 className="mt-4 text-base font-bold text-white tracking-tight leading-tight">{item.title}</h3>
+                  <div className="flex justify-between items-start gap-2">
+                    <StatusChip tone="gold">{(item.itemType ?? 'curated').replace(/_/g, ' ')}</StatusChip>
+                  </div>
+                  <h3 className="mt-4 text-sm font-bold text-white tracking-tight leading-snug">{item.title}</h3>
                   <p className="mt-2 text-xs leading-5 text-white/50">
-                    {item.description ?? 'Curated comeback metadata.'}
+                    {item.description ?? 'Curated comeback highlight item.'}
                   </p>
                 </div>
                 <div className="mt-4 font-mono text-[9px] uppercase tracking-wider text-white/30">
@@ -287,13 +395,13 @@ function QuickLink({ to, title, body }: { to: string; title: string; body: strin
   return (
     <Link
       to={to}
-      className="glass-panel glass-panel-hover p-4 hover:border-[#ffb95f]/30 flex flex-col justify-between"
+      className="glass-panel glass-panel-hover p-4 hover:border-[#ffb95f]/30 flex flex-col justify-between bg-[#050608]/40"
     >
       <div className="flex items-center justify-between gap-3">
-        <h3 className="text-sm font-bold text-white tracking-tight">{title}</h3>
-        <ArrowRight className="h-3.5 w-3.5 text-white/20" />
+        <h3 className="text-xs font-bold text-white tracking-tight">{title}</h3>
+        <ArrowRight className="h-3 w-3 text-white/20" />
       </div>
-      <p className="mt-2 text-xs leading-5 text-white/40">{body}</p>
+      <p className="mt-2 text-[11px] leading-5 text-white/40">{body}</p>
     </Link>
   );
 }

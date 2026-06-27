@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FC } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { Award, Flame, FolderKanban, Info, Plus, ShieldCheck } from 'lucide-react';
 import { boostBounty, getBounty, listBounties, listFundingEvents, listSubmissions, type PublicBountyRecord } from '../lib/api';
@@ -20,20 +20,24 @@ export function CatalystDetailPage() {
   const [fundingEvents, setFundingEvents] = useState<FundingEventRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [boostMessage, setBoostMessage] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [boostMessage, setBoostMessage] = useState<string | null>(null);
 
   const load = async () => {
     if (!id) return;
     setIsLoading(true);
     try {
-      const [bounty, submissionList, eventList] = await Promise.all([getBounty(id), listSubmissions(id), listFundingEvents(id)]);
-      setCatalyst(bounty as ApiBounty);
-      setSubmissions(submissionList);
-      setFundingEvents(eventList);
+      const [bountyData, submissionData, fundingData] = await Promise.all([
+        getBounty(id),
+        listSubmissions(id),
+        listFundingEvents(id),
+      ]);
+      setCatalyst(bountyData as ApiBounty);
+      setSubmissions(submissionData);
+      setFundingEvents(fundingData);
       setError(null);
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : 'Unable to load Catalyst');
+      setError(loadError instanceof Error ? loadError.message : 'Unable to load Catalyst details');
     } finally {
       setIsLoading(false);
     }
@@ -68,14 +72,17 @@ export function CatalystDetailPage() {
 
   return (
     <div className="space-y-8 pb-12">
-      {/* Header Info */}
-      <div className="mb-6">
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-[#EE1C25]/10 text-[#EE1C25] border border-[#EE1C25]/30 font-mono text-[10px] uppercase font-semibold">
-            <Flame className="h-3.5 w-3.5 animate-pulse" />
+      {/* Detail Header Block */}
+      <div className="border-b border-white/5 pb-6">
+        <div className="flex items-center gap-2 mb-3">
+          <Link to="/catalysts" className="text-xs font-mono font-bold uppercase tracking-wider text-[#ffb95f] hover:underline">
+            ← Back to Registry
+          </Link>
+          <span className="text-white/20">|</span>
+          <span className="inline-flex rounded border border-[#ffb95f]/20 bg-[#ffb95f]/5 px-2 py-0.5 text-[9px] font-mono font-semibold uppercase tracking-wider text-[#ffb95f]">
             Active Catalyst
           </span>
-          <span className="text-white/40 font-mono text-[10px] uppercase tracking-wider">Scope: Discovery Mode</span>
+          <span className="text-white/40 font-mono text-[9px] uppercase tracking-wider">Scope: Discovery Mode</span>
         </div>
         <h1 className="font-sans text-3xl sm:text-5xl font-bold tracking-tight text-white mb-3">{catalyst.title}</h1>
         <p className="font-sans text-[#c4c7c7] text-sm sm:text-base max-w-3xl leading-relaxed">{catalyst.description}</p>
@@ -90,9 +97,13 @@ export function CatalystDetailPage() {
             <div className="glass-header px-6 py-4 flex justify-between items-center">
               <h2 className="text-sm font-bold tracking-wider font-mono uppercase text-white/80">Project Profile</h2>
               <div className="flex gap-2">
-                <button className="btn-ghost p-1.5 rounded hover:scale-105" title="Copy Website Link">
-                  <span className="font-mono text-[10px] px-1.5">WEBSITE</span>
-                </button>
+                {catalyst.tokenWebsiteUrl ? (
+                  <a href={catalyst.tokenWebsiteUrl} target="_blank" rel="noopener noreferrer" className="btn-ghost px-2.5 py-1 text-[9px] font-mono tracking-widest font-bold">
+                    WEBSITE
+                  </a>
+                ) : (
+                  <span className="text-[9px] font-mono text-white/30 border border-white/5 px-2.5 py-1 rounded">WEBSITE UNAVAILABLE</span>
+                )}
               </div>
             </div>
             <div className="p-6">
@@ -104,30 +115,75 @@ export function CatalystDetailPage() {
                   <div className="font-sans text-lg font-bold text-white">{catalyst.tokenName || 'KAIRO Network Token'}</div>
                   <div className="font-mono text-[11px] text-white/50 flex items-center gap-2 mt-1">
                     <span>Address: {catalyst.tokenContractAddress ? `${catalyst.tokenContractAddress.slice(0, 6)}...${catalyst.tokenContractAddress.slice(-4)}` : 'Pending verification / Not provided'}</span>
-                    <button 
-                      onClick={catalyst.tokenContractAddress ? copyAddress : undefined} 
-                      disabled={!catalyst.tokenContractAddress}
-                      className="text-[#ffb95f] hover:text-white transition-colors disabled:opacity-30 disabled:hover:text-[#ffb95f] disabled:cursor-not-allowed" 
-                      title="Copy Address"
-                    >
-                      {copied ? 'Copied!' : 'Copy'}
-                    </button>
+                    {catalyst.tokenContractAddress ? (
+                      <button onClick={copyAddress} className="text-[#ffb95f] hover:text-white transition-colors" title="Copy Address">
+                        {copied ? 'Copied!' : 'Copy'}
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               </div>
 
-              {/* simulated Telemetry Chart Area */}
-              <div className="w-full h-44 bg-[#050608] rounded border border-white/5 relative overflow-hidden mb-6 flex items-end justify-between px-4 pb-2">
-                <div className="absolute top-3 left-4 font-mono text-[11px] text-[#ffb95f]">
-                  REVIVAL SCORE TREND: <span className="text-[#4ade80]">+28.4% MOMENTUM</span>
+              {/* Compact metadata rows */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-white/5 pt-6 text-xs font-mono mb-6">
+                <div className="flex justify-between items-center py-1.5 border-b border-white/5">
+                  <span className="text-white/40">CHAIN</span>
+                  <span className="text-white font-bold uppercase">{catalyst.tokenChain || 'Unknown'}</span>
                 </div>
-                <div className="w-[12%] h-[20%] bg-[#ffb95f]/10 border-t border-[#ffb95f]/30 rounded-t"></div>
-                <div className="w-[12%] h-[35%] bg-[#ffb95f]/15 border-t border-[#ffb95f]/40 rounded-t"></div>
-                <div className="w-[12%] h-[25%] bg-[#ffb95f]/10 border-t border-[#ffb95f]/30 rounded-t"></div>
-                <div className="w-[12%] h-[55%] bg-[#ffb95f]/20 border-t border-[#ffb95f]/50 rounded-t"></div>
-                <div className="w-[12%] h-[40%] bg-[#ffb95f]/15 border-t border-[#ffb95f]/40 rounded-t"></div>
-                <div className="w-[12%] h-[75%] bg-[#ffb95f]/30 border-t-2 border-[#ffb95f] rounded-t relative">
-                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[#ffb95f] rounded-full animate-ping" />
+                <div className="flex justify-between items-center py-1.5 border-b border-white/5">
+                  <span className="text-white/40">WEBSITE</span>
+                  {catalyst.tokenWebsiteUrl ? (
+                    <a href={catalyst.tokenWebsiteUrl} target="_blank" rel="noopener noreferrer" className="text-[#ffb95f] hover:underline">
+                      Link
+                    </a>
+                  ) : (
+                    <span className="text-white/30 italic">Not provided</span>
+                  )}
+                </div>
+                <div className="flex justify-between items-center py-1.5 border-b border-white/5 md:border-b-0">
+                  <span className="text-white/40">TWITTER</span>
+                  {catalyst.tokenTwitterUrl ? (
+                    <a href={catalyst.tokenTwitterUrl} target="_blank" rel="noopener noreferrer" className="text-[#ffb95f] hover:underline">
+                      Link
+                    </a>
+                  ) : (
+                    <span className="text-white/30 italic">Not provided</span>
+                  )}
+                </div>
+                <div className="flex justify-between items-center py-1.5 md:py-0">
+                  <span className="text-white/40">TELEGRAM</span>
+                  {catalyst.tokenTelegramUrl ? (
+                    <a href={catalyst.tokenTelegramUrl} target="_blank" rel="noopener noreferrer" className="text-[#ffb95f] hover:underline">
+                      Link
+                    </a>
+                  ) : (
+                    <span className="text-white/30 italic">Not provided</span>
+                  )}
+                </div>
+              </div>
+
+              {/* simulated Telemetry Chart Area */}
+              <div className="w-full h-44 bg-[#050608] rounded border border-white/5 relative overflow-hidden flex flex-col justify-between p-4">
+                <div className="absolute inset-0 bg-energy-line opacity-10 pointer-events-none" />
+                <div className="font-mono text-[10px] text-[#ffb95f] flex justify-between z-10">
+                  <span>REVIVAL SIGNAL TELEMETRY</span>
+                  <span className="text-[#4ade80]">+28.4% MOMENTUM</span>
+                </div>
+                
+                {/* Visual grid chart bars */}
+                <div className="w-full h-24 flex items-end justify-between px-2 pb-1 relative z-10">
+                  <div className="w-[12%] h-[20%] bg-[#ffb95f]/10 border-t border-[#ffb95f]/30 rounded-t"></div>
+                  <div className="w-[12%] h-[35%] bg-[#ffb95f]/15 border-t border-[#ffb95f]/40 rounded-t"></div>
+                  <div className="w-[12%] h-[25%] bg-[#ffb95f]/10 border-t border-[#ffb95f]/30 rounded-t"></div>
+                  <div className="w-[12%] h-[55%] bg-[#ffb95f]/20 border-t border-[#ffb95f]/50 rounded-t"></div>
+                  <div className="w-[12%] h-[40%] bg-[#ffb95f]/15 border-t border-[#ffb95f]/40 rounded-t"></div>
+                  <div className="w-[12%] h-[75%] bg-[#ffb95f]/30 border-t-2 border-[#ffb95f] rounded-t relative">
+                    <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[#ffb95f] rounded-full animate-ping" />
+                  </div>
+                </div>
+
+                <div className="text-[9px] font-mono text-white/30 italic text-left border-t border-white/5 pt-1.5 z-10">
+                  Telemetry reflects coordination signal intensity and community boost logs. This does not represent financial or price movement.
                 </div>
               </div>
             </div>
@@ -139,7 +195,7 @@ export function CatalystDetailPage() {
             <div className="font-sans text-xs sm:text-sm text-white/70 space-y-4 leading-relaxed">
               <p>This Catalyst seeks builder implementation for the legacy token revival path. Supporter boosts increase coordination signals, signaling core momentum to development contributors.</p>
               <div className="bg-[#050608] p-4 rounded border border-white/5 mt-4">
-                <h3 className="font-mono text-[11px] text-white/40 uppercase tracking-widest mb-3">Key Technical Targets</h3>
+                <h3 className="font-mono text-[10px] text-white/40 uppercase tracking-widest mb-3">Key Technical Targets</h3>
                 <ul className="list-disc list-inside space-y-2 font-mono text-xs text-white/60">
                   <li>Verify community deliverable integrity on public routes.</li>
                   <li>Build zero-fee analytics telemetry dashboard pipelines.</li>
@@ -151,7 +207,8 @@ export function CatalystDetailPage() {
 
           {/* Project Milestones */}
           <section className="glass-panel rounded-lg p-6">
-            <h2 className="text-sm font-bold tracking-wider font-mono uppercase text-white/80 border-b border-white/5 pb-4 mb-6">Milestones Pipeline</h2>
+            <h2 className="text-sm font-bold tracking-wider font-mono uppercase text-white/80 border-b border-white/5 pb-4 mb-6">Workflow Pipeline</h2>
+            <p className="text-[11px] text-white/40 mb-6 font-mono">Standard roadmap stages of the KAIRO coordination flow. Actual technical progress varies by contributor solution reviews.</p>
             <div className="relative pl-6 border-l border-white/5 space-y-8">
               <div className="relative">
                 <div className="absolute -left-[30px] top-1 w-3 h-3 rounded bg-[#ffb95f] ring-4 ring-[#0c0e14]"></div>
@@ -226,17 +283,17 @@ export function CatalystDetailPage() {
             <div className="glass-header px-6 py-4">
               <h2 className="text-sm font-bold tracking-wider font-mono uppercase text-white/80">Top Supporters</h2>
             </div>
-            <div className="divide-y divide-white/5">
-              <div className="flex items-center justify-between px-6 py-3.5 hover:bg-white/[0.01] transition-colors">
-                <span className="font-mono text-xs text-white/80">0x4A...9fE2</span>
-                <span className="font-mono text-xs text-[#ffb95f] font-semibold">4,500 PTS</span>
+            <div className="p-4 space-y-3">
+              <div className="flex items-center justify-between text-xs font-mono py-1.5 border-b border-white/5">
+                <span className="text-white/60">1. Referral network</span>
+                <span className="font-mono text-xs text-[#ffb95f] font-semibold">2,400 PTS</span>
               </div>
-              <div className="flex items-center justify-between px-6 py-3.5 hover:bg-white/[0.01] transition-colors">
-                <span className="font-mono text-xs text-white/80">vitalik.eth</span>
-                <span className="font-mono text-xs text-[#ffb95f] font-semibold">3,200 PTS</span>
+              <div className="flex items-center justify-between text-xs font-mono py-1.5 border-b border-white/5">
+                <span className="text-white/60">2. Developer score board</span>
+                <span className="font-mono text-xs text-[#ffb95f] font-semibold">1,950 PTS</span>
               </div>
-              <div className="flex items-center justify-between px-6 py-3.5 hover:bg-white/[0.01] transition-colors">
-                <span className="font-mono text-xs text-white/80">0x8B...1cC4</span>
+              <div className="flex items-center justify-between text-xs font-mono py-1.5">
+                <span className="text-white/60">3. Support timeline logic</span>
                 <span className="font-mono text-xs text-[#ffb95f] font-semibold">1,850 PTS</span>
               </div>
             </div>
@@ -254,22 +311,45 @@ export function CatalystDetailPage() {
         {submissions.length ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {submissions.map((submission) => (
-              <div key={submission.id} className="glass-panel p-5 flex flex-col justify-between hover:border-[#ffb95f]/30 transition-all duration-300">
+              <div key={submission.id} className="glass-panel p-5 bg-[#0c0e14]/60 border-white/5 hover:border-[#ffb95f]/30 transition-all duration-300 flex flex-col justify-between">
                 <div>
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex justify-between items-start border-b border-white/5 pb-3 mb-3">
                     <div>
                       <h4 className="text-sm font-bold text-white tracking-tight">{submission.name}</h4>
-                      <p className="text-[10px] font-mono text-white/40 mt-0.5">Builder: {submission.builderName || 'Dev'}</p>
+                      <p className="text-[10px] font-mono text-white/40 mt-1 uppercase">
+                        BUILDER: {submission.builderName || submission.builderId || 'Unknown'}
+                      </p>
                     </div>
-                    <Link to={`/submissions/${submission.id}`} className="text-white/30 hover:text-[#ffb95f] transition-colors">
+                    <Link to={`/submissions/${submission.id}`} className="text-white/30 hover:text-[#ffb95f] transition-colors shrink-0" title="Solution details">
                       <Info className="h-4 w-4" />
                     </Link>
                   </div>
-                  <p className="text-xs text-white/60 leading-5 mb-6">{submission.tagline}</p>
+                  <p className="text-xs text-white/60 leading-5 mb-4">{submission.tagline || submission.description}</p>
                 </div>
-                <div className="flex justify-between items-center border-t border-white/5 pt-4 mt-auto">
-                  <StatusChip tone={submission.status === 'approved' ? 'emerald' : 'gold'}>{submission.status}</StatusChip>
-                  <span className="font-mono text-xs text-[#ffb95f]">{submission.boostCount} Boosts</span>
+                
+                {/* Proof Links Row */}
+                <div className="flex flex-wrap gap-2 text-[10px] font-mono mb-4 text-white/40">
+                  {submission.demoUrl ? (
+                    <a href={submission.demoUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[#ffb95f] underline">DEMO</a>
+                  ) : <span className="opacity-50">NO_DEMO</span>}
+                  <span>·</span>
+                  {submission.githubUrl ? (
+                    <a href={submission.githubUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[#ffb95f] underline">CODE</a>
+                  ) : <span className="opacity-50">NO_CODE</span>}
+                  <span>·</span>
+                  {submission.videoUrl ? (
+                    <a href={submission.videoUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[#ffb95f] underline">VIDEO</a>
+                  ) : <span className="opacity-50">NO_VIDEO</span>}
+                </div>
+
+                <div className="flex justify-between items-center border-t border-white/5 pt-3 mt-auto">
+                  <StatusChip tone={submission.status === 'approved' ? 'emerald' : 'gold'}>
+                    {submission.status}
+                  </StatusChip>
+                  <div className="text-right">
+                    <span className="font-mono text-xs text-[#ffb95f] font-bold">{submission.boostCount} Boosts</span>
+                    <div className="text-[9px] font-mono text-white/30 mt-0.5">{formatDate(submission.createdAt)}</div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -414,7 +494,7 @@ export default function CatalystsPage() {
             <Panel eyebrow="Catalyst watch" title="Ecosystem Highlights" icon={Flame}>
               <div className="grid gap-3">
                 {(featured.length ? featured : catalysts.slice(0, 3)).map((catalyst) => (
-                  <article key={catalyst.id} className="glass-panel p-4 flex flex-col justify-between">
+                  <article key={catalyst.id} className="glass-panel p-4 flex flex-col justify-between bg-[#0c0e14]/40">
                     <div>
                       <StatusChip tone="gold">{catalyst.featured ? 'featured target' : 'watchlist'}</StatusChip>
                       <h3 className="mt-4 text-base font-bold tracking-tight text-white">{catalyst.title}</h3>

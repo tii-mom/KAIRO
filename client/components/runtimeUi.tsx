@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, InputHTMLAttributes, TextareaHTMLAttributes, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, InputHTMLAttributes, TextareaHTMLAttributes, ReactNode, FC } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronRight, type LucideIcon } from 'lucide-react';
 
@@ -100,17 +100,19 @@ export function ActionButton({
   );
 }
 
-export function MiniStat({
-  label,
-  value,
-  detail,
-  tone = 'gold',
-}: {
+export interface MiniStatProps {
   label: string;
   value: ReactNode;
   detail?: ReactNode;
   tone?: Tone;
-} & { key?: any }) {
+}
+
+export const MiniStat: FC<MiniStatProps> = ({
+  label,
+  value,
+  detail,
+  tone = 'gold' as Tone,
+}) => {
   return (
     <div className="glass-panel p-5">
       <div className={cx('inline-flex rounded border px-2 py-0.5 text-[10px] font-mono font-semibold uppercase tracking-wider', toneClass(tone))}>
@@ -120,7 +122,7 @@ export function MiniStat({
       {detail ? <div className="mt-2 text-xs leading-5 text-white/50">{detail}</div> : null}
     </div>
   );
-}
+};
 
 export function PageHero({
   eyebrow,
@@ -201,18 +203,7 @@ export function Panel({
   );
 }
 
-export function DataRow({
-  title,
-  subtitle,
-  value,
-  badge,
-  meta,
-  trailing,
-  to,
-  onClick,
-  rank,
-  className,
-}: {
+export interface DataRowProps {
   title: ReactNode;
   subtitle?: ReactNode;
   value?: ReactNode;
@@ -223,7 +214,20 @@ export function DataRow({
   onClick?: () => void;
   rank?: ReactNode;
   className?: string;
-} & { key?: any }) {
+}
+
+export const DataRow: FC<DataRowProps> = ({
+  title,
+  subtitle,
+  value,
+  badge,
+  meta,
+  trailing,
+  to,
+  onClick,
+  rank,
+  className,
+}) => {
   const rowContent = (
     <>
       <div className="flex min-w-0 items-start gap-3">
@@ -271,7 +275,7 @@ export function DataRow({
   }
 
   return <div className={rowClassName}>{rowContent}</div>;
-}
+};
 
 export function StatusChip({
   children,
