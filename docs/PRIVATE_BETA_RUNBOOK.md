@@ -96,7 +96,7 @@ Do not include private keys, seed phrases, sensitive personal data, non-public c
 ## Known Limitations
 
 - Demo identity/session behavior is still used.
-- Header-based admin access is for smoke/dev and controlled beta operations only.
+- Admin access uses demo role headers plus the `ADMIN_API_TOKEN` shared secret for controlled beta operations.
 - Seed content is still partially demo content.
 - Full authentication is not implemented yet.
 - No analytics pipeline is implemented yet.
@@ -113,6 +113,7 @@ Do not include private keys, seed phrases, sensitive personal data, non-public c
 - Proof of Support works.
 - Leaderboard works.
 - Admin 403/200 check works.
+- Admin API requires `x-kairo-admin-token` in production.
 - Forbidden copy scanner passes.
 - Operators understand admin auth limitations.
 - Production D1 backup/export is captured before real beta data replaces seed/demo data.
@@ -131,3 +132,23 @@ Recommended import path:
 6. Re-run row-count checks and open the affected production pages.
 
 Stop the import if any record includes private keys, sensitive personal data, confidential reward evidence, price predictions, trading instructions, or unreviewed sponsor claims.
+
+## Admin Operator Access
+
+Production admin requests require both:
+
+- `x-kairo-role: admin`
+- `x-kairo-admin-token` matching the Worker `ADMIN_API_TOKEN` secret
+
+Set or rotate the production token with:
+
+```bash
+npx wrangler secret put ADMIN_API_TOKEN --env production
+```
+
+Operator guidance:
+
+- Share the token only with the 1-2 beta operators.
+- Enter the token in `/admin`; it is stored only in browser `sessionStorage`.
+- Rotate the token if it is shared in the wrong channel.
+- Replace this shared-token gate with stronger operator auth before open beta or public launch.

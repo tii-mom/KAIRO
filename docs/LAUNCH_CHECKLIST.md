@@ -90,6 +90,13 @@ Admin allowed with `x-kairo-role: admin`:
 curl -i -H "x-kairo-role: admin" -H "x-kairo-user-id: user-demo-admin" http://127.0.0.1:8787/api/admin/stats
 ```
 
+Production admin must also require `x-kairo-admin-token` matching `ADMIN_API_TOKEN`:
+
+```bash
+curl -i -H "x-kairo-role: admin" -H "x-kairo-user-id: user-demo-admin" https://kairo-worker-prod.348421501.workers.dev/api/admin/stats
+curl -i -H "x-kairo-role: admin" -H "x-kairo-user-id: user-demo-admin" -H "x-kairo-admin-token: $ADMIN_API_TOKEN" https://kairo-worker-prod.348421501.workers.dev/api/admin/stats
+```
+
 ## D. Frontend Smoke Test
 
 Start the frontend:
@@ -151,6 +158,8 @@ Note: the current app also exposes Catalyst creation at `/catalysts/create`; ver
 - `docs/PRIVATE_BETA_RUNBOOK.md` is current.
 - `docs/BETA_CONTENT_PLAN.md` is current.
 - Admin operators understand that demo header/session logic is not final production auth.
+- `ADMIN_API_TOKEN` is set as a production Worker secret before inviting operators.
+- Admin API returns `403` without the token and `200` with the token.
 - D1 backup/export is captured before importing real beta data or rerunning seed.
 - Real beta content SQL is generated from reviewed JSON and reviewed before apply.
 - Post-import row counts and public pages are verified.
@@ -166,16 +175,22 @@ Note: the current app also exposes Catalyst creation at `/catalysts/create`; ver
    ```
 
 4. Run or manually apply approved seed data in the intended environment.
-5. Deploy Worker:
+5. Set production admin secret:
+
+   ```bash
+   npx wrangler secret put ADMIN_API_TOKEN --env production
+   ```
+
+6. Deploy Worker:
 
    ```bash
    npm run deploy:worker
    ```
 
-6. Deploy Pages.
-7. Set `VITE_KAIRO_API_BASE_URL` if the Worker is not same-origin.
-8. Verify CORS and API base URL behavior.
-9. Run production smoke tests.
+7. Deploy Pages.
+8. Set `VITE_KAIRO_API_BASE_URL` if the Worker is not same-origin.
+9. Verify CORS and API base URL behavior.
+10. Run production smoke tests.
 
 ## I. Rollback Notes
 

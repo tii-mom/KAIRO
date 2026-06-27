@@ -4,6 +4,7 @@ export interface DemoIdentity {
   id: string;
   role: KairoRole;
   label: string;
+  adminToken?: string;
 }
 
 export const DEMO_IDENTITIES = {
@@ -31,10 +32,12 @@ export function getDemoIdentity(role: KairoRole = DEFAULT_DEMO_IDENTITY.role): D
 }
 
 export function getSessionHeaders(identity: DemoIdentity = DEFAULT_DEMO_IDENTITY): HeadersInit {
-  return {
+  const headers: Record<string, string> = {
     'x-kairo-user-id': identity.id,
     'x-kairo-role': identity.role,
   };
+  if (identity.adminToken) headers['x-kairo-admin-token'] = identity.adminToken;
+  return headers;
 }
 
 export function withSessionHeaders(

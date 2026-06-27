@@ -125,7 +125,7 @@ Current production resources:
 
 Operational notes:
 
-- Admin is currently protected by demo header/session logic for beta operations only.
+- Admin is currently protected by demo header/session logic plus `ADMIN_API_TOKEN` for beta operations.
 - Replace admin access with stronger authentication before open beta or public launch.
 - Seed content is still partially demo content.
 - Capture a D1 backup/export before importing real beta content or rerunning seed.
@@ -136,6 +136,7 @@ Operational notes:
 | Name | Used by | Purpose |
 | --- | --- | --- |
 | `VITE_KAIRO_API_BASE_URL` | Frontend | Optional absolute Worker API base URL. Leave unset for same-origin API requests. |
+| `ADMIN_API_TOKEN` | Worker | Optional locally, required for production admin API requests. Set with Wrangler secret. |
 
 ## Package Scripts
 
@@ -225,12 +226,24 @@ Operational notes:
 
 ## Admin Flow
 
-Admin endpoints require `x-kairo-role: admin`. Without that role, admin routes must return forbidden access. Admin users can review Catalysts, update Funding Status, add Reward Records, moderate submissions, validate Boosts and support events, curate runtime placements, and view launch stats.
+Admin endpoints require `x-kairo-role: admin`. In production, they also require `x-kairo-admin-token` matching the Worker `ADMIN_API_TOKEN` secret. Without the admin role or token, admin routes must return forbidden access. Admin users can review Catalysts, update Funding Status, add Reward Records, moderate submissions, validate Boosts and support events, curate runtime placements, and view launch stats.
+
+Set the production admin token:
+
+```bash
+npx wrangler secret put ADMIN_API_TOKEN --env production
+```
 
 For local smoke tests, use:
 
 ```bash
 curl -H "x-kairo-role: admin" http://127.0.0.1:8787/api/admin/stats
+```
+
+For production smoke tests, include the private beta admin token:
+
+```bash
+curl -H "x-kairo-role: admin" -H "x-kairo-user-id: user-demo-admin" -H "x-kairo-admin-token: $ADMIN_API_TOKEN" https://kairo-worker-prod.348421501.workers.dev/api/admin/stats
 ```
 
 ## Proof of Support Flow

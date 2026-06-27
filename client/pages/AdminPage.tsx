@@ -22,6 +22,7 @@ import {
 import { ErrorState, LoadingState } from './pageUtils';
 
 const adminIdentity = { id: 'user-demo-admin', role: 'admin' as const, label: 'Demo Admin' };
+const adminTokenStorageKey = 'kairo-admin-token';
 
 export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -35,8 +36,9 @@ export default function AdminPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
   const [fundingStatusFilter, setFundingStatusFilter] = useState('');
+  const [adminToken, setAdminToken] = useState(() => sessionStorage.getItem(adminTokenStorageKey) ?? '');
 
-  const options = { identity: adminIdentity };
+  const options = { identity: { ...adminIdentity, adminToken: adminToken || undefined } };
 
   const load = async () => {
     setIsLoading(true);
@@ -65,7 +67,14 @@ export default function AdminPage() {
 
   useEffect(() => {
     void load();
-  }, [statusFilter, fundingStatusFilter]);
+  }, [statusFilter, fundingStatusFilter, adminToken]);
+
+  const saveAdminToken = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    sessionStorage.setItem(adminTokenStorageKey, adminToken.trim());
+    setAdminToken(adminToken.trim());
+    setMessage('Admin token saved for this browser session.');
+  };
 
   const withRefresh = async (action: () => Promise<unknown>, success: string) => {
     await action();
@@ -90,8 +99,20 @@ export default function AdminPage() {
           <div>
             <h2 className="text-lg font-black text-white">Private beta admin warning</h2>
             <p className="mt-2 max-w-4xl text-sm leading-7 text-white/70">
-              Admin is currently protected by demo header/session logic for beta operations. Do not use this as final production auth, do not publish the admin route broadly, and replace it with stronger auth before open beta or public launch.
+              Production admin requests require the demo admin role header plus the private beta admin token. Do not publish the admin route broadly, and replace this shared-token gate with stronger operator auth before open beta or public launch.
             </p>
+            <form onSubmit={saveAdminToken} className="mt-4 flex max-w-2xl flex-col gap-3 sm:flex-row">
+              <input
+                value={adminToken}
+                onChange={(event) => setAdminToken(event.target.value)}
+                type="password"
+                placeholder="Private beta admin token"
+                className="min-w-0 flex-1 rounded-xl border border-[#ffd285]/20 bg-[#05070d] px-4 py-2 text-sm text-white outline-none focus:border-[#ffd285]/60"
+              />
+              <button type="submit" className="rounded-full bg-[#ffd285] px-5 py-2 text-sm font-black text-[#05070d]">
+                Save token
+              </button>
+            </form>
           </div>
         </div>
       </section>

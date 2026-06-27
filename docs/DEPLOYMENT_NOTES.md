@@ -23,19 +23,20 @@ Task: KAIRO Production Deploy & Smoke Test V1
   - `https://c03bea43.kairo-5vg.pages.dev`
   - `https://14f5594c.kairo-5vg.pages.dev`
   - `https://5d787a18.kairo-5vg.pages.dev`
+  - `https://be52293d.kairo-5vg.pages.dev`
 
 ## Private Beta status
 
 - Current recommendation: invite-only Private Beta can begin after operators confirm the cohort and feedback channel.
 - Production API URL: `https://kairo-worker-prod.348421501.workers.dev`
 - Latest verified Pages URL: `https://c03bea43.kairo-5vg.pages.dev`
-- Latest Private Beta Pages URL: `https://5d787a18.kairo-5vg.pages.dev`
+- Latest Private Beta Pages URL: `https://be52293d.kairo-5vg.pages.dev`
 - Beta support routes:
   - `/beta`
   - `/feedback`
 - Known limitations:
   - Demo identity/session behavior is still used.
-  - Admin is protected by demo header/session logic and must not be treated as final production auth.
+  - Admin is protected by demo header/session logic plus `ADMIN_API_TOKEN` and must not be treated as final production auth.
   - Seed content is still partially demo content.
   - No full authentication or analytics pipeline is in place yet.
   - Run a D1 backup/export before replacing seed/demo data with real beta data.
@@ -50,8 +51,8 @@ Task: KAIRO Production Deploy & Smoke Test V1
 - Production Pages bundle rebuilt with `VITE_KAIRO_API_BASE_URL=https://kairo-worker-prod.348421501.workers.dev`
 - Pages TLS verified with `curl -Iv` for both `kairo-5vg.pages.dev` and the latest deployment URL
 - Browser smoke test loaded the homepage and core runtime layout successfully
-- `/api/admin/stats` returned `403` without admin headers and `200` with demo admin headers
-- Private Beta Pages deployment `https://5d787a18.kairo-5vg.pages.dev` contains `/beta`, `/feedback`, the GitHub feedback tracker link, and the live Worker API base URL.
+- `/api/admin/stats` returned `403` without admin headers, `403` with admin headers but no production token, and `200` with demo admin headers plus `x-kairo-admin-token`
+- Private Beta Pages deployment `https://be52293d.kairo-5vg.pages.dev` contains `/beta`, `/feedback`, the GitHub feedback tracker link, the admin token input, and the live Worker API base URL.
 
 ## D1 notes
 
@@ -75,7 +76,8 @@ Task: KAIRO Production Deploy & Smoke Test V1
 - `curl -Iv` against `https://kairo-worker-prod.348421501.workers.dev` completed TLS and returned `404` on `/` as expected.
 - `curl -v https://kairo-worker-prod.348421501.workers.dev/api/health` returned `200` with the expected health payload.
 - `curl -i https://kairo-worker-prod.348421501.workers.dev/api/admin/stats` returned `403` without admin headers.
-- `curl -i -H 'x-kairo-role: admin' -H 'x-kairo-user-id: user-demo-admin' https://kairo-worker-prod.348421501.workers.dev/api/admin/stats` returned `200`.
+- `curl -i -H 'x-kairo-role: admin' -H 'x-kairo-user-id: user-demo-admin' https://kairo-worker-prod.348421501.workers.dev/api/admin/stats` returned `403` after `ADMIN_API_TOKEN` was configured.
+- `curl -i -H 'x-kairo-role: admin' -H 'x-kairo-user-id: user-demo-admin' -H 'x-kairo-admin-token: $ADMIN_API_TOKEN' https://kairo-worker-prod.348421501.workers.dev/api/admin/stats` returned `200` after `ADMIN_API_TOKEN` was configured.
 
 ## Pages notes
 
