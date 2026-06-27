@@ -19,6 +19,7 @@
     "deploy:worker": "wrangler deploy --env production",
     "db:seed:local": "wrangler d1 execute kairo-local --local --file=worker/db/seed.sql",
     "verify:copy": "node scripts/verify-runtime-copy.mjs",
+    "verify:beta:go-live": "node scripts/verify-private-beta-go-live.mjs",
     "verify:production": "node scripts/verify-production-readiness.mjs",
     "verify:routes": "node scripts/verify-api-routes.mjs"
   },

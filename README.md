@@ -157,6 +157,7 @@ Operational notes:
 | `npm run deploy:pages:api` | Build and deploy Pages with same-origin `/api/*` Functions bound to production D1. |
 | `npm run deploy:worker` | Deploy the Worker with Wrangler. |
 | `npm run verify:copy` | Scan public runtime code for forbidden public copy. |
+| `npm run verify:beta:go-live` | Run the invite-only beta go-live gate against Pages, API, admin, D1 snapshot, copy, routes, and feedback docs. |
 | `npm run verify:production` | Run production readiness checks against Pages, Worker, D1, and admin gating. |
 | `npm run verify:routes` | Verify required Worker route strings and client page files. |
 
@@ -255,6 +256,12 @@ Run the production readiness gate before inviting a beta cohort. For the current
 
 ```bash
 KAIRO_PAGES_URL="https://e43fa2e9.kairo-5vg.pages.dev" KAIRO_API_BASE_URL="https://e43fa2e9.kairo-5vg.pages.dev" ADMIN_API_TOKEN="..." npm run verify:production
+```
+
+Run the invite-only beta go-live gate before sending the first cohort invites:
+
+```bash
+KAIRO_PAGES_URL="https://e43fa2e9.kairo-5vg.pages.dev" KAIRO_API_BASE_URL="https://e43fa2e9.kairo-5vg.pages.dev" ADMIN_API_TOKEN="..." npm run verify:beta:go-live
 ```
 
 ## Proof of Support Flow

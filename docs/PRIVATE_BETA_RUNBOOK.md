@@ -140,6 +140,7 @@ Close criteria:
 - Admin 403/200 check works.
 - Admin API requires `x-kairo-admin-token` in production.
 - `ADMIN_API_TOKEN="..." npm run verify:production` passes.
+- `ADMIN_API_TOKEN="..." npm run verify:beta:go-live` passes. The custom-domain warning is acceptable for invite-only beta, but not for public launch.
 - Forbidden copy scanner passes.
 - Beta feedback issue form exists and operator triage cadence is assigned.
 - Operators understand admin auth limitations.
