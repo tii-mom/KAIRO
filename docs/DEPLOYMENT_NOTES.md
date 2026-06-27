@@ -25,13 +25,15 @@ Task: KAIRO Production Deploy & Smoke Test V1
   - `https://5d787a18.kairo-5vg.pages.dev`
   - `https://be52293d.kairo-5vg.pages.dev`
   - `https://530722fb.kairo-5vg.pages.dev`
+  - `https://dce3386a.kairo-5vg.pages.dev`
 
 ## Private Beta status
 
-- Current recommendation: pause new invite expansion until production API reachability is healthy from the tester network or a same-origin Pages Functions API path has the production `DB` binding configured.
-- Production API URL: `https://kairo-worker-prod.348421501.workers.dev`
+- Current recommendation: invite-only Private Beta can continue on the Pages same-origin API path while `workers.dev` reachability remains unreliable from the current network.
+- Current production API URL: `https://dce3386a.kairo-5vg.pages.dev/api`
+- Historical Worker API URL: `https://kairo-worker-prod.348421501.workers.dev`
 - Latest verified Pages URL: `https://c03bea43.kairo-5vg.pages.dev`
-- Latest Private Beta Pages URL: `https://530722fb.kairo-5vg.pages.dev`
+- Latest Private Beta Pages URL: `https://dce3386a.kairo-5vg.pages.dev`
 - Beta support routes:
   - `/beta`
   - `/feedback`
@@ -43,6 +45,7 @@ Task: KAIRO Production Deploy & Smoke Test V1
   - No full authentication or analytics pipeline is in place yet.
   - Run a D1 backup/export before replacing seed/demo data with real beta data.
   - On 2026-06-27, `workers.dev` API probes from the current network timed out before Worker runtime and produced no `wrangler tail` events; Pages and D1 remained reachable.
+  - The current operational path is Pages Functions on the Pages domain, with production D1 bound as `DB`.
 
 ## Validation summary
 
@@ -51,12 +54,13 @@ Task: KAIRO Production Deploy & Smoke Test V1
 - `npm run build`: passed
 - `npm run verify:copy`: passed
 - `npm run verify:routes`: passed
-- Production Pages bundle rebuilt with `VITE_KAIRO_API_BASE_URL=https://kairo-worker-prod.348421501.workers.dev`
+- Production Pages bundle rebuilt with same-origin API requests; it contains no `localhost:8787`, `workers.dev`, or `kairo-worker-prod` API base.
 - Pages TLS verified with `curl -Iv` for both `kairo-5vg.pages.dev` and the latest deployment URL
 - Browser smoke test loaded the homepage and core runtime layout successfully
 - `/api/admin/stats` returned `403` without admin headers, `403` with admin headers but no production token, and `200` with demo admin headers plus `x-kairo-admin-token`
-- Private Beta Pages deployment `https://530722fb.kairo-5vg.pages.dev` contains `/beta`, `/feedback`, the GitHub feedback issue form link, the admin token input, and the live Worker API base URL.
+- Private Beta Pages deployment `https://dce3386a.kairo-5vg.pages.dev` contains `/beta`, `/feedback`, the GitHub feedback issue form link, the admin token input, and the live same-origin API path.
 - Production D1 pre-import snapshot helper `npm run db:backup:remote` was verified and wrote a local ignored snapshot with expected table counts.
+- `KAIRO_PAGES_URL=https://dce3386a.kairo-5vg.pages.dev KAIRO_API_BASE_URL=https://dce3386a.kairo-5vg.pages.dev npm run verify:production` passed with API health, D1-backed bounties, admin no-role `403`, admin no-token `403`, and D1 counts.
 
 ## D1 notes
 
@@ -86,16 +90,16 @@ Task: KAIRO Production Deploy & Smoke Test V1
 ## Pages notes
 
 - `npx wrangler pages project list` shows a `kairo` project in the current account.
-- Pages must be built with:
-  - `VITE_KAIRO_API_BASE_URL=https://kairo-worker-prod.348421501.workers.dev`
-- The latest deployed bundle uses the production Worker base URL.
+- Pages same-origin API deploys should use:
+  - `npm run deploy:pages:api`
+- The deploy script builds with `VITE_KAIRO_API_BASE_URL` cleared, creates a temporary Pages `wrangler.toml`, binds production D1 as `DB`, uploads the Functions bundle, and keeps the repo's Worker `wrangler.toml` untouched.
 
 ## Known issues
 
-- The `kairo-api-prod` Worker still exists as an extra deployment artifact, but the production path is healthy on `kairo-worker-prod`.
-- Keep the `VITE_KAIRO_API_BASE_URL` production setting pointed at the working Worker unless the app is switched to same-origin Pages Functions later.
+- The `kairo-api-prod` Worker still exists as an extra deployment artifact.
+- Keep `VITE_KAIRO_API_BASE_URL` unset for the current Pages same-origin API path.
 - Current network probes to both `kairo-worker-prod.348421501.workers.dev` and `kairo-api-prod.348421501.workers.dev` resolve to rotating non-Cloudflare-looking IPs and time out before TLS; `wrangler tail` shows no runtime hits during those probes.
-- A same-origin Pages Functions wrapper was tested on `https://b224a696.kairo-5vg.pages.dev`: `/api/health` worked, but D1-backed routes returned `DB` undefined because the Pages project has no production `DB` binding. Do not use this path until the Pages project binding is configured.
+- Earlier same-origin Pages Functions tests without the temporary Pages config returned `DB` undefined; `npm run deploy:pages:api` fixes this by deploying with the D1 binding in a temporary Pages config.
 
 ## Rollback notes
 

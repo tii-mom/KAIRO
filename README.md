@@ -118,8 +118,9 @@ KAIRO Private Beta is invite-only and intended for workflow and community-signal
 
 Current production resources:
 
-- Worker API: `https://kairo-worker-prod.348421501.workers.dev`
-- Latest verified Pages deploy: `https://c03bea43.kairo-5vg.pages.dev`
+- Current Pages + same-origin API deploy: `https://dce3386a.kairo-5vg.pages.dev`
+- Historical Worker API: `https://kairo-worker-prod.348421501.workers.dev`
+- Previous verified Pages deploy: `https://c03bea43.kairo-5vg.pages.dev`
 - Beta information route: `/beta`
 - Feedback route: `/feedback`
 - Feedback issue form: `https://github.com/tii-mom/KAIRO/issues/new?template=private-beta-feedback.yml`
@@ -153,6 +154,7 @@ Operational notes:
 | `npm run db:migrate:remote` | Apply D1 migrations to the configured remote database. |
 | `npm run db:backup:remote` | Capture a timestamped read-only production D1 JSON snapshot under `backups/d1/`. |
 | `npm run content:beta:sql` | Generate reviewable SQL from the beta content JSON template. |
+| `npm run deploy:pages:api` | Build and deploy Pages with same-origin `/api/*` Functions bound to production D1. |
 | `npm run deploy:worker` | Deploy the Worker with Wrangler. |
 | `npm run verify:copy` | Scan public runtime code for forbidden public copy. |
 | `npm run verify:production` | Run production readiness checks against Pages, Worker, D1, and admin gating. |
@@ -229,7 +231,7 @@ Operational notes:
 
 ## Admin Flow
 
-Admin endpoints require `x-kairo-role: admin`. In production, they also require `x-kairo-admin-token` matching the Worker `ADMIN_API_TOKEN` secret. Without the admin role or token, admin routes must return forbidden access. Admin users can review Catalysts, update Funding Status, add Reward Records, moderate submissions, validate Boosts and support events, curate runtime placements, and view launch stats.
+Admin endpoints require `x-kairo-role: admin`. In production-like environments, they also require `x-kairo-admin-token` matching `ADMIN_API_TOKEN`; if the token is not configured, admin requests fail closed. Without the admin role or token, admin routes must return forbidden access. Admin users can review Catalysts, update Funding Status, add Reward Records, moderate submissions, validate Boosts and support events, curate runtime placements, and view launch stats.
 
 Set the production admin token:
 
@@ -249,10 +251,10 @@ For production smoke tests, include the private beta admin token:
 curl -H "x-kairo-role: admin" -H "x-kairo-user-id: user-demo-admin" -H "x-kairo-admin-token: $ADMIN_API_TOKEN" https://kairo-worker-prod.348421501.workers.dev/api/admin/stats
 ```
 
-Run the production readiness gate before inviting a beta cohort:
+Run the production readiness gate before inviting a beta cohort. For the current Pages same-origin API path:
 
 ```bash
-ADMIN_API_TOKEN="..." npm run verify:production
+KAIRO_PAGES_URL="https://dce3386a.kairo-5vg.pages.dev" KAIRO_API_BASE_URL="https://dce3386a.kairo-5vg.pages.dev" ADMIN_API_TOKEN="..." npm run verify:production
 ```
 
 ## Proof of Support Flow

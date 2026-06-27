@@ -1,6 +1,7 @@
 export interface Env {
   DB: D1Database;
   KAIRO_CACHE?: KVNamespace;
+  APP_ENV?: string;
   ADMIN_API_TOKEN?: string;
 }
 

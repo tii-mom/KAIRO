@@ -15,6 +15,7 @@
     "db:seed:remote": "wrangler d1 execute kairo-prod --remote --env production --file=worker/db/seed.sql",
     "db:backup:remote": "node scripts/backup-production-d1.mjs",
     "content:beta:sql": "node scripts/generate-beta-import-sql.mjs content/beta-import.example.json content/beta-import.generated.sql",
+    "deploy:pages:api": "node scripts/deploy-pages-with-api.mjs",
     "deploy:worker": "wrangler deploy --env production",
     "db:seed:local": "wrangler d1 execute kairo-local --local --file=worker/db/seed.sql",
     "verify:copy": "node scripts/verify-runtime-copy.mjs",

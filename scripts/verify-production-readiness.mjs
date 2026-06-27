@@ -3,6 +3,8 @@ import { spawnSync } from 'node:child_process';
 
 const workerUrl = process.env.KAIRO_WORKER_URL || 'https://kairo-worker-prod.348421501.workers.dev';
 const pagesUrl = process.env.KAIRO_PAGES_URL || 'https://be52293d.kairo-5vg.pages.dev';
+const apiBaseUrl = process.env.KAIRO_API_BASE_URL || process.env.KAIRO_PAGES_API_BASE_URL || workerUrl;
+const expectsSameOriginApi = apiBaseUrl === pagesUrl;
 const adminToken = process.env.ADMIN_API_TOKEN || '';
 const minCounts = {
   users: 3,
@@ -66,11 +68,11 @@ function d1Counts() {
 
 async function main() {
   try {
-    const health = await checkHttp('Worker health', `${workerUrl}/api/health`, 200);
+    const health = await checkHttp('API health', `${apiBaseUrl}/api/health`, 200);
     if (!health?.ok) throw new Error('health payload missing ok=true');
-    pass('Worker health', `${workerUrl}/api/health`);
+    pass('API health', `${apiBaseUrl}/api/health`);
   } catch (error) {
-    fail('Worker health', error);
+    fail('API health', error);
   }
 
   try {
@@ -98,7 +100,11 @@ async function main() {
     const assetUrl = new URL(assetMatch[1], pagesUrl).toString();
     const js = await (await fetch(assetUrl)).text();
     if (js.includes('localhost:8787')) throw new Error('Bundle contains localhost API base');
-    if (!js.includes(workerUrl)) throw new Error('Bundle does not contain production Worker API base');
+    if (expectsSameOriginApi) {
+      if (js.includes('workers.dev')) throw new Error('Same-origin Pages bundle still contains workers.dev API base');
+    } else if (!js.includes(apiBaseUrl)) {
+      throw new Error('Bundle does not contain expected production API base');
+    }
     if (!js.includes('x-kairo-admin-token')) throw new Error('Bundle missing admin token header support');
     pass('Pages bundle configuration', assetUrl);
   } catch (error) {
@@ -106,7 +112,7 @@ async function main() {
   }
 
   try {
-    const bounties = await checkHttp('Public bounties API', `${workerUrl}/api/bounties`, 200);
+    const bounties = await checkHttp('Public bounties API', `${apiBaseUrl}/api/bounties`, 200);
     const count = Array.isArray(bounties?.data) ? bounties.data.length : 0;
     if (count < minCounts.bounties) throw new Error(`expected at least ${minCounts.bounties} bounties, got ${count}`);
     pass('Public bounties API', `${count} bounties`);
@@ -115,14 +121,14 @@ async function main() {
   }
 
   try {
-    await checkHttp('Admin forbidden without role', `${workerUrl}/api/admin/stats`, 403);
+    await checkHttp('Admin forbidden without role', `${apiBaseUrl}/api/admin/stats`, 403);
     pass('Admin forbidden without role', '403');
   } catch (error) {
     fail('Admin forbidden without role', error);
   }
 
   try {
-    await checkHttp('Admin forbidden without token', `${workerUrl}/api/admin/stats`, 403, {
+    await checkHttp('Admin forbidden without token', `${apiBaseUrl}/api/admin/stats`, 403, {
       headers: {
         'x-kairo-role': 'admin',
         'x-kairo-user-id': 'user-demo-admin',
@@ -135,7 +141,7 @@ async function main() {
 
   if (adminToken) {
     try {
-      const stats = await checkHttp('Admin allowed with token', `${workerUrl}/api/admin/stats`, 200, {
+      const stats = await checkHttp('Admin allowed with token', `${apiBaseUrl}/api/admin/stats`, 200, {
         headers: {
           'x-kairo-role': 'admin',
           'x-kairo-user-id': 'user-demo-admin',

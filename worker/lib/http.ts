@@ -30,9 +30,10 @@ export function requireAdmin(c: Context<{ Bindings: Env }>): CurrentUser {
   }
 
   const configuredToken = c.env.ADMIN_API_TOKEN?.trim();
-  if (configuredToken) {
+  const requiresAdminToken = c.env.APP_ENV !== 'local' || Boolean(configuredToken);
+  if (requiresAdminToken) {
     const requestToken = c.req.header('x-kairo-admin-token')?.trim();
-    if (requestToken !== configuredToken) {
+    if (!configuredToken || requestToken !== configuredToken) {
       const error = new Error('Admin token required');
       (error as Error & { status?: number }).status = 403;
       throw error;
