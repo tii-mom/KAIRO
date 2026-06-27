@@ -118,7 +118,7 @@ KAIRO Private Beta is invite-only and intended for workflow and community-signal
 
 Current production resources:
 
-- Current Pages + same-origin API deploy: `https://dce3386a.kairo-5vg.pages.dev`
+- Current Pages + same-origin API deploy: `https://b0c4fc5c.kairo-5vg.pages.dev`
 - Historical Worker API: `https://kairo-worker-prod.348421501.workers.dev`
 - Previous verified Pages deploy: `https://c03bea43.kairo-5vg.pages.dev`
 - Beta information route: `/beta`
@@ -254,7 +254,7 @@ curl -H "x-kairo-role: admin" -H "x-kairo-user-id: user-demo-admin" -H "x-kairo-
 Run the production readiness gate before inviting a beta cohort. For the current Pages same-origin API path:
 
 ```bash
-KAIRO_PAGES_URL="https://dce3386a.kairo-5vg.pages.dev" KAIRO_API_BASE_URL="https://dce3386a.kairo-5vg.pages.dev" ADMIN_API_TOKEN="..." npm run verify:production
+KAIRO_PAGES_URL="https://b0c4fc5c.kairo-5vg.pages.dev" KAIRO_API_BASE_URL="https://b0c4fc5c.kairo-5vg.pages.dev" ADMIN_API_TOKEN="..." npm run verify:production
 ```
 
 ## Proof of Support Flow

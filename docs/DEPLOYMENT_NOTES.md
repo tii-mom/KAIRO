@@ -25,15 +25,15 @@ Task: KAIRO Production Deploy & Smoke Test V1
   - `https://5d787a18.kairo-5vg.pages.dev`
   - `https://be52293d.kairo-5vg.pages.dev`
   - `https://530722fb.kairo-5vg.pages.dev`
-  - `https://dce3386a.kairo-5vg.pages.dev`
+  - `https://b0c4fc5c.kairo-5vg.pages.dev`
 
 ## Private Beta status
 
 - Current recommendation: invite-only Private Beta can continue on the Pages same-origin API path while `workers.dev` reachability remains unreliable from the current network.
-- Current production API URL: `https://dce3386a.kairo-5vg.pages.dev/api`
+- Current production API URL: `https://b0c4fc5c.kairo-5vg.pages.dev/api`
 - Historical Worker API URL: `https://kairo-worker-prod.348421501.workers.dev`
 - Latest verified Pages URL: `https://c03bea43.kairo-5vg.pages.dev`
-- Latest Private Beta Pages URL: `https://dce3386a.kairo-5vg.pages.dev`
+- Latest Private Beta Pages URL: `https://b0c4fc5c.kairo-5vg.pages.dev`
 - Beta support routes:
   - `/beta`
   - `/feedback`
@@ -57,10 +57,10 @@ Task: KAIRO Production Deploy & Smoke Test V1
 - Production Pages bundle rebuilt with same-origin API requests; it contains no `localhost:8787`, `workers.dev`, or `kairo-worker-prod` API base.
 - Pages TLS verified with `curl -Iv` for both `kairo-5vg.pages.dev` and the latest deployment URL
 - Browser smoke test loaded the homepage and core runtime layout successfully
-- `/api/admin/stats` returned `403` without admin headers, `403` with admin headers but no production token, and `200` with demo admin headers plus `x-kairo-admin-token`
-- Private Beta Pages deployment `https://dce3386a.kairo-5vg.pages.dev` contains `/beta`, `/feedback`, the GitHub feedback issue form link, the admin token input, and the live same-origin API path.
+- `/api/admin/stats` returned `403` without admin headers and `403` with admin headers but no production token; admin-token `200` check was not rerun locally because `ADMIN_API_TOKEN` was not present in the shell.
+- Private Beta Pages deployment `https://b0c4fc5c.kairo-5vg.pages.dev` contains `/beta`, `/feedback`, the GitHub feedback issue form link, the admin token input, and the live same-origin API path.
 - Production D1 pre-import snapshot helper `npm run db:backup:remote` was verified and wrote a local ignored snapshot with expected table counts.
-- `KAIRO_PAGES_URL=https://dce3386a.kairo-5vg.pages.dev KAIRO_API_BASE_URL=https://dce3386a.kairo-5vg.pages.dev npm run verify:production` passed with API health, D1-backed bounties, admin no-role `403`, admin no-token `403`, and D1 counts.
+- `KAIRO_PAGES_URL=https://b0c4fc5c.kairo-5vg.pages.dev KAIRO_API_BASE_URL=https://b0c4fc5c.kairo-5vg.pages.dev npm run verify:production` passed with API health, D1-backed bounties, admin no-role `403`, admin no-token `403`, and D1 counts.
 
 ## D1 notes
 
