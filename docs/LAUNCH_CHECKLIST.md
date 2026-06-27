@@ -164,6 +164,7 @@ Note: the current app also exposes Catalyst creation at `/catalysts/create`; ver
 - GitHub private beta feedback issue form exists.
 - Feedback owner and triage cadence are assigned before invites.
 - `docs/PRIVATE_BETA_RUNBOOK.md` is current.
+- `docs/BETA_COHORT_OPERATIONS.md` is current.
 - `docs/BETA_CONTENT_PLAN.md` is current.
 - Admin operators understand that demo header/session logic is not final production auth.
 - `ADMIN_API_TOKEN` is set as a production Worker secret before inviting operators.

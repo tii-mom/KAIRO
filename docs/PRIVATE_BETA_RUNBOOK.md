@@ -144,6 +144,7 @@ Close criteria:
 - Forbidden copy scanner passes.
 - Beta feedback issue form exists and operator triage cadence is assigned.
 - Operators understand admin auth limitations.
+- `docs/BETA_COHORT_OPERATIONS.md` is current before the first external invite.
 - Production D1 backup/export is captured before real beta data replaces seed/demo data.
 
 ## D1 Backup And Import Procedure

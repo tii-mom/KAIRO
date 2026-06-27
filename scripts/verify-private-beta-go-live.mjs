@@ -52,6 +52,7 @@ async function main() {
   else record('fail', 'ADMIN_API_TOKEN', 'missing; source .env or pass ADMIN_API_TOKEN before go-live');
 
   requireFile('docs/PRIVATE_BETA_RUNBOOK.md');
+  requireFile('docs/BETA_COHORT_OPERATIONS.md');
   requireFile('docs/BETA_CONTENT_PLAN.md');
   requireFile('docs/LAUNCH_CHECKLIST.md');
   requireFile('.github/ISSUE_TEMPLATE/private-beta-feedback.yml');
