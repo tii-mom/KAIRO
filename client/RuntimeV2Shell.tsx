@@ -78,11 +78,11 @@ export default function RuntimeV2Shell() {
             © 2026 KAIRO Protocol. Reignite the Dormant.
           </div>
           <div className="flex flex-wrap justify-center gap-6 font-mono text-[10px] uppercase tracking-wider">
-            <a className="text-white/50 hover:text-[#ffb95f]" href="#">Platform</a>
-            <a className="text-white/50 hover:text-[#ffb95f]" href="#">Governance</a>
-            <a className="text-white/50 hover:text-[#ffb95f]" href="#">Docs</a>
-            <a className="text-white/50 hover:text-[#ffb95f]" href="#">X</a>
-            <a className="text-white/50 hover:text-[#ffb95f]" href="#">Telegram</a>
+            <Link className="text-white/50 hover:text-[#ffb95f]" to="/">Platform</Link>
+            <Link className="text-white/50 hover:text-[#ffb95f]" to="/leaderboard">Governance</Link>
+            <Link className="text-white/50 hover:text-[#ffb95f]" to="/how-it-works">Docs</Link>
+            <Link className="text-white/50 hover:text-[#ffb95f]" to="/feedback">Feedback</Link>
+            <Link className="text-white/50 hover:text-[#ffb95f]" to="/beta">Beta</Link>
           </div>
         </div>
       </footer>

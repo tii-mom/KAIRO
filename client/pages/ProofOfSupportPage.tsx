@@ -131,7 +131,7 @@ function SupportList({
   );
 }
 
-function SupportEventRow({ event, key }: { event: SupportEvent; key?: string | number }) {
+function SupportEventRow({ event }: { event: SupportEvent } & { key?: any }) {
   const Icon = event.source === 'share' ? Share2 : Flame;
   const label = `${formatEventType(event.eventType)} ${event.targetType} ${event.targetId.slice(0, 8)}...`;
 

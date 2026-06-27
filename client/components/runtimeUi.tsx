@@ -105,14 +105,12 @@ export function MiniStat({
   value,
   detail,
   tone = 'gold',
-  key,
 }: {
-  key?: string | number;
   label: string;
   value: ReactNode;
   detail?: ReactNode;
   tone?: Tone;
-}) {
+} & { key?: any }) {
   return (
     <div className="glass-panel p-5">
       <div className={cx('inline-flex rounded border px-2 py-0.5 text-[10px] font-mono font-semibold uppercase tracking-wider', toneClass(tone))}>
@@ -214,9 +212,7 @@ export function DataRow({
   onClick,
   rank,
   className,
-  key,
 }: {
-  key?: string | number;
   title: ReactNode;
   subtitle?: ReactNode;
   value?: ReactNode;
@@ -227,7 +223,7 @@ export function DataRow({
   onClick?: () => void;
   rank?: ReactNode;
   className?: string;
-}) {
+} & { key?: any }) {
   const rowContent = (
     <>
       <div className="flex min-w-0 items-start gap-3">

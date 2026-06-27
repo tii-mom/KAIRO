@@ -336,13 +336,11 @@ function AdminRow({
   title,
   subtitle,
   actions,
-  key,
 }: {
-  key?: string | number;
   title: string;
   subtitle: string;
   actions: Array<{ label: string; onClick: () => Promise<unknown> }>;
-}) {
+} & { key?: any }) {
   return (
     <div className="glass-panel p-4 hover:border-white/10 transition-colors">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

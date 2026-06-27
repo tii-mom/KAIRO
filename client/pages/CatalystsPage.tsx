@@ -59,7 +59,8 @@ export function CatalystDetailPage() {
   };
 
   const copyAddress = () => {
-    const address = catalyst.tokenContractAddress || '0x7F41d33c87108dB0738a9fE2167d3b9e4a06bcE8';
+    const address = catalyst.tokenContractAddress || '';
+    if (!address) return;
     void navigator.clipboard.writeText(address);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -102,8 +103,13 @@ export function CatalystDetailPage() {
                 <div>
                   <div className="font-sans text-lg font-bold text-white">{catalyst.tokenName || 'KAIRO Network Token'}</div>
                   <div className="font-mono text-[11px] text-white/50 flex items-center gap-2 mt-1">
-                    <span>Address: {catalyst.tokenContractAddress ? `${catalyst.tokenContractAddress.slice(0, 6)}...${catalyst.tokenContractAddress.slice(-4)}` : '0x7F4...cE8'}</span>
-                    <button onClick={copyAddress} className="text-[#ffb95f] hover:text-white transition-colors" title="Copy Address">
+                    <span>Address: {catalyst.tokenContractAddress ? `${catalyst.tokenContractAddress.slice(0, 6)}...${catalyst.tokenContractAddress.slice(-4)}` : 'Pending verification / Not provided'}</span>
+                    <button 
+                      onClick={catalyst.tokenContractAddress ? copyAddress : undefined} 
+                      disabled={!catalyst.tokenContractAddress}
+                      className="text-[#ffb95f] hover:text-white transition-colors disabled:opacity-30 disabled:hover:text-[#ffb95f] disabled:cursor-not-allowed" 
+                      title="Copy Address"
+                    >
                       {copied ? 'Copied!' : 'Copy'}
                     </button>
                   </div>
@@ -199,16 +205,18 @@ export function CatalystDetailPage() {
               <Award className="h-4 w-4 text-[#ffb95f]" />
             </div>
             <div>
-              <div className="font-mono text-[10px] text-white/40 mb-1">VERIFIED POOL</div>
-              <div className="font-sans text-2xl font-bold text-white mb-4">
-                50,000 <span className="text-[#ffb95f] text-lg font-mono">USDC</span>
+              <div className="font-mono text-[10px] text-white/40 mb-1">VERIFIED POOL / REWARD RECORD</div>
+              <div className="font-sans text-xl font-bold text-white mb-4">
+                {catalyst.rewardText ? catalyst.rewardText : <span className="text-white/40 italic">Reward record pending</span>}
               </div>
               <div className="flex items-center justify-between p-3 bg-[#050608] rounded border border-white/5 mb-4 text-xs font-mono">
-                <span className="text-white/40">Status:</span>
-                <span className="bg-[#4ade80]/15 text-[#4ade80] border border-[#4ade80]/30 px-2 py-0.5 rounded text-[10px] uppercase font-semibold">Secured</span>
+                <span className="text-white/40">Funding Status:</span>
+                <span className="bg-[#ffb95f]/15 text-[#ffb95f] border border-[#ffb95f]/30 px-2 py-0.5 rounded text-[10px] uppercase font-semibold">
+                  {formatFundingStatusLabel(catalyst.fundingStatus)}
+                </span>
               </div>
               <p className="text-xs text-white/50 leading-5">
-                Funding coordinate label is locked in public repository logs, distributed strictly based on completed milestones and review verification.
+                Funding coordinate label is logged in public repository records, verified strictly based on completed milestones and review updates.
               </p>
             </div>
           </section>
