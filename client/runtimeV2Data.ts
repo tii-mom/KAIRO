@@ -1,53 +1,56 @@
-export const runtimeV2Catalysts = [
-  {
-    id: 'dormant-yields',
-    title: 'Dormant Yields community utility sprint',
-    token: 'DORM',
-    category: 'Catalyst',
-    summary:
-      'A focused Catalyst for builders to ship a lightweight community tool, document usage, and gather Proof of Support from early supporters.',
-    fundingStatus: 'External evidence recorded',
-    reward: '15,000 DORM reward record',
-    boostCount: 428,
-    momentum: 842,
-    kairoScore: 91,
-  },
-  {
-    id: 'pepe2-community-loop',
-    title: ' PEPE2 community game loop',
-    token: 'PEPE2',
-    category: 'Catalyst',
-    summary:
-      'A builder challenge for a browser-based community loop with transparent Reward Records and public delivery milestones.',
-    fundingStatus: 'Reward reported by community',
-    reward: '8,000,000 PEPE2 reward record',
-    boostCount: 612,
-    momentum: 930,
-    kairoScore: 88,
-  },
-  {
-    id: 'retro-arcade-proof',
-    title: 'Retro Arcade playable proof',
-    token: 'RETRO',
-    category: 'Catalyst',
-    summary:
-      'A Catalyst for restoring a playable web demo, publishing builder notes, and collecting community Boost signals.',
-    fundingStatus: 'External reward evidence pending',
-    reward: '5,000 RETRO reward record',
-    boostCount: 214,
-    momentum: 590,
-    kairoScore: 76,
-  },
-];
+export function getRuntimeV2Catalysts(t: (key: string) => string) {
+  return [
+    {
+      id: 'dormant-yields',
+      title: t('runtimeData.catalysts.dormantYields.title'),
+      token: 'DORM',
+      category: 'Catalyst',
+      summary: t('runtimeData.catalysts.dormantYields.summary'),
+      fundingStatus: t('runtimeData.catalysts.dormantYields.fundingStatus'),
+      reward: t('runtimeData.catalysts.dormantYields.reward'),
+      boostCount: 428,
+      momentum: 842,
+      kairoScore: 91,
+    },
+    {
+      id: 'pepe2-community-loop',
+      title: t('runtimeData.catalysts.pepe2.title'),
+      token: 'PEPE2',
+      category: 'Catalyst',
+      summary: t('runtimeData.catalysts.pepe2.summary'),
+      fundingStatus: t('runtimeData.catalysts.pepe2.fundingStatus'),
+      reward: t('runtimeData.catalysts.pepe2.reward'),
+      boostCount: 612,
+      momentum: 930,
+      kairoScore: 88,
+    },
+    {
+      id: 'retro-arcade-proof',
+      title: t('runtimeData.catalysts.retroArcade.title'),
+      token: 'RETRO',
+      category: 'Catalyst',
+      summary: t('runtimeData.catalysts.retroArcade.summary'),
+      fundingStatus: t('runtimeData.catalysts.retroArcade.fundingStatus'),
+      reward: t('runtimeData.catalysts.retroArcade.reward'),
+      boostCount: 214,
+      momentum: 590,
+      kairoScore: 76,
+    },
+  ];
+}
 
-export const runtimeV2Builders = [
-  { name: 'Northstar Lab', specialty: 'Telegram prototypes', kairoScore: 940, completedCatalysts: 3 },
-  { name: 'Arcade Guild', specialty: 'Playable web demos', kairoScore: 875, completedCatalysts: 2 },
-  { name: 'Signal Studio', specialty: 'Community dashboards', kairoScore: 812, completedCatalysts: 2 },
-];
+export function getRuntimeV2Builders(t: (key: string) => string) {
+  return [
+    { name: 'Northstar Lab', specialty: t('runtimeData.builders.telegramPrototypes'), kairoScore: 940, completedCatalysts: 3 },
+    { name: 'Arcade Guild', specialty: t('runtimeData.builders.playableWebDemos'), kairoScore: 875, completedCatalysts: 2 },
+    { name: 'Signal Studio', specialty: t('runtimeData.builders.communityDashboards'), kairoScore: 812, completedCatalysts: 2 },
+  ];
+}
 
-export const runtimeV2FundingEvents = [
-  { id: 'evt-1', catalyst: 'Dormant Yields', label: 'Funding Status updated', detail: 'External evidence recorded' },
-  { id: 'evt-2', catalyst: 'PEPE2', label: 'Reward Records updated', detail: 'Community reward note added' },
-  { id: 'evt-3', catalyst: 'Retro Arcade', label: 'Proof of Support milestone', detail: '200 valid Boost records reached' },
-];
+export function getRuntimeV2FundingEvents(t: (key: string) => string) {
+  return [
+    { id: 'evt-1', catalyst: 'Dormant Yields', label: t('runtimeData.events.evt1Label'), detail: t('runtimeData.events.evt1Detail') },
+    { id: 'evt-2', catalyst: 'PEPE2', label: t('runtimeData.events.evt2Label'), detail: t('runtimeData.events.evt2Detail') },
+    { id: 'evt-3', catalyst: 'Retro Arcade', label: t('runtimeData.events.evt3Label'), detail: t('runtimeData.events.evt3Detail') },
+  ];
+}

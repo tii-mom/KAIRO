@@ -1,28 +1,32 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { Activity, Award, FlaskConical, HeartHandshake, MessageSquare, ShieldCheck, Sparkles, Trophy, Plus } from 'lucide-react';
 import { SignalTicker, cx } from './components/runtimeUi';
-
-const navItems = [
-  { to: '/', label: 'Home', icon: Sparkles },
-  { to: '/catalysts', label: 'Catalyst Registry', icon: ShieldCheck },
-  { to: '/create-catalyst', label: 'Submit Catalyst', icon: Plus },
-  { to: '/builder', label: 'Builder Board', icon: Award },
-  { to: '/leaderboard', label: 'Leaderboard', icon: Trophy },
-  { to: '/proof', label: 'Support Proof', icon: HeartHandshake },
-  { to: '/beta', label: 'Beta', icon: FlaskConical },
-  { to: '/feedback', label: 'Feedback', icon: MessageSquare },
-];
-
-const tickerItems = [
-  { label: 'REVIVAL RUNTIME', value: 'V2 ACTIVE', tone: 'gold' as const },
-  { label: 'STATUS', value: 'PRIVATE BETA', tone: 'sky' as const },
-  { label: 'COGNITIVE RADAR', value: 'MOMENTUM FEED', tone: 'emerald' as const },
-  { label: 'EVIDENCE LOG', value: 'PUBLIC SAFE REWARDS', tone: 'gold' as const },
-  { label: 'TRUST PROOF', value: 'SUPPORT TRAIL', tone: 'sky' as const },
-  { label: 'OPERATIONS', value: 'GOVERNANCE ONLINE', tone: 'rose' as const },
-];
+import { useI18n } from './i18n/useI18n';
+import LanguageSwitcher from './i18n/LanguageSwitcher';
 
 export default function RuntimeV2Shell() {
+  const { t } = useI18n();
+
+  const navItems = [
+    { to: '/', label: t('nav.home'), icon: Sparkles },
+    { to: '/catalysts', label: t('nav.catalystRegistry'), icon: ShieldCheck },
+    { to: '/create-catalyst', label: t('nav.submitCatalyst'), icon: Plus },
+    { to: '/builder', label: t('nav.builderBoard'), icon: Award },
+    { to: '/leaderboard', label: t('nav.leaderboard'), icon: Trophy },
+    { to: '/proof', label: t('nav.supportProof'), icon: HeartHandshake },
+    { to: '/beta', label: t('nav.beta'), icon: FlaskConical },
+    { to: '/feedback', label: t('nav.feedback'), icon: MessageSquare },
+  ];
+
+  const tickerItems = [
+    { label: t('ticker.revivalRuntime'), value: t('ticker.v2Active'), tone: 'gold' as const },
+    { label: t('ticker.status'), value: t('ticker.privateBeta'), tone: 'sky' as const },
+    { label: t('ticker.cognitiveRadar'), value: t('ticker.momentumFeed'), tone: 'emerald' as const },
+    { label: t('ticker.evidenceLog'), value: t('ticker.publicSafeRewards'), tone: 'gold' as const },
+    { label: t('ticker.trustProof'), value: t('ticker.supportTrail'), tone: 'sky' as const },
+    { label: t('ticker.operations'), value: t('ticker.governanceOnline'), tone: 'rose' as const },
+  ];
+
   return (
     <div className="kairo-root text-white flex flex-col min-h-screen">
       <SignalTicker items={tickerItems} />
@@ -38,33 +42,36 @@ export default function RuntimeV2Shell() {
                 />
                 <div>
                   <div className="font-mono text-lg font-bold tracking-[0.25em] text-[#ffb95f] transition-colors duration-300 group-hover:text-[#ffc885]">KAIRO</div>
-                  <div className="mt-0.5 text-[9px] uppercase font-mono tracking-[0.2em] text-white/40">Resurrection Platform</div>
+                  <div className="mt-0.5 text-[9px] uppercase font-mono tracking-[0.2em] text-white/40">{t('shell.resurrectionPlatform')}</div>
                 </div>
               </Link>
               <div className="grid gap-2 sm:grid-cols-3 xl:min-w-[420px]">
-                <StatusMetric label="Telemetry Shell" value="Command Consoles" />
-                <StatusMetric label="Ecosystem Scope" value="Resurrection Signal" />
-                <StatusMetric label="Protocol Guardrail" value="Zero Financial Flows" />
+                <StatusMetric label={t('metrics.telemetryShell')} value={t('metrics.commandConsoles')} />
+                <StatusMetric label={t('metrics.ecosystemScope')} value={t('metrics.resurrectionSignal')} />
+                <StatusMetric label={t('metrics.protocolGuardrail')} value={t('metrics.zeroFinancialFlows')} />
               </div>
             </div>
-            <nav className="scrollbar-none flex gap-1.5 overflow-x-auto py-1">
-              {navItems.map(({ to, label, icon: Icon }) => (
-                <NavLink
-                  key={to}
-                  to={to}
-                  end={to === '/'}
-                  className={({ isActive }) =>
-                    cx(
-                      'px-3.5 py-2 font-mono text-[10px] tracking-wider uppercase border border-transparent rounded hover:border-[#ffb95f]/20 hover:bg-white/[0.03] text-white/60 transition-all duration-200 shrink-0 flex items-center gap-1.5',
-                      isActive && 'border-[#ffb95f]/30 bg-[#ffb95f]/10 text-[#ffb95f]'
-                    )
-                  }
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  {label}
-                </NavLink>
-              ))}
-            </nav>
+            <div className="flex flex-wrap items-center justify-between gap-4 lg:justify-end">
+              <nav className="scrollbar-none flex gap-1.5 overflow-x-auto py-1">
+                {navItems.map(({ to, label, icon: Icon }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={to === '/'}
+                    className={({ isActive }) =>
+                      cx(
+                        'px-3.5 py-2 font-mono text-[10px] tracking-wider uppercase border border-transparent rounded hover:border-[#ffb95f]/20 hover:bg-white/[0.03] text-white/60 transition-all duration-200 shrink-0 flex items-center gap-1.5',
+                        isActive && 'border-[#ffb95f]/30 bg-[#ffb95f]/10 text-[#ffb95f]'
+                      )
+                    }
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    {label}
+                  </NavLink>
+                ))}
+              </nav>
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
       </header>
@@ -82,14 +89,14 @@ export default function RuntimeV2Shell() {
             <div className="text-xl font-bold font-sans tracking-tight text-[#ffb95f] group-hover:text-[#ffc885] transition-colors duration-300">KAIRO</div>
           </div>
           <div className="text-white/40 font-mono text-[10px] uppercase tracking-widest text-center">
-            © 2026 KAIRO Protocol. Reignite the Dormant.
+            {t('shell.copyright')}
           </div>
           <div className="flex flex-wrap justify-center gap-6 font-mono text-[10px] uppercase tracking-wider">
-            <Link className="text-white/50 hover:text-[#ffb95f]" to="/">Platform</Link>
-            <Link className="text-white/50 hover:text-[#ffb95f]" to="/leaderboard">Leaderboard</Link>
-            <Link className="text-white/50 hover:text-[#ffb95f]" to="/how-it-works">Docs</Link>
-            <Link className="text-white/50 hover:text-[#ffb95f]" to="/feedback">Feedback</Link>
-            <Link className="text-white/50 hover:text-[#ffb95f]" to="/beta">Beta</Link>
+            <Link className="text-white/50 hover:text-[#ffb95f]" to="/">{t('nav.platform')}</Link>
+            <Link className="text-white/50 hover:text-[#ffb95f]" to="/leaderboard">{t('nav.leaderboard')}</Link>
+            <Link className="text-white/50 hover:text-[#ffb95f]" to="/how-it-works">{t('nav.docs')}</Link>
+            <Link className="text-white/50 hover:text-[#ffb95f]" to="/feedback">{t('nav.feedback')}</Link>
+            <Link className="text-white/50 hover:text-[#ffb95f]" to="/beta">{t('nav.beta')}</Link>
           </div>
         </div>
       </footer>

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Wallet, ChevronDown, Flame, Award, Trophy, Activity, Terminal, Shield, Sparkles, Globe, LogOut, Ghost, Link, Coins } from 'lucide-react';
 import { UserState } from '../types';
+import { useI18n } from '../../client/i18n/useI18n';
 
 interface NavbarProps {
   userState: UserState;
@@ -31,6 +32,7 @@ export default function Navbar({
   setRoleMode,
   addNotification
 }: NavbarProps) {
+  const { t } = useI18n();
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false);
   const [selectedChain, setSelectedChain] = useState('Arbitrum');
@@ -38,20 +40,20 @@ export default function Navbar({
   const handleWalletSelect = (walletName: string) => {
     connectWallet(walletName);
     setIsWalletModalOpen(false);
-    addNotification('钱包连接成功', `已成功连接 ${walletName} 钱包！`, 'success');
+    addNotification(t('navbar.walletConnected'), t('navbar.walletConnectedMsg', { walletName }), 'success');
   };
 
   const handleChainSelect = (chain: string) => {
     setSelectedChain(chain);
     setIsChainDropdownOpen(false);
-    addNotification('链网络切换', `已切换至 ${chain} 主网网络`, 'info');
+    addNotification(t('navbar.chainSwitched'), t('navbar.chainSwitchedMsg', { chain }), 'info');
   };
 
   const tabs = [
-    { id: 'arena', label: '复苏竞技场', icon: Flame, role: 'supporter' },
-    { id: 'leaderboard', label: '排行榜', icon: Trophy, role: 'supporter' },
-    { id: 'catalysts', label: '复兴催化剂', icon: Award, role: 'developer' },
-    { id: 'builderHub', label: 'Builder 终端', icon: Terminal, role: 'developer' }
+    { id: 'arena', label: t('navbar.arena'), icon: Flame, role: 'supporter' },
+    { id: 'leaderboard', label: t('navbar.leaderboard'), icon: Trophy, role: 'supporter' },
+    { id: 'catalysts', label: t('navbar.catalysts'), icon: Award, role: 'developer' },
+    { id: 'builderHub', label: t('navbar.builderHub'), icon: Terminal, role: 'developer' }
   ];
 
   const activeTabsList = tabs.filter(t => t.role === roleMode);
@@ -127,7 +129,7 @@ export default function Navbar({
               onClick={() => {
                 setRoleMode('supporter');
                 setActiveTab('arena');
-                addNotification('视角切换', '已切换至社区支持者视图 📊', 'success');
+                addNotification(t('navbar.viewToggled'), t('navbar.viewSupporterMsg'), 'success');
               }}
               className={`px-3 py-1.5 text-[10.5px] font-bold rounded-lg transition-all cursor-pointer ${
                 roleMode === 'supporter'
@@ -135,13 +137,13 @@ export default function Navbar({
                   : 'text-white/40 hover:text-white/70'
               }`}
             >
-              📊 支持者
+              {t('navbar.supporter')}
             </button>
             <button
               onClick={() => {
                 setRoleMode('developer');
                 setActiveTab('catalysts');
-                addNotification('视角切换', '已切换至智能合约开发者视图 🛠️', 'success');
+                addNotification(t('navbar.viewToggled'), t('navbar.viewDeveloperMsg'), 'success');
               }}
               className={`px-3 py-1.5 text-[10.5px] font-bold rounded-lg transition-all cursor-pointer ${
                 roleMode === 'developer'
@@ -149,7 +151,7 @@ export default function Navbar({
                   : 'text-white/40 hover:text-white/70'
               }`}
             >
-              🛠️ 开发者
+              {t('navbar.developer')}
             </button>
           </div>
 
@@ -201,7 +203,7 @@ export default function Navbar({
           {userState.walletAddress ? (
             <div className="flex items-center rounded-xl border border-[#ffd285]/15 bg-[#ffd285]/5 p-[1px]">
               <div className="hidden items-center space-x-2 px-3 text-xs font-mono text-white/80 md:flex">
-                <span className="text-[#ffd285]/60 font-sans">余额:</span>
+                <span className="text-[#ffd285]/60 font-sans">{t('navbar.balance')}</span>
                 <span>
                   {selectedChain === 'Solana' 
                     ? `${userState.balanceSol.toFixed(2)} SOL` 
@@ -225,10 +227,10 @@ export default function Navbar({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setIsWalletModalOpen(true)}
-              className="flex items-center space-x-1.5 rounded-xl bg-gradient-to-r from-[#ffd285] to-[#f52329] px-4 py-2 text-xs font-bold text-black shadow-[0_4px_15px_rgba(245,35,41,0.2)] hover:opacity-95"
+              className="flex items-center space-x-1.5 rounded-xl bg-gradient-to-r from-[#ffd285] to-[#f52329] px-4 py-2 text-xs font-bold text-black shadow-[0_4px_15px_rgba(245,35,41,0.2)] hover:opacity-95 cursor-pointer"
             >
               <Wallet className="h-3.5 w-3.5" />
-              <span>连接钱包</span>
+              <span>{t('navbar.connectWallet')}</span>
             </motion.button>
           )}
 
@@ -261,18 +263,18 @@ export default function Navbar({
               <div className="flex items-center justify-between border-b border-white/5 pb-4">
                 <div className="flex items-center space-x-2">
                   <Shield className="h-4 w-4 text-[#ffd285]" />
-                  <h3 className="text-sm font-bold tracking-wide text-white">连接您的 WEB3 钱包</h3>
+                  <h3 className="text-sm font-bold tracking-wide text-white">{t('navbar.connectWalletModalTitle')}</h3>
                 </div>
                 <button 
                   onClick={() => setIsWalletModalOpen(false)}
-                  className="text-white/40 hover:text-white"
+                  className="text-white/40 hover:text-white cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
 
               <p className="mt-3 text-xs text-white/50 leading-relaxed">
-                选择一个支持的钱包提供商连接。您可以使用模拟资金来进行平台内质押、Boost和复兴代币交易。
+                {t('navbar.connectWalletModalDesc')}
               </p>
 
               <div className="mt-5 space-y-2.5">
@@ -283,7 +285,7 @@ export default function Navbar({
                       key={wallet.name}
                       id={`wallet-option-${wallet.name.replace(' ', '')}`}
                       onClick={() => handleWalletSelect(wallet.name)}
-                      className="flex w-full items-center justify-between rounded-xl border border-white/5 bg-[#121622]/40 px-4 py-3 text-sm text-white transition-all hover:bg-[#121622]/90 hover:border-[#ffd285]/30 group"
+                      className="flex w-full items-center justify-between rounded-xl border border-white/5 bg-[#121622]/40 px-4 py-3 text-sm text-white transition-all hover:bg-[#121622]/90 hover:border-[#ffd285]/30 group cursor-pointer"
                     >
                       <div className="flex items-center space-x-3">
                         <Icon className={`h-4.5 w-4.5 ${wallet.color}`} />
@@ -300,7 +302,7 @@ export default function Navbar({
               <div className="mt-5 border-t border-white/5 pt-4 text-center">
                 <span className="inline-flex items-center space-x-1 text-[10px] text-white/40">
                   <Sparkles className="h-3 w-3 text-[#ffd285]" />
-                  <span>KAIRO 智能合约审核已通过：CertiK SECURED</span>
+                  <span>{t('navbar.certikAudit')}</span>
                 </span>
               </div>
             </motion.div>

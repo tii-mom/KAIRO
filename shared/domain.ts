@@ -239,12 +239,32 @@ export type SupportEventRecord = z.infer<typeof supportEventSchema>;
 export type FundingEventRecord = z.infer<typeof fundingEventSchema>;
 export type CuratedItemRecord = z.infer<typeof curatedItemSchema>;
 
-export const fundingStatusLabels: Record<(typeof fundingStatuses)[number], string> = {
-  unverified: 'External reward evidence pending / 外部奖励证据待提交',
-  pledged: 'Reward pledged externally / 外部已承诺奖励',
-  escrowed: 'External evidence recorded / 外部证据已记录',
-  partially_paid: 'Externally reported partially completed / 外部报告部分完成',
-  paid: 'Externally reported completed / 外部报告已完成',
-  disputed: 'External evidence disputed / 外部证据有争议',
-  cancelled: 'Reward cancelled externally / 外部已取消奖励',
+export const fundingStatusLabels: Record<'en-US' | 'zh-CN' | 'ko-KR', Record<(typeof fundingStatuses)[number], string>> = {
+  'en-US': {
+    unverified: 'External reward evidence pending',
+    pledged: 'Reward pledged externally',
+    escrowed: 'External evidence recorded',
+    partially_paid: 'Externally reported partially completed',
+    paid: 'Externally reported completed',
+    disputed: 'External evidence disputed',
+    cancelled: 'Reward cancelled externally',
+  },
+  'zh-CN': {
+    unverified: '外部奖励证据待提交',
+    pledged: '外部已承诺奖励',
+    escrowed: '外部证据已记录',
+    partially_paid: '外部报告部分完成',
+    paid: '外部报告已完成',
+    disputed: '外部证据有争议',
+    cancelled: '外部已取消奖励',
+  },
+  'ko-KR': {
+    unverified: '외부 보상 증거 대기 중',
+    pledged: '외부 약정 보상',
+    escrowed: '외부 증거가 기록됨',
+    partially_paid: '외부 보고 부분 완료',
+    paid: '외부 보고 완료',
+    disputed: '외부 증거 분쟁 중',
+    cancelled: '외부에서 취소한 보상',
+  }
 };

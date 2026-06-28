@@ -4,9 +4,11 @@ import { Loader2, Flame, ChevronRight, ChevronLeft, ShieldCheck } from 'lucide-r
 import { createBounty } from '../lib/api';
 import { ErrorState } from './pageUtils';
 import { FormField, FormTextArea, ActionButton, PointerGlowCard } from '../components/runtimeUi';
+import { useI18n } from '../i18n/useI18n';
 
 export default function CreateCatalystPage() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [activeStep, setActiveStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,34 +38,34 @@ export default function CreateCatalystPage() {
   const [stepErrors, setStepErrors] = useState<string | null>(null);
 
   const steps = [
-    { id: 1, label: 'Token Identity', desc: 'Specify asset details' },
-    { id: 2, label: 'Catalyst Mission', desc: 'Resurrection objective' },
-    { id: 3, label: 'External Evidence', desc: 'Reward proof & info' },
-    { id: 4, label: 'Access Channels', desc: 'Contact & socials' },
-    { id: 5, label: 'Review & Submit', desc: 'Verify coordination specs' },
+    { id: 1, label: t('createCatalyst.step1Label'), desc: t('createCatalyst.step1Desc') },
+    { id: 2, label: t('createCatalyst.step2Label'), desc: t('createCatalyst.step2Desc') },
+    { id: 3, label: t('createCatalyst.step3Label'), desc: t('createCatalyst.step3Desc') },
+    { id: 4, label: t('createCatalyst.step4Label'), desc: t('createCatalyst.step4Desc') },
+    { id: 5, label: t('createCatalyst.step5Label'), desc: t('createCatalyst.step5Desc') },
   ];
 
   const validateStep = (step: number) => {
     setStepErrors(null);
     if (step === 1) {
       if (!tokenName.trim() || !tokenSymbol.trim() || !chain.trim()) {
-        setStepErrors('Token Name, Symbol, and Target Chain are required fields.');
+        setStepErrors(t('createCatalyst.validationTokenRequired'));
         return false;
       }
     }
     if (step === 2) {
       if (!title.trim() || !description.trim()) {
-        setStepErrors('Catalyst Title and detailed Objective Brief are required.');
+        setStepErrors(t('createCatalyst.validationObjectiveRequired'));
         return false;
       }
       if (description.trim().length < 20) {
-        setStepErrors('Objective Brief must be at least 20 characters.');
+        setStepErrors(t('createCatalyst.validationBriefMinLength'));
         return false;
       }
     }
     if (step === 5) {
       if (!check1 || !check2 || !check3 || !check4) {
-        setStepErrors('You must agree to all KAIRO trust disclaimers to submit.');
+        setStepErrors(t('createCatalyst.validationDisclaimersRequired'));
         return false;
       }
     }
@@ -109,7 +111,7 @@ export default function CreateCatalystPage() {
       });
       navigate(`/catalysts/${catalyst.id}`);
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Unable to create Catalyst');
+      setError(submitError instanceof Error ? submitError.message : t('createCatalyst.errorSubmit', { default: 'Unable to create Catalyst' }));
     } finally {
       setIsSubmitting(false);
     }
@@ -121,11 +123,11 @@ export default function CreateCatalystPage() {
       <section className="glass-panel p-6 sm:p-8">
         <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-[#ffb95f]">
           <Flame className="h-4 w-4 text-[#EE1C25] animate-pulse" />
-          Ignite Catalyst Flow
+          {t('createCatalyst.eyebrow')}
         </div>
-        <h1 className="mt-4 text-3xl font-bold tracking-tight text-white leading-none">Ignite a Resurrection Catalyst</h1>
+        <h1 className="mt-4 text-3xl font-bold tracking-tight text-white leading-none">{t('createCatalyst.title')}</h1>
         <p className="mt-2 text-xs text-white/50 leading-5">
-          Provide project specifications, token metadata, target milestones, and contact verification to list this Catalyst lane on KAIRO.
+          {t('createCatalyst.description')}
         </p>
       </section>
 
@@ -134,7 +136,7 @@ export default function CreateCatalystPage() {
         <div className="lg:col-span-3 space-y-4">
           <div className="glass-panel p-4 space-y-6">
             <div className="font-mono text-[9px] text-white/30 uppercase tracking-widest border-b border-white/5 pb-2">
-              Pipeline Progress
+              {t('createCatalyst.pipelineProgress')}
             </div>
             <nav className="space-y-4">
               {steps.map((s) => {
@@ -173,32 +175,32 @@ export default function CreateCatalystPage() {
               <div className="space-y-6 animate-fadeIn">
                 <div className="border-b border-white/5 pb-3">
                   <span className="font-mono text-[9px] text-[#ffb95f] uppercase tracking-widest">[SECTION_01_TOKEN_IDENTITY]</span>
-                  <h3 className="text-base font-bold text-white mt-1">Specify Token Asset Metadata</h3>
-                  <p className="text-xs text-white/50 leading-relaxed mt-1">Define the ticker symbol, name, and underlying blockchain of the dormant asset.</p>
+                  <h3 className="text-base font-bold text-white mt-1">{t('createCatalyst.section1Heading')}</h3>
+                  <p className="text-xs text-white/50 leading-relaxed mt-1">{t('createCatalyst.section1Desc')}</p>
                 </div>
                 <div className="grid gap-6 sm:grid-cols-2">
                   <FormField 
                     name="tokenName" 
-                    label="Token Name" 
+                    label={t('createCatalyst.tokenName')} 
                     value={tokenName}
                     onChange={(e) => setTokenName(e.target.value)}
-                    placeholder="e.g. DeFi Liquidity Engine" 
+                    placeholder={t('createCatalyst.tokenNamePlaceholder')} 
                     required 
                   />
                   <FormField 
                     name="tokenSymbol" 
-                    label="Token Symbol" 
+                    label={t('createCatalyst.tokenSymbol')} 
                     value={tokenSymbol}
                     onChange={(e) => setTokenSymbol(e.target.value)}
-                    placeholder="e.g. DLE" 
+                    placeholder={t('createCatalyst.tokenSymbolPlaceholder')} 
                     required 
                   />
                   <FormField 
                     name="chain" 
-                    label="Target Protocol Chain" 
+                    label={t('createCatalyst.chain')} 
                     value={chain}
                     onChange={(e) => setChain(e.target.value)}
-                    placeholder="e.g. Ethereum, Arbitrum" 
+                    placeholder={t('createCatalyst.chainPlaceholder')} 
                     required 
                   />
                 </div>
@@ -210,24 +212,24 @@ export default function CreateCatalystPage() {
               <div className="space-y-6 animate-fadeIn">
                 <div className="border-b border-white/5 pb-3">
                   <span className="font-mono text-[9px] text-[#ffb95f] uppercase tracking-widest">[SECTION_02_CATALYST_MISSION]</span>
-                  <h3 className="text-base font-bold text-white mt-1">Define Resurrection Objectives</h3>
-                  <p className="text-xs text-white/50 leading-relaxed mt-1">Outline the core targets and technical specifications required from builders.</p>
+                  <h3 className="text-base font-bold text-white mt-1">{t('createCatalyst.section2Heading')}</h3>
+                  <p className="text-xs text-white/50 leading-relaxed mt-1">{t('createCatalyst.section2Desc')}</p>
                 </div>
                 <div className="space-y-6">
                   <FormField 
                     name="title" 
-                    label="Catalyst Objective Title" 
+                    label={t('createCatalyst.missionTitle')} 
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. Cross-Chain Routing Engine Implementation" 
+                    placeholder={t('createCatalyst.missionTitlePlaceholder')} 
                     required 
                   />
                   <FormTextArea 
                     name="description" 
-                    label="Detailed Objective Brief (Min 20 chars)" 
+                    label={t('createCatalyst.missionDesc')} 
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Explain the token context, builder requirements, and how the solution revives token utility..." 
+                    placeholder={t('createCatalyst.missionDescPlaceholder')} 
                     required 
                     minLength={20} 
                     rows={6} 
@@ -241,57 +243,57 @@ export default function CreateCatalystPage() {
               <div className="space-y-6 animate-fadeIn">
                 <div className="border-b border-white/5 pb-3">
                   <span className="font-mono text-[9px] text-[#ffb95f] uppercase tracking-widest">[SECTION_03_EXTERNAL_REWARD_EVIDENCE]</span>
-                  <h3 className="text-base font-bold text-white mt-1">External Reward Evidence & Conditions</h3>
-                  <p className="text-xs text-white/50 leading-relaxed mt-1">Declare the external sources and evidence records for builder rewards. KAIRO does not hold or control any funds.</p>
+                  <h3 className="text-base font-bold text-white mt-1">{t('createCatalyst.section3Heading')}</h3>
+                  <p className="text-xs text-white/50 leading-relaxed mt-1">{t('createCatalyst.section3Desc')}</p>
                 </div>
                 <div className="grid gap-6 sm:grid-cols-2">
                   <FormField 
                     name="sponsorSource" 
-                    label="Sponsor / Reward Source" 
+                    label={t('createCatalyst.sponsorSource')} 
                     value={sponsorSource}
                     onChange={(e) => setSponsorSource(e.target.value)}
-                    placeholder="e.g. Community Multisig / Foundation"
+                    placeholder={t('createCatalyst.sponsorSourcePlaceholder')}
                   />
                   <FormField 
                     name="rewardText" 
-                    label="Reward Description / Pool" 
+                    label={t('createCatalyst.rewardText')} 
                     value={rewardText}
                     onChange={(e) => setRewardText(e.target.value)}
-                    placeholder="e.g. 50,000 USDC or token allotment" 
+                    placeholder={t('createCatalyst.rewardTextPlaceholder')} 
                   />
                   <FormField 
                     name="evidenceUrl" 
-                    label="Evidence / Proposal URL" 
+                    label={t('createCatalyst.evidenceUrl')} 
                     type="url"
                     value={evidenceUrl}
                     onChange={(e) => setEvidenceUrl(e.target.value)}
-                    placeholder="https://github.com/or-proposal-link"
+                    placeholder={t('createCatalyst.evidenceUrlPlaceholder')}
                   />
                   <FormField 
                     name="whoControlsFunds" 
-                    label="Who Controls Funds?" 
+                    label={t('createCatalyst.whoControlsFunds')} 
                     value={whoControlsFunds}
                     onChange={(e) => setWhoControlsFunds(e.target.value)}
-                    placeholder="e.g. 3-of-5 Community Multisig"
+                    placeholder={t('createCatalyst.whoControlsFundsPlaceholder')}
                   />
                   <div className="glass-panel p-3 border-white/5 bg-[#050608] flex justify-between items-center text-xs font-mono">
-                    <span className="text-white/40">KAIRO Asset Control?</span>
-                    <span className="text-[#EE1C25] font-bold uppercase">Strictly No</span>
+                    <span className="text-white/40">{t('createCatalyst.assetControlQuestion')}</span>
+                    <span className="text-[#EE1C25] font-bold uppercase">{t('createCatalyst.assetControlValue')}</span>
                   </div>
                   <div className="glass-panel p-3 border-white/5 bg-[#050608] flex justify-between items-center text-xs font-mono">
-                    <span className="text-white/40">Is this externally managed?</span>
-                    <span className="text-[#4ade80] font-bold uppercase">Yes</span>
+                    <span className="text-white/40">{t('createCatalyst.externallyManagedQuestion')}</span>
+                    <span className="text-[#4ade80] font-bold uppercase">{t('createCatalyst.externallyManagedValue')}</span>
                   </div>
                   <FormField 
                     name="disputeContact" 
-                    label="Dispute / Support Contact" 
+                    label={t('createCatalyst.disputeContact')} 
                     value={disputeContact}
                     onChange={(e) => setDisputeContact(e.target.value)}
-                    placeholder="e.g. discord channel or email"
+                    placeholder={t('createCatalyst.disputeContactPlaceholder')}
                   />
                   <FormField 
                     name="deadline" 
-                    label="Expiration Date / Deadline" 
+                    label={t('createCatalyst.deadline')} 
                     type="datetime-local" 
                     value={deadline}
                     onChange={(e) => setDeadline(e.target.value)}
@@ -305,13 +307,13 @@ export default function CreateCatalystPage() {
               <div className="space-y-6 animate-fadeIn">
                 <div className="border-b border-white/5 pb-3">
                   <span className="font-mono text-[9px] text-[#ffb95f] uppercase tracking-widest">[SECTION_04_ACCESS_CHANNELS]</span>
-                  <h3 className="text-base font-bold text-white mt-1">Ecosystem Links & Coordinator Contacts</h3>
-                  <p className="text-xs text-white/50 leading-relaxed mt-1">List project website resources and telegram/discord handles for coordination.</p>
+                  <h3 className="text-base font-bold text-white mt-1">{t('createCatalyst.section4Heading')}</h3>
+                  <p className="text-xs text-white/50 leading-relaxed mt-1">{t('createCatalyst.section4Desc')}</p>
                 </div>
                 <div className="grid gap-6 sm:grid-cols-2">
                   <FormField 
                     name="websiteUrl" 
-                    label="Website URL" 
+                    label={t('createCatalyst.website')} 
                     type="url" 
                     value={websiteUrl}
                     onChange={(e) => setWebsiteUrl(e.target.value)}
@@ -319,7 +321,7 @@ export default function CreateCatalystPage() {
                   />
                   <FormField 
                     name="twitterUrl" 
-                    label="X (Twitter) URL" 
+                    label={t('createCatalyst.twitter')} 
                     type="url" 
                     value={twitterUrl}
                     onChange={(e) => setTwitterUrl(e.target.value)}
@@ -327,7 +329,7 @@ export default function CreateCatalystPage() {
                   />
                   <FormField 
                     name="telegramUrl" 
-                    label="Telegram Channel URL" 
+                    label={t('createCatalyst.telegram')} 
                     type="url" 
                     value={telegramUrl}
                     onChange={(e) => setTelegramUrl(e.target.value)}
@@ -335,10 +337,10 @@ export default function CreateCatalystPage() {
                   />
                   <FormField 
                     name="contactInfo" 
-                    label="Coordinator Contact Details" 
+                    label={t('createCatalyst.contactInfo')} 
                     value={contactInfo}
                     onChange={(e) => setContactInfo(e.target.value)}
-                    placeholder="e.g. @coordinators_handle / email" 
+                    placeholder={t('createCatalyst.contactPlaceholder')} 
                   />
                 </div>
               </div>
@@ -349,59 +351,59 @@ export default function CreateCatalystPage() {
               <div className="space-y-6 animate-fadeIn">
                 <div className="border-b border-white/5 pb-3">
                   <span className="font-mono text-[9px] text-[#4ade80] uppercase tracking-widest">[SECTION_05_REVIEW_SUBMIT]</span>
-                  <h3 className="text-base font-bold text-white mt-1">Verify Specifications</h3>
-                  <p className="text-xs text-white/50 leading-relaxed mt-1">Confirm that all details are accurate before committing the Catalyst lane to public indexes.</p>
+                  <h3 className="text-base font-bold text-white mt-1">{t('createCatalyst.section5Heading')}</h3>
+                  <p className="text-xs text-white/50 leading-relaxed mt-1">{t('createCatalyst.section5Desc')}</p>
                 </div>
                 
                 {/* Summary Card */}
                 <div className="rounded border border-white/5 bg-[#050608] p-5 space-y-4 text-xs font-mono">
                   <div className="grid grid-cols-2 gap-4 border-b border-white/5 pb-3">
                     <div>
-                      <span className="text-white/40 block">TOKEN NAME</span>
+                      <span className="text-white/40 block">{t('createCatalyst.summaryCardTokenName')}</span>
                       <span className="text-white font-bold">{tokenName}</span>
                     </div>
                     <div>
-                      <span className="text-white/40 block">SYMBOL (CHAIN)</span>
+                      <span className="text-white/40 block">{t('createCatalyst.summaryCardSymbolChain')}</span>
                       <span className="text-white font-bold">{tokenSymbol} ({chain})</span>
                     </div>
                   </div>
                   <div className="border-b border-white/5 pb-3">
-                    <span className="text-white/40 block">CATALYST TITLE</span>
+                    <span className="text-white/40 block">{t('createCatalyst.summaryCardCatalystTitle')}</span>
                     <span className="text-white font-bold">{title}</span>
                   </div>
                   <div className="border-b border-white/5 pb-3">
-                    <span className="text-white/40 block">REWARD STRUCTURE</span>
-                    <span className="text-[#ffb95f] font-bold">{rewardText || 'Not specified (Pending validation)'}</span>
+                    <span className="text-white/40 block">{t('createCatalyst.summaryCardReward')}</span>
+                    <span className="text-[#ffb95f] font-bold">{rewardText || t('catalysts.rewardPending')}</span>
                   </div>
                   <div>
-                    <span className="text-white/40 block">COORDINATOR CONTACT</span>
-                    <span className="text-white">{contactInfo || 'None provided'}</span>
+                    <span className="text-white/40 block">{t('createCatalyst.summaryCardContact')}</span>
+                    <span className="text-white">{contactInfo || t('catalysts.notSpecified')}</span>
                   </div>
                 </div>
 
                 <div className="space-y-3 bg-[#050608] p-4 rounded border border-white/5 font-mono text-[11px] text-white/70">
                   <label className="flex items-start gap-2.5 cursor-pointer">
                     <input type="checkbox" checked={check1} onChange={(e) => setCheck1(e.target.checked)} className="mt-1 shrink-0" />
-                    <span>I understand KAIRO does not hold or control funds.</span>
+                    <span>{t('createCatalyst.checkbox1')}</span>
                   </label>
                   <label className="flex items-start gap-2.5 cursor-pointer">
                     <input type="checkbox" checked={check2} onChange={(e) => setCheck2(e.target.checked)} className="mt-1 shrink-0" />
-                    <span>I understand KAIRO does not guarantee rewards.</span>
+                    <span>{t('createCatalyst.checkbox2')}</span>
                   </label>
                   <label className="flex items-start gap-2.5 cursor-pointer">
                     <input type="checkbox" checked={check3} onChange={(e) => setCheck3(e.target.checked)} className="mt-1 shrink-0" />
-                    <span>I confirm reward information is externally managed by the sponsor/community.</span>
+                    <span>{t('createCatalyst.checkbox3')}</span>
                   </label>
                   <label className="flex items-start gap-2.5 cursor-pointer">
                     <input type="checkbox" checked={check4} onChange={(e) => setCheck4(e.target.checked)} className="mt-1 shrink-0" />
-                    <span>I agree KAIRO may hide or mark this Catalyst if evidence is unclear.</span>
+                    <span>{t('createCatalyst.checkbox4')}</span>
                   </label>
                 </div>
 
                 <div className="rounded border border-[#ffb95f]/20 bg-[#ffb95f]/5 p-4 flex gap-3">
                   <ShieldCheck className="h-5 w-5 text-[#ffb95f] shrink-0" />
                   <p className="text-[11px] leading-5 text-white/60">
-                    Resurrection lanes coordinates are committed to public logs. Standard compliance audits apply. Double-check all contract inputs before execution.
+                    {t('createCatalyst.complianceWarning')}
                   </p>
                 </div>
               </div>
@@ -422,10 +424,10 @@ export default function CreateCatalystPage() {
                     type="button" 
                     onClick={handleBack} 
                     tone="secondary" 
-                    className="px-5 py-2 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1"
+                    className="px-5 py-2 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1 cursor-pointer"
                   >
                     <ChevronLeft className="h-4 w-4" />
-                    Back
+                    {t('createCatalyst.backButton')}
                   </ActionButton>
                 )}
               </div>
@@ -436,9 +438,9 @@ export default function CreateCatalystPage() {
                     type="button" 
                     onClick={handleNext} 
                     tone="primary" 
-                    className="px-6 py-2.5 text-xs font-bold uppercase tracking-widest inline-flex items-center gap-1"
+                    className="px-6 py-2.5 text-xs font-bold uppercase tracking-widest inline-flex items-center gap-1 cursor-pointer"
                   >
-                    Next
+                    {t('createCatalyst.nextButton')}
                     <ChevronRight className="h-4 w-4" />
                   </ActionButton>
                 ) : (
@@ -446,10 +448,10 @@ export default function CreateCatalystPage() {
                     type="submit" 
                     disabled={isSubmitting} 
                     tone="ignite" 
-                    className="px-8 py-2.5 text-xs font-bold uppercase tracking-widest"
+                    className="px-8 py-2.5 text-xs font-bold uppercase tracking-widest cursor-pointer"
                   >
-                    {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin text-white" /> : null}
-                    Ignite Catalyst
+                    {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin text-white mr-1.5 inline" /> : null}
+                    {t('createCatalyst.submitButton')}
                   </ActionButton>
                 )}
               </div>

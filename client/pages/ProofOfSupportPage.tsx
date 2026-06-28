@@ -1,12 +1,14 @@
 import { useEffect, useState, type FC } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Award, Copy, Flame, Share2, ShieldCheck, Sparkles, Activity } from 'lucide-react';
-import { getProofOfSupport, getProofOfSupportByUser, type ProofOfSupport, type SupportEvent } from '../lib/api';
+import { Award, Copy, Flame, ShieldCheck, Sparkles } from 'lucide-react';
+import { getProofOfSupport, getProofOfSupportByUser, type ProofOfSupport } from '../lib/api';
 import { ActionButton, DataRow, EmptyPanel, PageHero, Panel, StatusChip, MomentumBar, AnimatedCounter, PointerGlowCard } from '../components/runtimeUi';
 import { ErrorState, LoadingState } from './pageUtils';
+import { useI18n } from '../i18n/useI18n';
 
 export default function ProofOfSupportPage() {
   const { userId } = useParams();
+  const { t } = useI18n();
   const [proof, setProof] = useState<ProofOfSupport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +31,7 @@ export default function ProofOfSupportPage() {
     void load();
   }, [userId]);
 
-  if (isLoading) return <LoadingState label="Loading Supporter Proof telemetry..." />;
+  if (isLoading) return <LoadingState label={t('proof.loading')} />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
 
   const hasEvents = Boolean(proof?.events.length);
@@ -38,14 +40,8 @@ export default function ProofOfSupportPage() {
     if (!proof) return;
     const copy = `KAIRO Proof of Support\nUser: ${proof.user.id}\nLevel: ${proof.supporterLevel}\nSupport Points: ${proof.points.totalPoints}\nValid Boosts: ${proof.validBoostCount}`;
     await navigator.clipboard.writeText(copy);
-    setCopyMessage('Proof summary copied!');
+    setCopyMessage(t('proof.copiedToast'));
     setTimeout(() => setCopyMessage(null), 2000);
-  };
-
-  const getMultiplierVal = (level?: string) => {
-    if (level?.toLowerCase().includes('elite')) return '1.50x';
-    if (level?.toLowerCase().includes('pro')) return '1.25x';
-    return '1.00x';
   };
 
   const getMultiplierPercent = (level?: string) => {
@@ -58,26 +54,26 @@ export default function ProofOfSupportPage() {
     <div className="space-y-8 pb-12" id="proof-of-support-page">
       {/* Supporter Dashboard Hero */}
       <PageHero
-        eyebrow="Supporter Dashboard"
-        title="Proof of Support & Referral Telemetry"
-        description="Verify public boost activity, active referrals, and support tiers. The logs coordinate community action without asset holding guarantees."
+        eyebrow={t('proof.eyebrow')}
+        title={t('proof.title')}
+        description={t('proof.description')}
         actions={
-          <ActionButton onClick={() => void handleCopy()} tone="primary" className="text-xs uppercase tracking-widest font-bold">
-            <Copy className="h-4 w-4" />
-            {copyMessage ? 'Copied Summary!' : 'Copy Proof Summary'}
+          <ActionButton onClick={() => void handleCopy()} tone="primary" className="text-xs uppercase tracking-widest font-bold cursor-pointer">
+            <Copy className="h-4 w-4 mr-1.5 inline" />
+            {copyMessage ? t('proof.copiedSummary') : t('proof.copySummary')}
           </ActionButton>
         }
         stats={[
-          { label: 'Total Support Points', value: proof?.points.totalPoints ?? 0, detail: 'Contribution signal score' },
-          { label: 'Boost Points', value: proof?.points.boostPoints ?? 0, detail: 'Earned from active boosts', tone: 'sky' },
-          { label: 'Verified Boosts', value: proof?.validBoostCount ?? 0, detail: proof?.supporterLevel ?? 'Signal Level', tone: 'emerald' },
+          { label: t('proof.totalSupportPoints'), value: proof?.points.totalPoints ?? 0, detail: t('proof.totalSupportPointsDesc') },
+          { label: t('proof.boostPoints'), value: proof?.points.boostPoints ?? 0, detail: t('proof.boostPointsDesc'), tone: 'sky' },
+          { label: t('proof.verifiedBoosts'), value: proof?.validBoostCount ?? 0, detail: proof?.supporterLevel ?? t('proof.signalLevel'), tone: 'emerald' },
         ]}
         aside={
-          <Panel eyebrow="State log" title="Support Profile" icon={ShieldCheck}>
+          <Panel eyebrow={t('proof.stateLog')} title={t('proof.profileTitle')} icon={ShieldCheck}>
             <div className="grid gap-3 font-mono">
-              <SignalField label="Identity Address" value={proof?.user.id ?? '0x0000...0000'} />
-              <SignalField label="Support Tier" value={proof?.supporterLevel ?? 'New Tracker'} />
-              <SignalField label="Data Uplink" value={proof?.user.isDemoFallback ? 'Demo Fallback' : 'Active Registry'} />
+              <SignalField label={t('proof.identityAddress')} value={proof?.user.id ?? '0x0000...0000'} />
+              <SignalField label={t('proof.supportTier')} value={proof?.supporterLevel ?? 'New Tracker'} />
+              <SignalField label={t('proof.dataUplink')} value={proof?.user.isDemoFallback ? 'Demo Fallback' : 'Active Registry'} />
               {copyMessage ? (
                 <div className="rounded border border-white/5 bg-[#050608] px-3 py-2 text-[10px] text-[#ffb95f] font-bold">
                   {copyMessage}
@@ -92,60 +88,60 @@ export default function ProofOfSupportPage() {
       {proof && (
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <PointerGlowCard className="glass-panel p-5 bg-[#050608]/30 kairo-tilt">
-            <span className="text-[9px] font-mono text-white/40 uppercase tracking-wider block">SUPPORT POINTS</span>
+            <span className="text-[9px] font-mono text-white/40 uppercase tracking-wider block">{t('proof.supportPoints')}</span>
             <div className="text-2xl font-bold text-white mt-1.5 font-mono">
               <AnimatedCounter value={proof.points.totalPoints} />
             </div>
             <div className="text-[10px] text-white/40 mt-1 font-mono">
-              Share: <AnimatedCounter value={proof.points.sharePoints} /> pts
+              {t('proof.shareLabel')} <AnimatedCounter value={proof.points.sharePoints} /> pts
             </div>
           </PointerGlowCard>
           
           <PointerGlowCard className="glass-panel p-5 bg-[#050608]/30 kairo-tilt flex flex-col justify-between">
             <div>
-              <span className="text-[9px] font-mono text-white/40 uppercase tracking-wider block">SIGNAL WEIGHT</span>
+              <span className="text-[9px] font-mono text-white/40 uppercase tracking-wider block">{t('proof.signalWeight')}</span>
               <div className="text-sm font-bold text-[#ffb95f] mt-1.5 font-mono uppercase">
-                {proof.supporterLevel.toLowerCase().includes('elite') ? 'HIGH (150)' : proof.supporterLevel.toLowerCase().includes('pro') ? 'MEDIUM (125)' : 'STANDARD (100)'}
+                {proof.supporterLevel.toLowerCase().includes('elite') ? t('proof.signalHigh') : proof.supporterLevel.toLowerCase().includes('pro') ? t('proof.signalMedium') : t('proof.signalStandard')}
               </div>
               <div className="mt-2.5">
                 <MomentumBar percentage={getMultiplierPercent(proof.supporterLevel)} className="h-1.5" />
               </div>
             </div>
             <div className="text-[8px] font-mono text-white/30 mt-2 leading-snug">
-              This is a public contribution signal. It is not a reward, airdrop, payout, or financial entitlement.
+              {t('proof.disclaimer')}
             </div>
           </PointerGlowCard>
 
           <PointerGlowCard className="glass-panel p-5 bg-[#050608]/30 kairo-tilt">
-            <span className="text-[9px] font-mono text-white/40 uppercase tracking-wider block">REFERRAL POINTS</span>
+            <span className="text-[9px] font-mono text-white/40 uppercase tracking-wider block">{t('proof.referralPoints')}</span>
             <div className="text-2xl font-bold text-white mt-1.5 font-mono">
               <AnimatedCounter value={proof.points.referralPoints} />
             </div>
-            <div className="text-[10px] text-white/40 mt-1 font-mono">Earned from coordinate signups</div>
+            <div className="text-[10px] text-white/40 mt-1 font-mono">{t('proof.referralPointsDesc')}</div>
           </PointerGlowCard>
 
           <PointerGlowCard className="glass-panel p-5 bg-[#050608]/30 kairo-tilt">
-            <span className="text-[9px] font-mono text-white/40 uppercase tracking-wider block">VERIFIED ACTIVITY</span>
+            <span className="text-[9px] font-mono text-white/40 uppercase tracking-wider block">{t('proof.verifiedActivity')}</span>
             <div className="text-2xl font-bold text-[#4ade80] mt-1.5 font-mono">
-              <AnimatedCounter value={proof.validBoostCount} /> Boosts
+              <AnimatedCounter value={proof.validBoostCount} />
             </div>
-            <div className="text-[10px] text-white/40 mt-1 font-mono">Status: active verification</div>
+            <div className="text-[10px] text-white/40 mt-1 font-mono">{t('proof.activeVerification')}</div>
           </PointerGlowCard>
         </section>
       )}
 
       {/* Boosted Catalysts & Submissions lists */}
       <div className="grid gap-6 xl:grid-cols-2">
-        <Panel eyebrow="Catalyst Proof" title="Boosted Catalysts" icon={Sparkles}>
-          <SupportList items={proof?.boostedCatalysts ?? []} empty="No boosted Catalysts yet." pathPrefix="/catalysts" />
+        <Panel eyebrow={t('proof.catalystProof')} title={t('proof.boostedCatalysts')} icon={Sparkles}>
+          <SupportList items={proof?.boostedCatalysts ?? []} empty={t('proof.noBoostedCatalysts')} pathPrefix="/catalysts" />
         </Panel>
-        <Panel eyebrow="Solution Proof" title="Boosted Solutions" icon={Award}>
-          <SupportList items={proof?.boostedSubmissions ?? []} empty="No boosted solutions yet." pathPrefix="/submissions" />
+        <Panel eyebrow={t('proof.solutionProof')} title={t('proof.boostedSolutions')} icon={Award}>
+          <SupportList items={proof?.boostedSubmissions ?? []} empty={t('proof.noBoostedSolutions')} pathPrefix="/submissions" />
         </Panel>
       </div>
 
       {/* Main event timeline */}
-      <Panel eyebrow="Audit feed" title="Support Events Feed" description="Public coordinate ledger records for booster and referral actions.">
+      <Panel eyebrow={t('proof.auditFeed')} title={t('proof.supportEventsFeed')} description={t('proof.publicCoordinateLedger')}>
         {hasEvents && proof ? (
           <div className="relative pl-6 border-l border-white/5 space-y-4">
             {proof.events.map((event) => (
@@ -165,7 +161,7 @@ export default function ProofOfSupportPage() {
                         {formatEventType(event.eventType)}
                       </div>
                       <div className="text-[10px] text-white/50 mt-1 font-mono">
-                        Target: {event.targetType} ({event.targetId.slice(0, 8)}...) · Source: {event.source}
+                        {t('proof.tableTarget')}: {event.targetType} ({event.targetId.slice(0, 8)}...) · {t('proof.tableSource')}: {event.source}
                       </div>
                     </div>
                     <div className="flex items-center gap-3 self-end sm:self-auto">
@@ -173,12 +169,12 @@ export default function ProofOfSupportPage() {
                         {event.pointsDelta >= 0 ? '+' : ''}{event.pointsDelta} PTS
                       </span>
                       <StatusChip tone={event.validityStatus === 'valid' ? 'emerald' : event.validityStatus === 'suspicious' ? 'gold' : 'red'}>
-                        {event.validityStatus}
+                        {t(`admin.${event.validityStatus}`)}
                       </StatusChip>
                     </div>
                   </div>
                   <div className="text-[9px] font-mono text-white/30 mt-2">
-                    Committed at: {formatDate(event.createdAt)}
+                    {t('proof.committedAt')} {formatDate(event.createdAt)}
                   </div>
                 </div>
               </div>
@@ -186,9 +182,9 @@ export default function ProofOfSupportPage() {
           </div>
         ) : (
           <EmptyPanel
-            title="No support events logged"
-            description="Perform a Catalyst or solution boost to coordinate a visible timeline history."
-            action={<Link className="btn-primary px-5 py-2.5 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5" to="/catalysts">Browse Catalysts</Link>}
+            title={t('proof.noSupportEvents')}
+            description={t('proof.noSupportEventsDesc')}
+            action={<Link className="btn-primary px-5 py-2.5 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5" to="/catalysts">{t('proof.browseCatalysts')}</Link>}
           />
         )}
       </Panel>
@@ -205,6 +201,7 @@ function SupportList({
   empty: string;
   pathPrefix: string;
 }) {
+  const { t } = useI18n();
   return items.length ? (
     <div className="grid gap-3">
       {items.map((item) => (
@@ -217,7 +214,7 @@ function SupportList({
       ))}
     </div>
   ) : (
-    <EmptyPanel title="No activity recorded" description={empty} />
+    <EmptyPanel title={t('proof.noActivityRecorded')} description={empty} />
   );
 }
 

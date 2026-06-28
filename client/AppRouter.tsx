@@ -8,14 +8,18 @@ import CatalystsPage, { CatalystDetailPage } from './pages/CatalystsPage';
 import CreateCatalystPage from './pages/CreateCatalystPage';
 import DormantGiantsPage from './pages/DormantGiantsPage';
 import FeedbackPage from './pages/FeedbackPage';
-import HomePage from './pages/HomePage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import ProofOfSupportPage from './pages/ProofOfSupportPage';
 import RuntimeHomePage from './pages/RuntimeHomePage';
 import SubmissionDetailPage from './pages/SubmissionDetailPage';
 import SubmitProjectPage from './pages/SubmitProjectPage';
+import { useI18n } from './i18n/useI18n';
 
-function StaticInfoPage({ title, body }: { title: string; body: string[] }) {
+function StaticInfoPage({ pageKey }: { pageKey: string }) {
+  const { t, tArray } = useI18n();
+  const title = t(`staticPages.${pageKey}Title`);
+  const body = tArray(`staticPages.${pageKey}Paragraphs`);
+
   return (
     <div className="space-y-4 rounded-[2rem] border border-white/10 bg-white/[0.04] p-8">
       <h1 className="text-4xl font-black text-white">{title}</h1>
@@ -50,77 +54,41 @@ export default function AppRouter() {
         <Route
           path="/about"
           element={
-            <StaticInfoPage
-              title="About KAIRO"
-              body={[
-                'KAIRO Phase 0 is a community signal and bounty discovery platform for dormant token ecosystems.',
-                'Catalysts help communities publish concrete missions, builders submit working demos, supporters Boost promising work, and KAIRO records External Reward Evidence, Reward Evidence Records, and Support Proof without presenting any financial-service promise.',
-              ]}
-            />
+            <StaticInfoPage pageKey="about" />
           }
         />
         <Route
           path="/how-it-works"
           element={
-            <StaticInfoPage
-              title="How It Works"
-              body={[
-                'Communities publish Catalysts with a builder brief and public External Reward Evidence.',
-                'Builders submit product demos, supporters Boost the strongest work, and KAIRO surfaces Momentum, leaderboards, Reward Evidence Records, and public proof so the comeback story stays legible.',
-              ]}
-            />
+            <StaticInfoPage pageKey="howItWorks" />
           }
         />
         <Route
           path="/for-builders"
           element={
-            <StaticInfoPage
-              title="For Builders"
-              body={[
-                'Browse Catalysts, ship working demos, collect Boosts, and build KAIRO Score through delivery.',
-                'Phase 0 is designed for discovery and visible contribution history, not guaranteed rewards or financial returns.',
-              ]}
-            />
+            <StaticInfoPage pageKey="forBuilders" />
           }
         />
         <Route
           path="/for-communities"
           element={
-            <StaticInfoPage
-              title="For Communities"
-              body={[
-                'Publish a Catalyst, describe the product need clearly, and keep External Reward Evidence updated in public.',
-                'KAIRO helps communities attract builders and supporters around real product work rather than speculation.',
-              ]}
-            />
+            <StaticInfoPage pageKey="forCommunities" />
           }
         />
         <Route
           path="/submit-token"
           element={
-            <StaticInfoPage
-              title="Submit Token"
-              body={[
-                'Use the Catalyst flow to introduce a dormant project, explain the community context, and invite builder submissions.',
-                'KAIRO reviews public reward information and can add Reward Evidence Records while keeping Phase 0 focused on discovery, contribution records, and community signal.',
-              ]}
-            />
+            <StaticInfoPage pageKey="submitToken" />
           }
         />
         <Route
           path="/disclaimer"
           element={
-            <StaticInfoPage
-              title="Disclaimer"
-              body={[
-                'Boost is not an investment. KAIRO does not guarantee rewards or airdrops.',
-                'External Reward Evidence is a public coordination label for sponsor reward information. KAIRO Phase 0 is a community signal and bounty discovery platform.',
-              ]}
-            />
+            <StaticInfoPage pageKey="disclaimer" />
           }
         />
       </Route>
-      <Route path="/legacy" element={<HomePage />} />
+      <Route path="/legacy" element={<Navigate to="/" replace />} />
       <Route path="/admin" element={<AdminPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

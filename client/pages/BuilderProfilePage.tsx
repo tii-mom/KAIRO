@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { User, Trophy, Award } from 'lucide-react';
+import { User, Award } from 'lucide-react';
 import { getLeaderboard, listSubmissions, type LeaderboardResponse } from '../lib/api';
 import { EmptyState, ErrorState, LoadingState } from './pageUtils';
 import { StatusChip } from '../components/runtimeUi';
+import { useI18n } from '../i18n/useI18n';
 
 export default function BuilderProfilePage() {
   const { id } = useParams();
+  const { t } = useI18n();
   const [leaderboard, setLeaderboard] = useState<LeaderboardResponse | null>(null);
   const [submissions, setSubmissions] = useState<Array<Record<string, unknown>>>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +32,7 @@ export default function BuilderProfilePage() {
     void load();
   }, [id]);
 
-  if (isLoading) return <LoadingState label="Connecting to Builder Profile telemetry..." />;
+  if (isLoading) return <LoadingState label={t('builder.loadingProfile')} />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
 
   const builder = (leaderboard?.topBuilders ?? []).find((item) => String(item.builder_id) === id);
@@ -39,22 +41,22 @@ export default function BuilderProfilePage() {
     <section className="glass-panel p-6 sm:p-8 max-w-4xl mx-auto space-y-6 pb-12">
       <div className="flex items-center gap-2 text-[#ffb95f]">
         <User className="h-5 w-5 text-[#EE1C25] animate-pulse" />
-        <span className="text-xs font-mono font-bold uppercase tracking-wider">Builder Console</span>
+        <span className="text-xs font-mono font-bold uppercase tracking-wider">{t('builder.profileEyebrow')}</span>
       </div>
       
       <div className="border-b border-white/5 pb-6">
         <h1 className="text-3xl font-bold tracking-tight text-white">{String(builder?.builder_name ?? id ?? 'Builder')}</h1>
         <p className="text-xs text-white/50 mt-2 font-mono uppercase tracking-wider flex flex-wrap gap-4">
-          <span>KAIRO Score: <strong className="text-[#ffb95f]">{String(builder?.total_score ?? 0)}</strong></span>
-          <span>Shipped: <strong className="text-white">{String(builder?.completed_count ?? 0)}</strong></span>
-          <span>Milestones Won: <strong className="text-[#4ade80]">{String(builder?.won_count ?? 0)}</strong></span>
+          <span>{t('builder.score')}: <strong className="text-[#ffb95f]">{String(builder?.total_score ?? 0)}</strong></span>
+          <span>{t('builder.shipped')}: <strong className="text-white">{String(builder?.completed_count ?? 0)}</strong></span>
+          <span>{t('builder.milestonesWon')}: <strong className="text-[#4ade80]">{String(builder?.won_count ?? 0)}</strong></span>
         </p>
       </div>
 
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-white/40">
           <Award className="h-4 w-4" />
-          Shipped Solutions
+          {t('builder.verifiedDeliveries', { count: String(submissions.length) })}
         </div>
 
         {submissions.length ? (
@@ -70,7 +72,7 @@ export default function BuilderProfilePage() {
             ))}
           </div>
         ) : (
-          <EmptyState title="No solutions shipped" description="This builder profile has no recorded solutions submitted in the system." />
+          <EmptyState title={t('builder.noDeliveries')} description={t('builder.noDeliveries')} />
         )}
       </div>
     </section>

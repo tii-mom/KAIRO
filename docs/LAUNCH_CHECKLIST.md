@@ -10,6 +10,7 @@ npm run lint
 npm run build
 npm run verify:copy
 npm run verify:routes
+npm run verify:i18n
 ```
 
 Expected result: every command exits successfully.

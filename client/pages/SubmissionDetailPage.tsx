@@ -5,9 +5,11 @@ import { boostSubmission, getSubmission } from '../lib/api';
 import type { SubmissionRecord } from '../../shared/domain';
 import { ErrorState, LoadingState } from './pageUtils';
 import { ActionButton, StatusChip } from '../components/runtimeUi';
+import { useI18n } from '../i18n/useI18n';
 
 export default function SubmissionDetailPage() {
   const { id } = useParams();
+  const { t } = useI18n();
   const [submission, setSubmission] = useState<SubmissionRecord | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,14 +34,14 @@ export default function SubmissionDetailPage() {
   }, [id]);
 
   if (!id) return <Navigate to="/catalysts" replace />;
-  if (isLoading) return <LoadingState label="Loading Solution details..." />;
+  if (isLoading) return <LoadingState label={t('submissionDetail.loading')} />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   if (!submission) return <Navigate to="/catalysts" replace />;
 
   const handleBoost = async () => {
     try {
       const result = await boostSubmission(submission.id, submission.bountyId);
-      setBoostMessage(result.duplicate ? 'Boost already recorded for this submission.' : `Boost recorded: +${result.pointsDelta ?? 0} support points.`);
+      setBoostMessage(result.duplicate ? t('submissionDetail.boostDuplicate') : t('submissionDetail.boostSuccessDelta', { delta: String(result.pointsDelta ?? 0) }));
       await load();
     } catch (boostError) {
       setBoostMessage(boostError instanceof Error ? boostError.message : 'Unable to record Boost.');
@@ -49,15 +51,15 @@ export default function SubmissionDetailPage() {
   return (
     <article className="glass-panel p-6 sm:p-8 max-w-4xl mx-auto space-y-6 pb-12">
       <Link to={`/catalysts/${submission.bountyId}`} className="text-xs font-mono font-bold uppercase tracking-wider text-[#ffb95f] hover:underline">
-        ← Back to Catalyst Lane
+        ← {t('submissionDetail.backToCatalyst')}
       </Link>
       
       <div className="border-b border-white/5 pb-4">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">{submission.name}</h1>
         <div className="mt-2 text-xs text-white/50 font-mono uppercase tracking-wider flex flex-wrap gap-4 items-center">
-          <span>Builder ID: {submission.builderId}</span>
+          <span>{t('submissionDetail.builderId')}: {submission.builderId}</span>
           <StatusChip tone={submission.status === 'approved' ? 'emerald' : 'gold'}>{submission.status}</StatusChip>
-          <span>Delivery: <strong className="text-white">{submission.deliveryStatus}</strong></span>
+          <span>{t('submissionDetail.delivery')}: <strong className="text-white">{submission.deliveryStatus}</strong></span>
         </div>
       </div>
 
@@ -70,24 +72,24 @@ export default function SubmissionDetailPage() {
         {submission.demoUrl ? (
           <a className="btn-ghost px-4 py-2 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5" href={submission.demoUrl} target="_blank" rel="noopener noreferrer">
             <Globe className="h-3.5 w-3.5" />
-            Live Demo
+            {t('submissionDetail.liveDemo')}
           </a>
         ) : null}
         {submission.githubUrl ? (
           <a className="btn-ghost px-4 py-2 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5" href={submission.githubUrl} target="_blank" rel="noopener noreferrer">
             <Github className="h-3.5 w-3.5" />
-            GitHub Repo
+            {t('submissionDetail.githubRepo')}
           </a>
         ) : null}
         {submission.videoUrl ? (
           <a className="btn-ghost px-4 py-2 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5" href={submission.videoUrl} target="_blank" rel="noopener noreferrer">
             <PlayCircle className="h-3.5 w-3.5" />
-            Explainer Video
+            {t('submissionDetail.explainerVideo')}
           </a>
         ) : null}
-        <ActionButton onClick={handleBoost} tone="ignite" className="px-6 py-2 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5">
+        <ActionButton onClick={handleBoost} tone="ignite" className="px-6 py-2 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer">
           <Flame className="h-3.5 w-3.5 animate-pulse" />
-          Boost Solution ({submission.boostCount} boosts)
+          {t('submissionDetail.boostButton')} ({submission.boostCount})
         </ActionButton>
       </div>
 
