@@ -60,7 +60,7 @@ export default function ProofOfSupportPage() {
       <PageHero
         eyebrow="Supporter Dashboard"
         title="Proof of Support & Referral Telemetry"
-        description="Verify public boost activity, active referrals, and support point multipliers. The logs coordinate community action without asset holding guarantees."
+        description="Verify public boost activity, active referrals, and support tiers. The logs coordinate community action without asset holding guarantees."
         actions={
           <ActionButton onClick={() => void handleCopy()} tone="primary" className="text-xs uppercase tracking-widest font-bold">
             <Copy className="h-4 w-4" />
@@ -68,7 +68,7 @@ export default function ProofOfSupportPage() {
           </ActionButton>
         }
         stats={[
-          { label: 'Total Support Points', value: proof?.points.totalPoints ?? 0, detail: 'Contribution multiplier score' },
+          { label: 'Total Support Points', value: proof?.points.totalPoints ?? 0, detail: 'Contribution signal score' },
           { label: 'Boost Points', value: proof?.points.boostPoints ?? 0, detail: 'Earned from active boosts', tone: 'sky' },
           { label: 'Verified Boosts', value: proof?.validBoostCount ?? 0, detail: proof?.supporterLevel ?? 'Signal Level', tone: 'emerald' },
         ]}
@@ -76,7 +76,7 @@ export default function ProofOfSupportPage() {
           <Panel eyebrow="State log" title="Support Profile" icon={ShieldCheck}>
             <div className="grid gap-3 font-mono">
               <SignalField label="Identity Address" value={proof?.user.id ?? '0x0000...0000'} />
-              <SignalField label="Multiplier Rank" value={proof?.supporterLevel ?? 'New Tracker'} />
+              <SignalField label="Support Tier" value={proof?.supporterLevel ?? 'New Tracker'} />
               <SignalField label="Data Uplink" value={proof?.user.isDemoFallback ? 'Demo Fallback' : 'Active Registry'} />
               {copyMessage ? (
                 <div className="rounded border border-white/5 bg-[#050608] px-3 py-2 text-[10px] text-[#ffb95f] font-bold">
@@ -101,16 +101,18 @@ export default function ProofOfSupportPage() {
             </div>
           </PointerGlowCard>
           
-          <PointerGlowCard className="glass-panel p-5 bg-[#050608]/30 kairo-tilt">
-            <span className="text-[9px] font-mono text-white/40 uppercase tracking-wider block">ACTIVE MULTIPLIER</span>
-            <div className="text-2xl font-bold text-[#ffb95f] mt-1.5 font-mono">
-              <AnimatedCounter 
-                value={proof.supporterLevel.toLowerCase().includes('elite') ? 1.5 : proof.supporterLevel.toLowerCase().includes('pro') ? 1.25 : 1.0} 
-                formatter={(v) => `${v.toFixed(2)}x`} 
-              />
+          <PointerGlowCard className="glass-panel p-5 bg-[#050608]/30 kairo-tilt flex flex-col justify-between">
+            <div>
+              <span className="text-[9px] font-mono text-white/40 uppercase tracking-wider block">SIGNAL WEIGHT</span>
+              <div className="text-sm font-bold text-[#ffb95f] mt-1.5 font-mono uppercase">
+                {proof.supporterLevel.toLowerCase().includes('elite') ? 'HIGH (150)' : proof.supporterLevel.toLowerCase().includes('pro') ? 'MEDIUM (125)' : 'STANDARD (100)'}
+              </div>
+              <div className="mt-2.5">
+                <MomentumBar percentage={getMultiplierPercent(proof.supporterLevel)} className="h-1.5" />
+              </div>
             </div>
-            <div className="mt-2.5">
-              <MomentumBar percentage={getMultiplierPercent(proof.supporterLevel)} className="h-1.5" />
+            <div className="text-[8px] font-mono text-white/30 mt-2 leading-snug">
+              This is a public contribution signal. It is not a reward, airdrop, payout, or financial entitlement.
             </div>
           </PointerGlowCard>
 

@@ -43,6 +43,41 @@ export function requireAdmin(c: Context<{ Bindings: Env }>): CurrentUser {
   return user;
 }
 
+export function requireBetaWriteAccess(c: Context<{ Bindings: Env }>): CurrentUser {
+  const user = getCurrentUserFromHeaders(c);
+  
+  // Demote client-provided admin role on non-admin routes to supporter
+  if (user.role === 'admin') {
+    user.role = 'supporter';
+  }
+
+  const configuredToken = c.env.KAIRO_BETA_WRITE_TOKEN?.trim();
+  const isProductionLike = c.env.APP_ENV !== 'local';
+
+  if (isProductionLike) {
+    if (user.isDemoFallback) {
+      const error = new Error('Demo identity is disabled on production write operations');
+      (error as Error & { status?: number }).status = 403;
+      throw error;
+    }
+
+    const requestToken = c.req.header('x-kairo-beta-token')?.trim();
+    if (!configuredToken) {
+      const error = new Error('Beta write access token is not configured on production');
+      (error as Error & { status?: number }).status = 403;
+      throw error;
+    }
+
+    if (requestToken !== configuredToken) {
+      const error = new Error('Valid beta write token required');
+      (error as Error & { status?: number }).status = 403;
+      throw error;
+    }
+  }
+
+  return user;
+}
+
 export function normalizeValidityStatus(value: unknown) {
   return validityStatusSchema.parse(value);
 }

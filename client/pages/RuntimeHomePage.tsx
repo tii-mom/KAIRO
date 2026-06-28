@@ -126,6 +126,9 @@ export default function RuntimeHomePage() {
                     ONLINE // SECURE
                   </span>
                 </div>
+                <div className="text-[8px] font-mono text-white/30 mt-3 pt-2 border-t border-white/5 leading-snug">
+                  Derived from valid Boosts, submissions, and reviewed evidence. Not financial telemetry.
+                </div>
               </div>
             </PointerGlowCard>
           </div>
@@ -249,8 +252,8 @@ export default function RuntimeHomePage() {
         {/* Reward telemetry */}
         <Panel
           eyebrow="Reward Telemetry"
-          title="Confirmed Public Reward Records"
-          description="Verified coordination labels summarizing token rewards without asset control transfers."
+          title="Confirmed External Reward Evidence Records"
+          description="External coordination labels summarizing token rewards without asset control transfers."
           icon={ShieldCheck}
           action={<Link className="btn-ghost px-4 py-1.5 text-[10px]" to="/catalysts">View All Catalysts</Link>}
         >
@@ -278,8 +281,8 @@ export default function RuntimeHomePage() {
               ))
             ) : (
               <EmptyPanel
-                title="No verified reward records logged"
-                description="Operator-confirmed entries will appear here once public proofs are verified."
+                title="No confirmed reward records logged"
+                description="Operator-reviewed entries will appear here once public proofs are recorded."
               />
             )}
           </div>

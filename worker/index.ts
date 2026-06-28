@@ -37,7 +37,7 @@ import {
 import { getProofOfSupport, getSupportEvents, getSupportPoints, resolveCurrentSupportUser } from './services/support';
 import { createSubmission, getSubmission, listSubmissions, patchSubmission } from './services/submissions';
 import type { Env } from './db/d1';
-import { getCurrentUserFromHeaders, requireAdmin, safeJsonError } from './lib/http';
+import { getCurrentUserFromHeaders, requireAdmin, requireBetaWriteAccess, safeJsonError } from './lib/http';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -59,12 +59,21 @@ app.get('/api/bounties/:id', async (c) => {
   return c.json({ data: bounty });
 });
 
+app.post('/api/beta/write-check', async (c) => {
+  requireBetaWriteAccess(c);
+  return c.json({ ok: true, message: 'Valid beta write token' });
+});
+
 app.post('/api/bounties', async (c) => {
-  const user = getCurrentUserFromHeaders(c);
-  return c.json({ data: await createBounty(c.env, { ...(await c.req.json()), createdBy: user.id }) }, 201);
+  const user = requireBetaWriteAccess(c);
+  const body = await c.req.json();
+  return c.json({ data: await createBounty(c.env, { ...body, createdBy: user.id }) }, 201);
 });
 
 app.patch('/api/bounties/:id', async (c) => {
+  if (c.env.APP_ENV !== 'local') {
+    return c.json({ error: 'Public PATCH on bounties is disabled in production environments' }, 403);
+  }
   const bounty = await updateBounty(c.env, c.req.param('id'), await c.req.json());
   if (!bounty) return c.json({ error: 'Bounty not found' }, 404);
   return c.json({ data: bounty });
@@ -75,17 +84,17 @@ app.get('/api/bounties/:id/funding-events', async (c) =>
 );
 
 app.post('/api/bounties/:id/boost', async (c) => {
+  const user = requireBetaWriteAccess(c);
   const body = await c.req.json().catch(() => ({}));
-  const user = getCurrentUserFromHeaders(c);
-  return c.json({ data: await createBoost(c.env, { ...body, userId: body.userId ?? user.id, bountyId: c.req.param('id') }) }, 201);
+  return c.json({ data: await createBoost(c.env, { ...body, userId: user.id, bountyId: c.req.param('id') }) }, 201);
 });
 
 app.get('/api/bounties/:id/submissions', async (c) => c.json({ data: await listSubmissions(c.env, c.req.param('id')) }));
 
 app.post('/api/bounties/:id/submissions', async (c) => {
+  const user = requireBetaWriteAccess(c);
   const body = await c.req.json();
-  const user = getCurrentUserFromHeaders(c);
-  return c.json({ data: await createSubmission(c.env, { ...body, builderId: body.builderId ?? user.id, bountyId: c.req.param('id') }) }, 201);
+  return c.json({ data: await createSubmission(c.env, { ...body, builderId: user.id, bountyId: c.req.param('id') }) }, 201);
 });
 
 app.get('/api/submissions', async (c) => c.json({ data: await listSubmissions(c.env, c.req.query('bountyId')) }));
@@ -96,25 +105,32 @@ app.get('/api/submissions/:id', async (c) => {
   return c.json({ data: submission });
 });
 
-app.post('/api/submissions', async (c) => c.json({ data: await createSubmission(c.env, await c.req.json()) }, 201));
+app.post('/api/submissions', async (c) => {
+  const user = requireBetaWriteAccess(c);
+  const body = await c.req.json();
+  return c.json({ data: await createSubmission(c.env, { ...body, builderId: user.id }) }, 201);
+});
 
 app.patch('/api/submissions/:id', async (c) => {
+  if (c.env.APP_ENV !== 'local') {
+    return c.json({ error: 'Public PATCH on submissions is disabled in production environments' }, 403);
+  }
   const submission = await patchSubmission(c.env, c.req.param('id'), await c.req.json());
   if (!submission) return c.json({ error: 'Submission not found' }, 404);
   return c.json({ data: submission });
 });
 
 app.post('/api/submissions/:id/boost', async (c) => {
+  const user = requireBetaWriteAccess(c);
   const submission = await getSubmission<{ bounty_id: string }>(c.env, c.req.param('id'));
   if (!submission) return c.json({ error: 'Submission not found' }, 404);
   const body = await c.req.json().catch(() => ({}));
-  const user = getCurrentUserFromHeaders(c);
 
   return c.json(
     {
       data: await createBoost(c.env, {
         ...body,
-        userId: body.userId ?? user.id,
+        userId: user.id,
         bountyId: submission.bounty_id,
         submissionId: c.req.param('id'),
       }),
@@ -124,9 +140,9 @@ app.post('/api/submissions/:id/boost', async (c) => {
 });
 
 app.post('/api/boosts', async (c) => {
+  const user = requireBetaWriteAccess(c);
   const body = await c.req.json();
-  const user = getCurrentUserFromHeaders(c);
-  return c.json({ data: await createBoost(c.env, { ...body, userId: body.userId ?? user.id }) }, 201);
+  return c.json({ data: await createBoost(c.env, { ...body, userId: user.id }) }, 201);
 });
 
 app.get('/api/support/points/me', async (c) => {
@@ -180,22 +196,71 @@ app.get('/api/admin/bounties', async (c) => {
 
 app.patch('/api/admin/bounties/:id/status', async (c) => {
   const admin = requireAdmin(c);
-  const result = await updateAdminBountyStatus(c.env, c.req.param('id'), await c.req.json());
-  await recordAdminAction(c.env, admin.id, 'update_bounty_status', 'bounty', c.req.param('id'));
+  const body = await c.req.json();
+  const { status, reason, evidenceUrl, publicNote, internalNote } = body;
+  if (!reason || !reason.trim()) {
+    return c.json({ error: 'Reason is required for status updates' }, 400);
+  }
+  const result = await updateAdminBountyStatus(c.env, c.req.param('id'), body);
+  const noteObj = {
+    action: `Changed status to ${status}`,
+    reason: reason.trim(),
+    evidenceUrl,
+    publicNote,
+    internalNote
+  };
+  await recordAdminAction(c.env, admin.id, 'update_bounty_status', 'bounty', c.req.param('id'), JSON.stringify(noteObj));
   return c.json({ data: result });
 });
 
 app.patch('/api/admin/bounties/:id/funding-status', async (c) => {
   const admin = requireAdmin(c);
-  const result = await updateAdminBountyFundingStatus(c.env, c.req.param('id'), await c.req.json());
-  await recordAdminAction(c.env, admin.id, 'update_bounty_funding_status', 'bounty', c.req.param('id'));
+  const body = await c.req.json();
+  const { fundingStatus, reason, evidenceUrl, publicNote, internalNote, bypassEvidenceUrl } = body;
+  if (!reason || !reason.trim()) {
+    return c.json({ error: 'Reason is required for funding status updates' }, 400);
+  }
+  const hasEvidenceUrl = evidenceUrl && evidenceUrl.trim();
+  const hasPublicNote = publicNote && publicNote.trim();
+  if (!hasEvidenceUrl && !(bypassEvidenceUrl && hasPublicNote)) {
+    return c.json({ error: 'Evidence URL is required, or you must bypass with a manual public note' }, 400);
+  }
+  const result = await updateAdminBountyFundingStatus(c.env, c.req.param('id'), body);
+  const noteObj = {
+    action: `Changed fundingStatus to ${fundingStatus}`,
+    reason: reason.trim(),
+    evidenceUrl: hasEvidenceUrl ? evidenceUrl.trim() : undefined,
+    publicNote: hasPublicNote ? publicNote.trim() : undefined,
+    internalNote
+  };
+  await recordAdminAction(c.env, admin.id, 'update_bounty_funding_status', 'bounty', c.req.param('id'), JSON.stringify(noteObj));
   return c.json({ data: result });
 });
 
 app.post('/api/admin/bounties/:id/funding-events', async (c) => {
   const admin = requireAdmin(c);
-  const payload = await createAdminFundingEvent(c.env, c.req.param('id'), admin.id, await c.req.json());
-  await recordAdminAction(c.env, admin.id, 'create_funding_event', 'bounty', c.req.param('id'));
+  const body = await c.req.json();
+  const { amountText, proofUrl, note, eventType, reason, evidenceUrl, publicNote, internalNote, bypassEvidenceUrl } = body;
+  const effectiveReason = reason || note;
+  if (!effectiveReason || !effectiveReason.trim()) {
+    return c.json({ error: 'Reason / note is required for funding events' }, 400);
+  }
+  const effectiveEvidenceUrl = evidenceUrl || proofUrl;
+  const effectivePublicNote = publicNote || note;
+  const hasEvidenceUrl = effectiveEvidenceUrl && effectiveEvidenceUrl.trim();
+  const hasPublicNote = effectivePublicNote && effectivePublicNote.trim();
+  if (!hasEvidenceUrl && !(bypassEvidenceUrl && hasPublicNote)) {
+    return c.json({ error: 'Evidence URL / proof URL is required, or you must bypass with a manual public note' }, 400);
+  }
+  const payload = await createAdminFundingEvent(c.env, c.req.param('id'), admin.id, body);
+  const noteObj = {
+    action: `Created funding event: ${amountText || ''}`,
+    reason: effectiveReason.trim(),
+    evidenceUrl: hasEvidenceUrl ? effectiveEvidenceUrl.trim() : undefined,
+    publicNote: hasPublicNote ? effectivePublicNote.trim() : undefined,
+    internalNote
+  };
+  await recordAdminAction(c.env, admin.id, 'create_funding_event', 'bounty', c.req.param('id'), JSON.stringify(noteObj));
   return c.json({ data: payload }, 201);
 });
 
@@ -206,15 +271,46 @@ app.get('/api/admin/submissions', async (c) => {
 
 app.patch('/api/admin/submissions/:id/status', async (c) => {
   const admin = requireAdmin(c);
-  const result = await updateAdminSubmissionStatus(c.env, c.req.param('id'), await c.req.json());
-  await recordAdminAction(c.env, admin.id, 'update_submission_status', 'submission', c.req.param('id'));
+  const body = await c.req.json();
+  const { status, reason, evidenceUrl, publicNote, internalNote } = body;
+  if (!reason || !reason.trim()) {
+    return c.json({ error: 'Reason is required for submission status updates' }, 400);
+  }
+  const result = await updateAdminSubmissionStatus(c.env, c.req.param('id'), body);
+  const noteObj = {
+    action: `Changed status to ${status}`,
+    reason: reason.trim(),
+    evidenceUrl,
+    publicNote,
+    internalNote
+  };
+  await recordAdminAction(c.env, admin.id, 'update_submission_status', 'submission', c.req.param('id'), JSON.stringify(noteObj));
   return c.json({ data: result });
 });
 
 app.patch('/api/admin/submissions/:id/delivery-status', async (c) => {
   const admin = requireAdmin(c);
-  const result = await updateAdminSubmissionDeliveryStatus(c.env, c.req.param('id'), await c.req.json());
-  await recordAdminAction(c.env, admin.id, 'update_submission_delivery_status', 'submission', c.req.param('id'));
+  const body = await c.req.json();
+  const { deliveryStatus, reason, evidenceUrl, publicNote, internalNote, bypassEvidenceUrl } = body;
+  if (!reason || !reason.trim()) {
+    return c.json({ error: 'Reason is required for delivery status updates' }, 400);
+  }
+  if (deliveryStatus === 'completed') {
+    const hasEvidenceUrl = evidenceUrl && evidenceUrl.trim();
+    const hasPublicNote = publicNote && publicNote.trim();
+    if (!hasEvidenceUrl && !(bypassEvidenceUrl && hasPublicNote)) {
+      return c.json({ error: 'Evidence URL is required for completed delivery status, or you must bypass with a manual public note' }, 400);
+    }
+  }
+  const result = await updateAdminSubmissionDeliveryStatus(c.env, c.req.param('id'), body);
+  const noteObj = {
+    action: `Changed deliveryStatus to ${deliveryStatus}`,
+    reason: reason.trim(),
+    evidenceUrl,
+    publicNote,
+    internalNote
+  };
+  await recordAdminAction(c.env, admin.id, 'update_submission_delivery_status', 'submission', c.req.param('id'), JSON.stringify(noteObj));
   return c.json({ data: result });
 });
 
@@ -225,8 +321,20 @@ app.get('/api/admin/boosts', async (c) => {
 
 app.patch('/api/admin/boosts/:id/validity-status', async (c) => {
   const admin = requireAdmin(c);
-  const result = await patchAdminBoostValidityStatus(c.env, c.req.param('id'), await c.req.json());
-  await recordAdminAction(c.env, admin.id, 'update_boost_validity_status', 'boost', c.req.param('id'));
+  const body = await c.req.json();
+  const { validityStatus, reason, evidenceUrl, publicNote, internalNote } = body;
+  if (!reason || !reason.trim()) {
+    return c.json({ error: 'Reason is required for validity status updates' }, 400);
+  }
+  const result = await patchAdminBoostValidityStatus(c.env, c.req.param('id'), body);
+  const noteObj = {
+    action: `Changed validityStatus to ${validityStatus}`,
+    reason: reason.trim(),
+    evidenceUrl,
+    publicNote,
+    internalNote
+  };
+  await recordAdminAction(c.env, admin.id, 'update_boost_validity_status', 'boost', c.req.param('id'), JSON.stringify(noteObj));
   return c.json({ data: result });
 });
 
@@ -237,8 +345,20 @@ app.get('/api/admin/support-events', async (c) => {
 
 app.patch('/api/admin/support-events/:id/validity-status', async (c) => {
   const admin = requireAdmin(c);
-  const result = await patchAdminSupportEventValidityStatus(c.env, c.req.param('id'), await c.req.json());
-  await recordAdminAction(c.env, admin.id, 'update_support_event_validity_status', 'support_event', c.req.param('id'));
+  const body = await c.req.json();
+  const { validityStatus, reason, evidenceUrl, publicNote, internalNote } = body;
+  if (!reason || !reason.trim()) {
+    return c.json({ error: 'Reason is required for validity status updates' }, 400);
+  }
+  const result = await patchAdminSupportEventValidityStatus(c.env, c.req.param('id'), body);
+  const noteObj = {
+    action: `Changed validityStatus to ${validityStatus}`,
+    reason: reason.trim(),
+    evidenceUrl,
+    publicNote,
+    internalNote
+  };
+  await recordAdminAction(c.env, admin.id, 'update_support_event_validity_status', 'support_event', c.req.param('id'), JSON.stringify(noteObj));
   return c.json({ data: result });
 });
 
@@ -256,8 +376,20 @@ app.post('/api/admin/curated-items', async (c) => {
 
 app.patch('/api/admin/curated-items/:id', async (c) => {
   const admin = requireAdmin(c);
-  const result = await updateAdminCuratedItem(c.env, c.req.param('id'), await c.req.json());
-  await recordAdminAction(c.env, admin.id, 'update_curated_item', 'curated_item', c.req.param('id'));
+  const body = await c.req.json();
+  const { reason, evidenceUrl, publicNote, internalNote } = body;
+  if (!reason || !reason.trim()) {
+    return c.json({ error: 'Reason is required for curated items updates' }, 400);
+  }
+  const result = await updateAdminCuratedItem(c.env, c.req.param('id'), body);
+  const noteObj = {
+    action: `Updated curated item`,
+    reason: reason.trim(),
+    evidenceUrl,
+    publicNote,
+    internalNote
+  };
+  await recordAdminAction(c.env, admin.id, 'update_curated_item', 'curated_item', c.req.param('id'), JSON.stringify(noteObj));
   return c.json({ data: result });
 });
 
@@ -271,7 +403,7 @@ app.onError((error, c) => {
   if (!(error instanceof z.ZodError)) {
     console.error(error);
   }
-  return c.json(response.body, response.status as 400 | 403 | 404 | 500);
+  return c.json(response.body, response.status as any);
 });
 
 export default app;

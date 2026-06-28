@@ -24,12 +24,21 @@ export default function CreateCatalystPage() {
   const [twitterUrl, setTwitterUrl] = useState('');
   const [telegramUrl, setTelegramUrl] = useState('');
 
+  const [sponsorSource, setSponsorSource] = useState('');
+  const [evidenceUrl, setEvidenceUrl] = useState('');
+  const [whoControlsFunds, setWhoControlsFunds] = useState('');
+  const [disputeContact, setDisputeContact] = useState('');
+  const [check1, setCheck1] = useState(false);
+  const [check2, setCheck2] = useState(false);
+  const [check3, setCheck3] = useState(false);
+  const [check4, setCheck4] = useState(false);
+
   const [stepErrors, setStepErrors] = useState<string | null>(null);
 
   const steps = [
     { id: 1, label: 'Token Identity', desc: 'Specify asset details' },
     { id: 2, label: 'Catalyst Mission', desc: 'Resurrection objective' },
-    { id: 3, label: 'Reward & Timeline', desc: 'Escrows & targets' },
+    { id: 3, label: 'External Evidence', desc: 'Reward proof & info' },
     { id: 4, label: 'Access Channels', desc: 'Contact & socials' },
     { id: 5, label: 'Review & Submit', desc: 'Verify coordination specs' },
   ];
@@ -49,6 +58,12 @@ export default function CreateCatalystPage() {
       }
       if (description.trim().length < 20) {
         setStepErrors('Objective Brief must be at least 20 characters.');
+        return false;
+      }
+    }
+    if (step === 5) {
+      if (!check1 || !check2 || !check3 || !check4) {
+        setStepErrors('You must agree to all KAIRO trust disclaimers to submit.');
         return false;
       }
     }
@@ -76,12 +91,14 @@ export default function CreateCatalystPage() {
     setError(null);
 
     try {
+      const fullDescription = `${description}\n\n### External Reward Evidence Specifications\n- **Sponsor / Source**: ${sponsorSource || 'N/A'}\n- **Evidence URL**: ${evidenceUrl || 'N/A'}\n- **Fund Controller**: ${whoControlsFunds || 'Externally Managed'}\n- **Dispute Contact**: ${disputeContact || 'N/A'}\n- **KAIRO Asset Control**: Strictly No`;
+
       const catalyst = await createBounty({
         tokenName,
         tokenSymbol,
         chain,
         title,
-        description,
+        description: fullDescription,
         rewardText,
         rewardType: 'offchain',
         contactInfo,
@@ -219,25 +236,62 @@ export default function CreateCatalystPage() {
               </div>
             )}
 
-            {/* Step 3: Reward & Timeline */}
+            {/* Step 3: External Reward Evidence */}
             {activeStep === 3 && (
               <div className="space-y-6 animate-fadeIn">
                 <div className="border-b border-white/5 pb-3">
-                  <span className="font-mono text-[9px] text-[#ffb95f] uppercase tracking-widest">[SECTION_03_REWARD_TIMELINE]</span>
-                  <h3 className="text-base font-bold text-white mt-1">Bounty Rewards & Submission Deadlines</h3>
-                  <p className="text-xs text-white/50 leading-relaxed mt-1">Declare what coordinators or supporters have committed to reward successful builders.</p>
+                  <span className="font-mono text-[9px] text-[#ffb95f] uppercase tracking-widest">[SECTION_03_EXTERNAL_REWARD_EVIDENCE]</span>
+                  <h3 className="text-base font-bold text-white mt-1">External Reward Evidence & Conditions</h3>
+                  <p className="text-xs text-white/50 leading-relaxed mt-1">Declare the external sources and evidence records for builder rewards. KAIRO does not hold or control any funds.</p>
                 </div>
                 <div className="grid gap-6 sm:grid-cols-2">
                   <FormField 
+                    name="sponsorSource" 
+                    label="Sponsor / Reward Source" 
+                    value={sponsorSource}
+                    onChange={(e) => setSponsorSource(e.target.value)}
+                    placeholder="e.g. Community Multisig / Foundation"
+                  />
+                  <FormField 
                     name="rewardText" 
-                    label="Reward Structure Description" 
+                    label="Reward Description / Pool" 
                     value={rewardText}
                     onChange={(e) => setRewardText(e.target.value)}
-                    placeholder="e.g. 50,000 USDC via milestone multi-sig" 
+                    placeholder="e.g. 50,000 USDC or token allotment" 
+                  />
+                  <FormField 
+                    name="evidenceUrl" 
+                    label="Evidence / Proposal URL" 
+                    type="url"
+                    value={evidenceUrl}
+                    onChange={(e) => setEvidenceUrl(e.target.value)}
+                    placeholder="https://github.com/or-proposal-link"
+                  />
+                  <FormField 
+                    name="whoControlsFunds" 
+                    label="Who Controls Funds?" 
+                    value={whoControlsFunds}
+                    onChange={(e) => setWhoControlsFunds(e.target.value)}
+                    placeholder="e.g. 3-of-5 Community Multisig"
+                  />
+                  <div className="glass-panel p-3 border-white/5 bg-[#050608] flex justify-between items-center text-xs font-mono">
+                    <span className="text-white/40">KAIRO Asset Control?</span>
+                    <span className="text-[#EE1C25] font-bold uppercase">Strictly No</span>
+                  </div>
+                  <div className="glass-panel p-3 border-white/5 bg-[#050608] flex justify-between items-center text-xs font-mono">
+                    <span className="text-white/40">Is this externally managed?</span>
+                    <span className="text-[#4ade80] font-bold uppercase">Yes</span>
+                  </div>
+                  <FormField 
+                    name="disputeContact" 
+                    label="Dispute / Support Contact" 
+                    value={disputeContact}
+                    onChange={(e) => setDisputeContact(e.target.value)}
+                    placeholder="e.g. discord channel or email"
                   />
                   <FormField 
                     name="deadline" 
-                    label="Submission Deadline" 
+                    label="Expiration Date / Deadline" 
                     type="datetime-local" 
                     value={deadline}
                     onChange={(e) => setDeadline(e.target.value)}
@@ -323,6 +377,25 @@ export default function CreateCatalystPage() {
                     <span className="text-white/40 block">COORDINATOR CONTACT</span>
                     <span className="text-white">{contactInfo || 'None provided'}</span>
                   </div>
+                </div>
+
+                <div className="space-y-3 bg-[#050608] p-4 rounded border border-white/5 font-mono text-[11px] text-white/70">
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input type="checkbox" checked={check1} onChange={(e) => setCheck1(e.target.checked)} className="mt-1 shrink-0" />
+                    <span>I understand KAIRO does not hold or control funds.</span>
+                  </label>
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input type="checkbox" checked={check2} onChange={(e) => setCheck2(e.target.checked)} className="mt-1 shrink-0" />
+                    <span>I understand KAIRO does not guarantee rewards.</span>
+                  </label>
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input type="checkbox" checked={check3} onChange={(e) => setCheck3(e.target.checked)} className="mt-1 shrink-0" />
+                    <span>I confirm reward information is externally managed by the sponsor/community.</span>
+                  </label>
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input type="checkbox" checked={check4} onChange={(e) => setCheck4(e.target.checked)} className="mt-1 shrink-0" />
+                    <span>I agree KAIRO may hide or mark this Catalyst if evidence is unclear.</span>
+                  </label>
                 </div>
 
                 <div className="rounded border border-[#ffb95f]/20 bg-[#ffb95f]/5 p-4 flex gap-3">

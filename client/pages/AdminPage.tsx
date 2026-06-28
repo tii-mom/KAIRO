@@ -25,6 +25,13 @@ import { ErrorState, LoadingState } from './pageUtils';
 const adminIdentity = { id: 'user-demo-admin', role: 'admin' as const, label: 'Demo Admin' };
 const adminTokenStorageKey = 'kairo-admin-token';
 
+interface AuditModalState {
+  isOpen: boolean;
+  actionTitle: string;
+  onConfirm: (audit: { reason: string; evidenceUrl?: string; publicNote?: string; internalNote?: string }) => Promise<void>;
+  requireEvidenceUrl: boolean;
+}
+
 export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [bounties, setBounties] = useState<Array<Record<string, unknown>>>([]);
@@ -38,6 +45,19 @@ export default function AdminPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [fundingStatusFilter, setFundingStatusFilter] = useState('');
   const [adminToken, setAdminToken] = useState(() => sessionStorage.getItem(adminTokenStorageKey) ?? '');
+
+  // Audit modal states
+  const [auditModal, setAuditModal] = useState<AuditModalState>({
+    isOpen: false,
+    actionTitle: '',
+    onConfirm: async () => {},
+    requireEvidenceUrl: false
+  });
+  const [modalReason, setModalReason] = useState('');
+  const [modalEvidenceUrl, setModalEvidenceUrl] = useState('');
+  const [modalPublicNote, setModalPublicNote] = useState('');
+  const [modalInternalNote, setModalInternalNote] = useState('');
+  const [bypassEvidenceUrl, setBypassEvidenceUrl] = useState(false);
 
   const options = { identity: { ...adminIdentity, adminToken: adminToken || undefined } };
 
@@ -83,6 +103,28 @@ export default function AdminPage() {
     setMessage(success);
     await load();
     setTimeout(() => setMessage(null), 3000);
+  };
+
+  const triggerAuditAction = (
+    actionTitle: string,
+    requireEvidenceUrl: boolean,
+    onConfirmAction: (audit: { reason: string; evidenceUrl?: string; publicNote?: string; internalNote?: string }) => Promise<unknown>,
+    successMessage: string
+  ) => {
+    setModalReason('');
+    setModalEvidenceUrl('');
+    setModalPublicNote('');
+    setModalInternalNote('');
+    setBypassEvidenceUrl(false);
+    
+    setAuditModal({
+      isOpen: true,
+      actionTitle,
+      requireEvidenceUrl,
+      onConfirm: async (auditData) => {
+        await withRefresh(() => onConfirmAction(auditData), successMessage);
+      }
+    });
   };
 
   if (isLoading) return <LoadingState label="Loading admin operations console..." />;
@@ -140,19 +182,30 @@ export default function AdminPage() {
                 actions={[
                   {
                     label: 'Mark Active',
-                    onClick: () => withRefresh(() => patchAdminBountyStatus(String(bounty.id), 'active', options), 'Catalyst marked active.'),
+                    onClick: () => triggerAuditAction(
+                      'Mark Catalyst Active',
+                      false,
+                      (audit) => patchAdminBountyStatus(String(bounty.id), 'active', audit, options),
+                      'Catalyst marked active.'
+                    ),
                   },
                   {
-                    label: 'Mark Paid',
-                    onClick: () => withRefresh(() => patchAdminBountyFundingStatus(String(bounty.id), 'paid', options), 'Funding Status updated.'),
+                    label: 'Record External Completion',
+                    onClick: () => triggerAuditAction(
+                      'Record External Completion',
+                      true,
+                      (audit) => patchAdminBountyFundingStatus(String(bounty.id), 'paid', audit, options),
+                      'External completion recorded.'
+                    ),
                   },
                   {
-                    label: 'Add Funding Event',
-                    onClick: () =>
-                      withRefresh(
-                        () => createAdminFundingEvent(String(bounty.id), { note: 'Reward confirmed by KAIRO', amountText: 'Manual admin note' }, options),
-                        'Funding Event added.',
-                      ),
+                    label: 'Add External Reward Evidence',
+                    onClick: () => triggerAuditAction(
+                      'Add External Reward Evidence',
+                      true,
+                      (audit) => createAdminFundingEvent(String(bounty.id), { note: audit.publicNote ?? 'Evidence updated', proofUrl: audit.evidenceUrl, amountText: 'Manual evidence note', ...audit } as any, options),
+                      'External evidence added.'
+                    ),
                   },
                 ]}
               />
@@ -221,12 +274,21 @@ export default function AdminPage() {
             actions={[
               {
                 label: 'Mark Winner',
-                onClick: () => withRefresh(() => patchAdminSubmissionStatus(String(submission.id), 'winner', options), 'Submission status updated.'),
+                onClick: () => triggerAuditAction(
+                  'Approve Winner Selection',
+                  false,
+                  (audit) => patchAdminSubmissionStatus(String(submission.id), 'winner', audit, options),
+                  'Winner status approved.'
+                ),
               },
               {
                 label: 'Mark Completed',
-                onClick: () =>
-                  withRefresh(() => patchAdminSubmissionDeliveryStatus(String(submission.id), 'completed', options), 'Delivery Status updated.'),
+                onClick: () => triggerAuditAction(
+                  'Record Delivery Completion',
+                  true,
+                  (audit) => patchAdminSubmissionDeliveryStatus(String(submission.id), 'completed', audit, options),
+                  'Delivery status recorded.'
+                ),
               },
             ]}
           />
@@ -244,16 +306,30 @@ export default function AdminPage() {
               actions={[
                 {
                   label: 'Valid',
-                  onClick: () => withRefresh(() => patchAdminBoostValidityStatus(String(boost.id), 'valid', options), 'Boost marked valid.'),
+                  onClick: () => triggerAuditAction(
+                    'Verify Boost Signal',
+                    false,
+                    (audit) => patchAdminBoostValidityStatus(String(boost.id), 'valid', audit, options),
+                    'Boost signal approved.'
+                  ),
                 },
                 {
                   label: 'Suspicious',
-                  onClick: () =>
-                    withRefresh(() => patchAdminBoostValidityStatus(String(boost.id), 'suspicious', options), 'Boost marked suspicious.'),
+                  onClick: () => triggerAuditAction(
+                    'Flag Boost Suspicious',
+                    false,
+                    (audit) => patchAdminBoostValidityStatus(String(boost.id), 'suspicious', audit, options),
+                    'Boost flagged suspicious.'
+                  ),
                 },
                 {
                   label: 'Invalid',
-                  onClick: () => withRefresh(() => patchAdminBoostValidityStatus(String(boost.id), 'invalid', options), 'Boost marked invalid.'),
+                  onClick: () => triggerAuditAction(
+                    'Flag Boost Invalid',
+                    false,
+                    (audit) => patchAdminBoostValidityStatus(String(boost.id), 'invalid', audit, options),
+                    'Boost marked invalid.'
+                  ),
                 },
               ]}
             />
@@ -270,18 +346,30 @@ export default function AdminPage() {
               actions={[
                 {
                   label: 'Valid',
-                  onClick: () =>
-                    withRefresh(() => patchAdminSupportEventValidityStatus(String(event.id), 'valid', options), 'Support event marked valid.'),
+                  onClick: () => triggerAuditAction(
+                    'Verify Timeline Event',
+                    false,
+                    (audit) => patchAdminSupportEventValidityStatus(String(event.id), 'valid', audit, options),
+                    'Support event marked valid.'
+                  ),
                 },
                 {
                   label: 'Suspicious',
-                  onClick: () =>
-                    withRefresh(() => patchAdminSupportEventValidityStatus(String(event.id), 'suspicious', options), 'Support event marked suspicious.'),
+                  onClick: () => triggerAuditAction(
+                    'Flag Timeline Event Suspicious',
+                    false,
+                    (audit) => patchAdminSupportEventValidityStatus(String(event.id), 'suspicious', audit, options),
+                    'Support event flagged suspicious.'
+                  ),
                 },
                 {
                   label: 'Invalid',
-                  onClick: () =>
-                    withRefresh(() => patchAdminSupportEventValidityStatus(String(event.id), 'invalid', options), 'Support event marked invalid.'),
+                  onClick: () => triggerAuditAction(
+                    'Flag Timeline Event Invalid',
+                    false,
+                    (audit) => patchAdminSupportEventValidityStatus(String(event.id), 'invalid', audit, options),
+                    'Support event marked invalid.'
+                  ),
                 },
               ]}
             />
@@ -298,17 +386,113 @@ export default function AdminPage() {
               actions={[
                 {
                   label: String(item.status) === 'hidden' ? 'Unhide' : 'Hide',
-                  onClick: () =>
-                    withRefresh(
-                      () => patchAdminCuratedItem(String(item.id), { status: item.status === 'hidden' ? 'active' : 'hidden' }, options),
-                      'Curated item updated.',
-                    ),
+                  onClick: () => triggerAuditAction(
+                    String(item.status) === 'hidden' ? 'Unhide Curated Item' : 'Hide Curated Item',
+                    false,
+                    (audit) => patchAdminCuratedItem(String(item.id), { status: item.status === 'hidden' ? 'active' : 'hidden', ...audit } as any, options),
+                    'Curated item updated.'
+                  ),
                 },
               ]}
             />
           ))}
         </GridSection>
       </div>
+
+      {/* Confirmation Modal */}
+      {auditModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#050608]/80 backdrop-blur-sm p-4">
+          <div className="glass-panel max-w-md w-full p-6 space-y-4 bg-[#0c0e14] border-[#ffb95f]/30">
+            <div className="border-b border-white/5 pb-2">
+              <span className="font-mono text-[9px] text-[#ffb95f] uppercase tracking-widest">Audit Confirmation Required</span>
+              <h3 className="text-base font-bold text-white mt-1">{auditModal.actionTitle}</h3>
+            </div>
+            
+            <div className="space-y-3 font-mono text-xs">
+              <div>
+                <label className="text-white/40 block mb-1">Reason for Action (Required)</label>
+                <textarea
+                  value={modalReason}
+                  onChange={(e) => setModalReason(e.target.value)}
+                  placeholder="Explain why this action is being taken..."
+                  className="kairo-form-field min-h-16 resize-y w-full text-xs"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-white/40 block mb-1">Evidence URL {auditModal.requireEvidenceUrl && !bypassEvidenceUrl ? '(Required)' : '(Optional)'}</label>
+                <input
+                  value={modalEvidenceUrl}
+                  onChange={(e) => setModalEvidenceUrl(e.target.value)}
+                  type="url"
+                  placeholder="https://..."
+                  className="kairo-form-field w-full text-xs"
+                  required={auditModal.requireEvidenceUrl && !bypassEvidenceUrl}
+                />
+              </div>
+
+              {auditModal.requireEvidenceUrl && (
+                <label className="flex items-center gap-2 cursor-pointer text-[10px] text-white/50">
+                  <input
+                    type="checkbox"
+                    checked={bypassEvidenceUrl}
+                    onChange={(e) => setBypassEvidenceUrl(e.target.checked)}
+                  />
+                  <span>No URL? Declare manual note & explain in Public Note below</span>
+                </label>
+              )}
+
+              <div>
+                <label className="text-white/40 block mb-1">Public Note (Optional)</label>
+                <input
+                  value={modalPublicNote}
+                  onChange={(e) => setModalPublicNote(e.target.value)}
+                  placeholder="E.g. manual verification details..."
+                  className="kairo-form-field w-full text-xs"
+                  required={auditModal.requireEvidenceUrl && bypassEvidenceUrl}
+                />
+              </div>
+
+              <div>
+                <label className="text-white/40 block mb-1">Internal Note (Optional)</label>
+                <input
+                  value={modalInternalNote}
+                  onChange={(e) => setModalInternalNote(e.target.value)}
+                  placeholder="Confidential notes for team audit trail..."
+                  className="kairo-form-field w-full text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2 border-t border-white/5">
+              <button
+                type="button"
+                onClick={() => setAuditModal(prev => ({ ...prev, isOpen: false }))}
+                className="btn-ghost px-4 py-2 text-xs uppercase"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!modalReason.trim() || (auditModal.requireEvidenceUrl && !bypassEvidenceUrl && !modalEvidenceUrl.trim()) || (auditModal.requireEvidenceUrl && bypassEvidenceUrl && !modalPublicNote.trim())}
+                onClick={async () => {
+                  setAuditModal(prev => ({ ...prev, isOpen: false }));
+                  await auditModal.onConfirm({
+                    reason: modalReason.trim(),
+                    evidenceUrl: modalEvidenceUrl.trim() || undefined,
+                    publicNote: modalPublicNote.trim() || undefined,
+                    internalNote: modalInternalNote.trim() || undefined,
+                  });
+                }}
+                className="btn-primary px-4 py-2 text-xs uppercase font-bold"
+              >
+                Confirm Action
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

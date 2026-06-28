@@ -25,7 +25,8 @@
     "verify:operations": "node scripts/verify-operations-readiness.mjs",
     "verify:production": "node scripts/verify-production-readiness.mjs",
     "verify:routes": "node scripts/verify-api-routes.mjs",
-    "verify:real-beta-content": "node scripts/verify-real-beta-content-readiness.mjs"
+    "verify:real-beta-content": "node scripts/verify-real-beta-content-readiness.mjs",
+    "verify:trust": "node scripts/verify-trust-layer.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

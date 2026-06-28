@@ -17,6 +17,21 @@ type SubmissionTarget = {
 
 export async function createBoost(env: Env, payload: unknown) {
   const input = createBoostSchema.parse(payload);
+
+  // Enforce hourly rate limit: max 20 boosts per user per hour
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const recentBoostsRow = await env.DB.prepare(
+    `SELECT COUNT(*) as cnt 
+     FROM boosts 
+     WHERE user_id = ? AND created_at >= ?`
+  ).bind(input.userId, oneHourAgo).first<{ cnt: number }>();
+
+  if (recentBoostsRow && recentBoostsRow.cnt >= 20) {
+    const error = new Error('Rate limit exceeded: Max 20 boosts per hour.');
+    (error as Error & { status?: number }).status = 429;
+    throw error;
+  }
+
   const now = new Date().toISOString();
   const boostId = crypto.randomUUID();
   const supportEventId = crypto.randomUUID();

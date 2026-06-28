@@ -188,7 +188,7 @@ export function CatalystDetailPage() {
                 </div>
 
                 <div className="text-[9px] font-mono text-white/30 italic text-left border-t border-white/5 pt-1.5 z-10">
-                  Telemetry reflects coordination signal intensity and community boost logs. This does not represent financial or price movement.
+                  Illustrative preview — not chain, market, or reward data. Telemetry reflects coordination signal intensity and community boost logs. This does not represent financial or price movement.
                 </div>
               </div>
             </div>

@@ -249,13 +249,13 @@ export async function listAdminBounties(params: { status?: string; fundingStatus
   return response.data;
 }
 
-export async function patchAdminBountyStatus(id: string, status: string, options?: ApiClientOptions) {
-  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/bounties/${encodeURIComponent(id)}/status`, jsonInit('PATCH', { status }), options);
+export async function patchAdminBountyStatus(id: string, status: string, audit?: Record<string, unknown>, options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/bounties/${encodeURIComponent(id)}/status`, jsonInit('PATCH', { status, ...audit }), options);
   return response.data;
 }
 
-export async function patchAdminBountyFundingStatus(id: string, fundingStatus: string, options?: ApiClientOptions) {
-  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/bounties/${encodeURIComponent(id)}/funding-status`, jsonInit('PATCH', { fundingStatus }), options);
+export async function patchAdminBountyFundingStatus(id: string, fundingStatus: string, audit?: Record<string, unknown>, options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/bounties/${encodeURIComponent(id)}/funding-status`, jsonInit('PATCH', { fundingStatus, ...audit }), options);
   return response.data;
 }
 
@@ -269,13 +269,13 @@ export async function listAdminSubmissions(options?: ApiClientOptions) {
   return response.data;
 }
 
-export async function patchAdminSubmissionStatus(id: string, status: string, options?: ApiClientOptions) {
-  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/submissions/${encodeURIComponent(id)}/status`, jsonInit('PATCH', { status }), options);
+export async function patchAdminSubmissionStatus(id: string, status: string, audit?: Record<string, unknown>, options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/submissions/${encodeURIComponent(id)}/status`, jsonInit('PATCH', { status, ...audit }), options);
   return response.data;
 }
 
-export async function patchAdminSubmissionDeliveryStatus(id: string, deliveryStatus: string, options?: ApiClientOptions) {
-  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/submissions/${encodeURIComponent(id)}/delivery-status`, jsonInit('PATCH', { deliveryStatus }), options);
+export async function patchAdminSubmissionDeliveryStatus(id: string, deliveryStatus: string, audit?: Record<string, unknown>, options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/submissions/${encodeURIComponent(id)}/delivery-status`, jsonInit('PATCH', { deliveryStatus, ...audit }), options);
   return response.data;
 }
 
@@ -284,8 +284,8 @@ export async function listAdminBoosts(options?: ApiClientOptions) {
   return response.data;
 }
 
-export async function patchAdminBoostValidityStatus(id: string, validityStatus: string, options?: ApiClientOptions) {
-  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/boosts/${encodeURIComponent(id)}/validity-status`, jsonInit('PATCH', { validityStatus }), options);
+export async function patchAdminBoostValidityStatus(id: string, validityStatus: string, audit?: Record<string, unknown>, options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/boosts/${encodeURIComponent(id)}/validity-status`, jsonInit('PATCH', { validityStatus, ...audit }), options);
   return response.data;
 }
 
@@ -294,8 +294,8 @@ export async function listAdminSupportEvents(options?: ApiClientOptions) {
   return response.data;
 }
 
-export async function patchAdminSupportEventValidityStatus(id: string, validityStatus: string, options?: ApiClientOptions) {
-  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/support-events/${encodeURIComponent(id)}/validity-status`, jsonInit('PATCH', { validityStatus }), options);
+export async function patchAdminSupportEventValidityStatus(id: string, validityStatus: string, audit?: Record<string, unknown>, options?: ApiClientOptions) {
+  const response = await requestJson<ApiEnvelope<Record<string, unknown>>>(`/api/admin/support-events/${encodeURIComponent(id)}/validity-status`, jsonInit('PATCH', { validityStatus, ...audit }), options);
   return response.data;
 }
 

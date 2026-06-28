@@ -106,9 +106,126 @@ export async function listAdminBoosts(env: Env) {
   return listRows(env.DB, `SELECT * FROM boosts ORDER BY created_at DESC LIMIT 200`);
 }
 
+export async function recomputeSupportPoints(env: Env, userId: string) {
+  const stats = await getRow<{
+    sum_total: number | null;
+    sum_boost: number | null;
+    sum_referral: number | null;
+    sum_share: number | null;
+  }>(
+    env.DB,
+    `SELECT 
+       SUM(points_delta) as sum_total,
+       SUM(CASE WHEN event_type IN ('boost_bounty', 'boost_submission') THEN points_delta ELSE 0 END) as sum_boost,
+       SUM(CASE WHEN event_type = 'referral_signup' THEN points_delta ELSE 0 END) as sum_referral,
+       SUM(CASE WHEN event_type = 'share' THEN points_delta ELSE 0 END) as sum_share
+     FROM support_events
+     WHERE user_id = ? AND validity_status = 'valid'`,
+    [userId],
+  );
+
+  const boostCountRow = await getRow<{ valid_boost_count: number }>(
+    env.DB,
+    `SELECT COUNT(*) as valid_boost_count FROM boosts WHERE user_id = ? AND validity_status = 'valid'`,
+    [userId],
+  );
+
+  const totalPoints = stats?.sum_total ?? 0;
+  const boostPoints = stats?.sum_boost ?? 0;
+  const referralPoints = stats?.sum_referral ?? 0;
+  const sharePoints = stats?.sum_share ?? 0;
+  const validBoostCount = boostCountRow?.valid_boost_count ?? 0;
+  const now = new Date().toISOString();
+
+  await env.DB.prepare(
+    `INSERT INTO support_points (user_id, total_points, boost_points, referral_points, share_points, valid_boost_count, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(user_id) DO UPDATE SET
+       total_points = excluded.total_points,
+       boost_points = excluded.boost_points,
+       referral_points = excluded.referral_points,
+       share_points = excluded.share_points,
+       valid_boost_count = excluded.valid_boost_count,
+       updated_at = excluded.updated_at`
+  ).bind(userId, totalPoints, boostPoints, referralPoints, sharePoints, validBoostCount, now).run();
+}
+
+export async function recomputeBountyMomentum(env: Env, bountyId: string) {
+  const directBoostRow = await getRow<{ cnt: number }>(
+    env.DB,
+    `SELECT COUNT(*) as cnt FROM boosts WHERE bounty_id = ? AND submission_id IS NULL AND validity_status = 'valid'`,
+    [bountyId]
+  );
+  const directBoostCount = directBoostRow?.cnt ?? 0;
+  
+  const subBoostRow = await getRow<{ cnt: number }>(
+    env.DB,
+    `SELECT COUNT(*) as cnt FROM boosts WHERE bounty_id = ? AND submission_id IS NOT NULL AND validity_status = 'valid'`,
+    [bountyId]
+  );
+  const subBoostCount = subBoostRow?.cnt ?? 0;
+  
+  const totalMomentum = (directBoostCount * 250) + (subBoostCount * 150);
+  const now = new Date().toISOString();
+  
+  await env.DB.prepare(
+    `UPDATE bounties 
+     SET boost_count = ?, momentum_score = ?, updated_at = ? 
+     WHERE id = ?`
+  ).bind(directBoostCount, totalMomentum, now, bountyId).run();
+}
+
+export async function recomputeSubmissionAndBountyMomentum(env: Env, submissionId: string, bountyId: string | null) {
+  const boostRow = await getRow<{ cnt: number }>(
+    env.DB,
+    `SELECT COUNT(*) as cnt FROM boosts WHERE submission_id = ? AND validity_status = 'valid'`,
+    [submissionId]
+  );
+  const boostCount = boostRow?.cnt ?? 0;
+  const momentumScore = boostCount * 150;
+  const now = new Date().toISOString();
+  
+  await env.DB.prepare(
+    `UPDATE submissions 
+     SET boost_count = ?, momentum_score = ?, updated_at = ? 
+     WHERE id = ?`
+  ).bind(boostCount, momentumScore, now, submissionId).run();
+  
+  if (bountyId) {
+    await recomputeBountyMomentum(env, bountyId);
+  }
+}
+
 export async function patchAdminBoostValidityStatus(env: Env, boostId: string, payload: unknown) {
   const validityStatus = normalizeValidityStatus((payload as { validityStatus?: unknown }).validityStatus);
   await updateValidityStatusTable(env, 'boosts', boostId, validityStatus);
+  
+  const boost = await getRow<{ user_id: string; bounty_id: string; submission_id: string | null }>(
+    env.DB,
+    `SELECT user_id, bounty_id, submission_id FROM boosts WHERE id = ?`,
+    [boostId],
+  );
+  
+  if (boost) {
+    if (boost.submission_id) {
+      await env.DB.prepare(
+        `UPDATE support_events 
+         SET validity_status = ? 
+         WHERE user_id = ? AND submission_id = ? AND event_type = 'boost_submission'`
+      ).bind(validityStatus, boost.user_id, boost.submission_id).run();
+      await recomputeSubmissionAndBountyMomentum(env, boost.submission_id, boost.bounty_id);
+    } else {
+      await env.DB.prepare(
+        `UPDATE support_events 
+         SET validity_status = ? 
+         WHERE user_id = ? AND bounty_id = ? AND submission_id IS NULL AND event_type = 'boost_bounty'`
+      ).bind(validityStatus, boost.user_id, boost.bounty_id).run();
+      await recomputeBountyMomentum(env, boost.bounty_id);
+    }
+    
+    await recomputeSupportPoints(env, boost.user_id);
+  }
+  
   return getRow(env.DB, `SELECT * FROM boosts WHERE id = ?`, [boostId]);
 }
 
@@ -119,6 +236,33 @@ export async function listAdminSupportEvents(env: Env) {
 export async function patchAdminSupportEventValidityStatus(env: Env, eventId: string, payload: unknown) {
   const validityStatus = normalizeValidityStatus((payload as { validityStatus?: unknown }).validityStatus);
   await updateValidityStatusTable(env, 'support_events', eventId, validityStatus);
+  
+  const event = await getRow<{ user_id: string; event_type: string; bounty_id: string | null; submission_id: string | null }>(
+    env.DB,
+    `SELECT user_id, event_type, bounty_id, submission_id FROM support_events WHERE id = ?`,
+    [eventId],
+  );
+  
+  if (event) {
+    if (event.event_type === 'boost_submission' && event.submission_id) {
+      await env.DB.prepare(
+        `UPDATE boosts 
+         SET validity_status = ? 
+         WHERE user_id = ? AND submission_id = ?`
+      ).bind(validityStatus, event.user_id, event.submission_id).run();
+      await recomputeSubmissionAndBountyMomentum(env, event.submission_id, event.bounty_id);
+    } else if (event.event_type === 'boost_bounty' && event.bounty_id) {
+      await env.DB.prepare(
+        `UPDATE boosts 
+         SET validity_status = ? 
+         WHERE user_id = ? AND bounty_id = ? AND submission_id IS NULL`
+      ).bind(validityStatus, event.user_id, event.bounty_id).run();
+      await recomputeBountyMomentum(env, event.bounty_id);
+    }
+    
+    await recomputeSupportPoints(env, event.user_id);
+  }
+  
   return getRow(env.DB, `SELECT * FROM support_events WHERE id = ?`, [eventId]);
 }
 

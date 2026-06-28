@@ -31,14 +31,14 @@ export default function BetaPage() {
 
       <div className="grid gap-6 xl:grid-cols-3">
         <BetaCard title="Builders" items={['Find a Catalyst', 'Submit a solution demo', 'Verify boost scoring updates']} />
-        <BetaCard title="Supporters" items={['Browse Catalysts', 'Boost a Catalyst or solution', 'Copy shareable Proof of Support']} />
-        <BetaCard title="Operators" items={['Review Catalyst and submission status', 'Update Funding Status', 'Record public-safe Reward Records']} />
+        <BetaCard title="Supporters" items={['Browse Catalysts', 'Boost a Catalyst or solution', 'Copy shareable Support Proof']} />
+        <BetaCard title="Operators" items={['Review Catalyst and submission status', 'Update External Evidence', 'Record public-safe Reward Evidence Records']} />
       </div>
 
       <Panel eyebrow="Compliance log" title="Important private beta guardrails" icon={ShieldAlert}>
         <div className="rounded border border-[#ffb95f]/20 bg-[#ffb95f]/5 p-5">
           <p className="max-w-4xl text-xs sm:text-sm leading-6 text-[#ffb95f]">
-            Boost is not investment. KAIRO does not guarantee rewards or airdrops. Funding Status is a public coordination label and does not represent an asset deposit or financial instrument.
+            Boost is not investment. KAIRO does not guarantee rewards or airdrops. External Reward Evidence is a public coordination label and does not represent an asset deposit or financial instrument.
           </p>
         </div>
       </Panel>

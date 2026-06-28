@@ -3,6 +3,7 @@ export interface Env {
   KAIRO_CACHE?: KVNamespace;
   APP_ENV?: string;
   ADMIN_API_TOKEN?: string;
+  KAIRO_BETA_WRITE_TOKEN?: string;
 }
 
 export interface ListOptions {

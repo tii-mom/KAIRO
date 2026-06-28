@@ -33,6 +33,8 @@ export default function SubmitProjectPage() {
     setError(null);
 
     try {
+      const fullDescription = `${form.get('description')}\n\n### Quality Proof & Specifications\n- **GitHub Ownership Proof**: ${form.get('githubProof')}\n- **What was built**: ${form.get('whatWasBuilt')}\n- **Requirements Satisfied**: ${form.get('requirementsSatisfied')}\n- **Test Instructions**: ${form.get('testInstructions')}\n- **Known Limitations**: ${form.get('limitations')}\n- **License**: ${form.get('license')}\n- **Deployment Status**: ${form.get('deploymentStatus')}\n- **Maintenance Commitment**: ${form.get('maintenanceCommitment')}\n- **Security Notes**: ${form.get('disclaimerContact') || 'None'}`;
+
       const submission = await createSubmission({
         bountyId: id,
         builderId: String(form.get('builderId') ?? 'user-demo-builder'),
@@ -42,7 +44,7 @@ export default function SubmitProjectPage() {
         githubUrl: String(form.get('githubUrl') ?? '') || undefined,
         videoUrl: String(form.get('videoUrl') ?? '') || undefined,
         screenshotUrl: String(form.get('screenshotUrl') ?? '') || undefined,
-        description: String(form.get('description') ?? ''),
+        description: fullDescription,
         deliveryStatus: 'submitted_for_review',
       });
       navigate(`/submissions/${submission.id}`);
@@ -81,6 +83,33 @@ export default function SubmitProjectPage() {
 
         <div className="border-t border-white/5 pt-6">
           <FormTextArea name="description" label="Detailed Delivery Narrative" placeholder="Describe the technical details, implementation steps, and how the targets were met..." rows={5} required />
+        </div>
+      </section>
+
+      {/* Quality Proof & Specifications */}
+      <section className="glass-panel p-6 sm:p-8 space-y-6">
+        <div className="border-b border-white/5 pb-3">
+          <h3 className="text-base font-bold text-white">Quality Proof & Specifications</h3>
+          <p className="text-xs text-white/50 leading-relaxed mt-1">Provide clear evidence of ownership, quality, and operational parameters of your solution.</p>
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <FormField name="githubProof" label="GitHub Ownership Proof / Signed Commit" placeholder="e.g. Commit hash or signed message" required />
+          <FormField name="license" label="Software License" placeholder="e.g. MIT, Apache 2.0" required />
+          <FormField name="deploymentStatus" label="Deployment Status" placeholder="e.g. Production active, testnet, alpha" required />
+          <FormField name="maintenanceCommitment" label="Maintenance Commitment" placeholder="e.g. 6 months security updates" required />
+          <FormField name="disclaimerContact" label="Security Notes / Known Vulnerabilities" className="sm:col-span-2" placeholder="Describe any security mitigations or threat models" />
+        </div>
+        <div className="space-y-4 pt-4 border-t border-white/5">
+          <FormTextArea name="whatWasBuilt" label="What was built?" placeholder="Detailed list of features and tools developed..." rows={3} required />
+          <FormTextArea name="requirementsSatisfied" label="Which Catalyst requirements are satisfied?" placeholder="Explain exactly how your solution meets the blueprint targets..." rows={3} required />
+          <FormTextArea name="testInstructions" label="Demo Test Instructions" placeholder="Step by step instructions for testers to run and verify..." rows={3} required />
+          <FormTextArea name="limitations" label="Known Limitations" placeholder="Describe any known bugs, trade-offs, or constraints..." rows={2} required />
+        </div>
+        <div className="rounded border border-[#ffb95f]/20 bg-[#ffb95f]/5 p-4 flex flex-col gap-3">
+          <label className="flex items-start gap-2.5 cursor-pointer font-mono text-[11px] text-white/70">
+            <input type="checkbox" name="ownWork" required className="mt-1 shrink-0" />
+            <span>I confirm that I own or have permission to submit this work, and KAIRO may showcase it for coordination purposes.</span>
+          </label>
         </div>
       </section>
 

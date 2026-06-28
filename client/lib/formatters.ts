@@ -2,7 +2,7 @@ import { fundingStatusLabels, type BountyRecord } from '../../shared/domain';
 
 export type FundingStatus = BountyRecord['fundingStatus'];
 
-const fallbackFundingStatusLabel = 'Reward pending KAIRO confirmation';
+const fallbackFundingStatusLabel = 'External reward evidence pending';
 
 export function formatFundingStatusLabel(status?: FundingStatus | null): string {
   if (!status) return fallbackFundingStatusLabel;

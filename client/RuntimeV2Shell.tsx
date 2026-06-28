@@ -1,14 +1,15 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
-import { Activity, Award, FlaskConical, HeartHandshake, MessageSquare, ShieldCheck, Sparkles, Trophy } from 'lucide-react';
+import { Activity, Award, FlaskConical, HeartHandshake, MessageSquare, ShieldCheck, Sparkles, Trophy, Plus } from 'lucide-react';
 import { SignalTicker, cx } from './components/runtimeUi';
 
 const navItems = [
-  { to: '/', label: 'Catalysts', icon: Sparkles },
-  { to: '/catalysts', label: 'Funding Status', icon: ShieldCheck },
+  { to: '/', label: 'Home', icon: Sparkles },
+  { to: '/catalysts', label: 'Catalyst Registry', icon: ShieldCheck },
+  { to: '/create-catalyst', label: 'Submit Catalyst', icon: Plus },
   { to: '/builder', label: 'Builder Board', icon: Award },
-  { to: '/leaderboard', label: 'KAIRO Score', icon: Trophy },
-  { to: '/proof', label: 'Proof of Support', icon: HeartHandshake },
-  { to: '/beta', label: 'Private Beta', icon: FlaskConical },
+  { to: '/leaderboard', label: 'Leaderboard', icon: Trophy },
+  { to: '/proof', label: 'Support Proof', icon: HeartHandshake },
+  { to: '/beta', label: 'Beta', icon: FlaskConical },
   { to: '/feedback', label: 'Feedback', icon: MessageSquare },
 ];
 
@@ -85,7 +86,7 @@ export default function RuntimeV2Shell() {
           </div>
           <div className="flex flex-wrap justify-center gap-6 font-mono text-[10px] uppercase tracking-wider">
             <Link className="text-white/50 hover:text-[#ffb95f]" to="/">Platform</Link>
-            <Link className="text-white/50 hover:text-[#ffb95f]" to="/leaderboard">Governance</Link>
+            <Link className="text-white/50 hover:text-[#ffb95f]" to="/leaderboard">Leaderboard</Link>
             <Link className="text-white/50 hover:text-[#ffb95f]" to="/how-it-works">Docs</Link>
             <Link className="text-white/50 hover:text-[#ffb95f]" to="/feedback">Feedback</Link>
             <Link className="text-white/50 hover:text-[#ffb95f]" to="/beta">Beta</Link>

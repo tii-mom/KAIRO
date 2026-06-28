@@ -1,8 +1,9 @@
 import { useEffect, useState, type FC } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Crown, Orbit, Radar, Trophy, Users } from 'lucide-react';
 import { getLeaderboard, type LeaderboardResponse } from '../lib/api';
 import { formatMomentumCount } from '../lib/formatters';
-import { DataRow, EmptyPanel, PageHero, Panel, StatusChip, AnimatedCounter, PointerGlowCard } from '../components/runtimeUi';
+import { DataRow, EmptyPanel, PageHero, Panel, StatusChip, AnimatedCounter, PointerGlowCard, cx } from '../components/runtimeUi';
 import { ErrorState, LoadingState } from './pageUtils';
 
 type LeaderboardRow = Record<string, unknown>;
@@ -11,6 +12,8 @@ export default function LeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'builders';
 
   const load = async () => {
     setIsLoading(true);
@@ -43,11 +46,11 @@ export default function LeaderboardPage() {
       <PageHero
         eyebrow="The Grid Registry"
         title="Ecosystem Momentum & Rankings Console"
-        description="Verify Catalyst activity, builder delivery indicators, support multipliers, and comeback milestones on a shared telemetry board."
+        description="Verify Catalyst activity, builder delivery indicators, support signals, and comeback milestones on a shared telemetry board."
         stats={[
           { label: 'Hottest Lanes', value: hottest.length, detail: 'Catalysts ranked by momentum' },
           { label: 'Active Builders', value: builders.length, detail: 'Score-based output ranks', tone: 'sky' },
-          { label: 'Confirmed Reward', value: rewardVisible.length, detail: 'Verified coordinate rewards', tone: 'emerald' },
+          { label: 'Reward Evidence', value: rewardVisible.length, detail: 'Recorded reward evidence', tone: 'emerald' },
         ]}
         aside={
           <Panel eyebrow="Platform Leader" title="Front Runner" icon={Crown}>
@@ -70,21 +73,47 @@ export default function LeaderboardPage() {
       {/* Navigation tabs header sub-menu */}
       <div className="w-full overflow-x-auto scrollbar-none border-b border-white/10 pb-1">
         <div className="flex gap-6 min-w-max px-1 font-mono text-[10px] uppercase tracking-wider text-white/50">
-          <span className="text-[#ffb95f] font-bold border-b border-[#ffb95f] pb-2">Top Builders</span>
-          <span className="hover:text-white cursor-pointer pb-2 transition-colors">Hottest Catalysts</span>
-          <span className="hover:text-white cursor-pointer pb-2 transition-colors">Dormant Giants</span>
-          <span className="hover:text-white cursor-pointer pb-2 transition-colors">Breakout Stories</span>
-          <span className="hover:text-white cursor-pointer pb-2 transition-colors">Comeback Hall</span>
-          <span className="hover:text-white cursor-pointer pb-2 transition-colors">Genesis Candidates</span>
+          <button
+            onClick={() => setSearchParams({ tab: 'builders' })}
+            className={cx(
+              "pb-2 transition-colors uppercase font-mono font-bold border-b-2 bg-transparent border-transparent",
+              activeTab === 'builders' ? "text-[#ffb95f] border-[#ffb95f]" : "hover:text-white cursor-pointer"
+            )}
+          >
+            Top Builders
+          </button>
+          <button
+            onClick={() => setSearchParams({ tab: 'catalysts' })}
+            className={cx(
+              "pb-2 transition-colors uppercase font-mono font-bold border-b-2 bg-transparent border-transparent",
+              activeTab === 'catalysts' ? "text-[#ffb95f] border-[#ffb95f]" : "hover:text-white cursor-pointer"
+            )}
+          >
+            Hottest Catalysts
+          </button>
+          <button
+            onClick={() => setSearchParams({ tab: 'dormant' })}
+            className={cx(
+              "pb-2 transition-colors uppercase font-mono font-bold border-b-2 bg-transparent border-transparent",
+              activeTab === 'dormant' ? "text-[#ffb95f] border-[#ffb95f]" : "hover:text-white cursor-pointer"
+            )}
+          >
+            Dormant Giants & Breakouts
+          </button>
+          <button
+            onClick={() => setSearchParams({ tab: 'comeback' })}
+            className={cx(
+              "pb-2 transition-colors uppercase font-mono font-bold border-b-2 bg-transparent border-transparent",
+              activeTab === 'comeback' ? "text-[#ffb95f] border-[#ffb95f]" : "hover:text-white cursor-pointer"
+            )}
+          >
+            Comeback Hall & Genesis
+          </button>
         </div>
       </div>
 
       {/* Main lists */}
-      <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-        <Panel eyebrow="Heat Map" title="Hottest Catalysts" description="Lanes sorted by support injections and builder actions.">
-          <RankList rows={hottest} labelKey="title" valueKey="momentum_score" valueFormatter={formatCompactValue} tone="gold" />
-        </Panel>
-
+      {activeTab === 'builders' && (
         <Panel eyebrow="Builder Board" title="Top Builders" description="Reputation scores earned by shipping functional solutions." icon={Users}>
           <RankList
             rows={builders}
@@ -96,53 +125,60 @@ export default function LeaderboardPage() {
             tone="sky"
           />
         </Panel>
-      </div>
+      )}
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        <Panel eyebrow="Public Evidence" title="Confirmed Reward Catalysts" description="Catalyst lanes with verified coordination contracts." icon={Radar}>
-          <RankList
-            rows={rewardVisible}
-            labelKey="title"
-            valueKey="boost_count"
-            subtitleKey="momentum_score"
-            subtitleLabel="momentum"
-            valueFormatter={(value) => `${String(value ?? 0)} boosts`}
-            tone="emerald"
-          />
-        </Panel>
-
-        <Panel eyebrow="Support Surges" title="Most Boosted Solutions" description="Top-supported builder proposals ranked by total boosts." icon={Trophy}>
-          <RankList
-            rows={boosted}
-            labelKey="name"
-            valueKey="boost_count"
-            subtitleKey="builder_name"
-            subtitleLabel="builder"
-            valueFormatter={(value) => `${String(value ?? 0)} boosts`}
-            tone="gold"
-          />
-        </Panel>
-      </div>
-
-      {/* Comeback highlight grids */}
-      <div className="grid gap-6 xl:grid-cols-2">
-        <Panel eyebrow="Comeback Tracks" title="Dormant Giants & Breakout Stories" icon={Orbit}>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <MiniRankPanel
-              title="Dormant Giants"
-              rows={(leaderboard?.dormantGiants ?? []) as LeaderboardRow[]}
-              labelKey="title"
-              valueKey="sort_order"
+      {activeTab === 'catalysts' && (
+        <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+          <Panel eyebrow="Heat Map" title="Hottest Catalysts" description="Lanes sorted by support injections and builder actions.">
+            <RankList rows={hottest} labelKey="title" valueKey="momentum_score" valueFormatter={formatCompactValue} tone="gold" />
+          </Panel>
+          <Panel eyebrow="Support Surges" title="Most Boosted Solutions" description="Top-supported builder proposals ranked by total boosts." icon={Trophy}>
+            <RankList
+              rows={boosted}
+              labelKey="name"
+              valueKey="boost_count"
+              subtitleKey="builder_name"
+              subtitleLabel="builder"
+              valueFormatter={(value) => `${String(value ?? 0)} boosts`}
+              tone="gold"
             />
-            <MiniRankPanel
-              title="Breakout Stories"
-              rows={(leaderboard?.breakoutStories ?? []) as LeaderboardRow[]}
-              labelKey="title"
-              valueKey="sort_order"
-            />
-          </div>
-        </Panel>
+          </Panel>
+        </div>
+      )}
 
+      {activeTab === 'dormant' && (
+        <div className="grid gap-6">
+          <Panel eyebrow="Comeback Tracks" title="Dormant Giants & Breakout Stories" icon={Orbit}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <MiniRankPanel
+                title="Dormant Giants"
+                rows={(leaderboard?.dormantGiants ?? []) as LeaderboardRow[]}
+                labelKey="title"
+                valueKey="sort_order"
+              />
+              <MiniRankPanel
+                title="Breakout Stories"
+                rows={(leaderboard?.breakoutStories ?? []) as LeaderboardRow[]}
+                labelKey="title"
+                valueKey="sort_order"
+              />
+            </div>
+          </Panel>
+          <Panel eyebrow="Public Evidence" title="Catalysts with External Evidence" description="Catalyst lanes with verified coordination evidence." icon={Radar}>
+            <RankList
+              rows={rewardVisible}
+              labelKey="title"
+              valueKey="boost_count"
+              subtitleKey="momentum_score"
+              subtitleLabel="momentum"
+              valueFormatter={(value) => `${String(value ?? 0)} boosts`}
+              tone="emerald"
+            />
+          </Panel>
+        </div>
+      )}
+
+      {activeTab === 'comeback' && (
         <Panel eyebrow="Ecosystem Highlights" title="Comeback Hall & Genesis Candidates" icon={Trophy}>
           <div className="grid gap-4 sm:grid-cols-2">
             <MiniRankPanel
@@ -159,7 +195,7 @@ export default function LeaderboardPage() {
             />
           </div>
         </Panel>
-      </div>
+      )}
     </div>
   );
 }

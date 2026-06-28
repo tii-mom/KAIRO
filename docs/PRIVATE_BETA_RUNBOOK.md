@@ -13,6 +13,9 @@ KAIRO Private Beta tests whether a small cohort can understand and complete the 
 
 This beta is not testing public launch scale, financial products, trading, token launch mechanics, custody, or guaranteed reward distribution.
 
+### Write Token & Identity Security Disclaimer
+The `KAIRO_BETA_WRITE_TOKEN` configured for this beta is strictly a Closed Beta gate to protect public endpoints from arbitrary spam writes. It does NOT constitute a complete, production-ready identity or wallet signature authentication system. Before moving to Public Beta or Mainnet operations, a fully integrated wallet signature, session cookie, or OAuth authentication system must be deployed.
+
 Target cohort:
 
 - 5-10 Builders

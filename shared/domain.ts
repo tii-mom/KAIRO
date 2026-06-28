@@ -240,11 +240,11 @@ export type FundingEventRecord = z.infer<typeof fundingEventSchema>;
 export type CuratedItemRecord = z.infer<typeof curatedItemSchema>;
 
 export const fundingStatusLabels: Record<(typeof fundingStatuses)[number], string> = {
-  unverified: 'Reward pending KAIRO confirmation / 奖励等待 KAIRO 确认',
-  pledged: 'Reward pledged / 奖励已承诺',
-  escrowed: 'Reward confirmed by KAIRO / 奖励已由 KAIRO 确认',
-  partially_paid: 'Reward partially paid / 奖励已部分支付',
-  paid: 'Reward paid / 奖励已支付',
-  disputed: 'Reward under review / 奖励审核中',
-  cancelled: 'Reward cancelled / 奖励已取消',
+  unverified: 'External reward evidence pending / 外部奖励证据待提交',
+  pledged: 'Reward pledged externally / 外部已承诺奖励',
+  escrowed: 'External evidence recorded / 外部证据已记录',
+  partially_paid: 'Externally reported partially completed / 外部报告部分完成',
+  paid: 'Externally reported completed / 外部报告已完成',
+  disputed: 'External evidence disputed / 外部证据有争议',
+  cancelled: 'Reward cancelled externally / 外部已取消奖励',
 };

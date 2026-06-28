@@ -6,7 +6,7 @@ export const runtimeV2Catalysts = [
     category: 'Catalyst',
     summary:
       'A focused Catalyst for builders to ship a lightweight community tool, document usage, and gather Proof of Support from early supporters.',
-    fundingStatus: 'Reward confirmed by KAIRO',
+    fundingStatus: 'External evidence recorded',
     reward: '15,000 DORM reward record',
     boostCount: 428,
     momentum: 842,
@@ -14,7 +14,7 @@ export const runtimeV2Catalysts = [
   },
   {
     id: 'pepe2-community-loop',
-    title: 'PEPE2 community game loop',
+    title: ' PEPE2 community game loop',
     token: 'PEPE2',
     category: 'Catalyst',
     summary:
@@ -32,7 +32,7 @@ export const runtimeV2Catalysts = [
     category: 'Catalyst',
     summary:
       'A Catalyst for restoring a playable web demo, publishing builder notes, and collecting community Boost signals.',
-    fundingStatus: 'Reward pending KAIRO confirmation',
+    fundingStatus: 'External reward evidence pending',
     reward: '5,000 RETRO reward record',
     boostCount: 214,
     momentum: 590,
@@ -47,7 +47,7 @@ export const runtimeV2Builders = [
 ];
 
 export const runtimeV2FundingEvents = [
-  { id: 'evt-1', catalyst: 'Dormant Yields', label: 'Funding Status updated', detail: 'Reward confirmed by KAIRO' },
+  { id: 'evt-1', catalyst: 'Dormant Yields', label: 'Funding Status updated', detail: 'External evidence recorded' },
   { id: 'evt-2', catalyst: 'PEPE2', label: 'Reward Records updated', detail: 'Community reward note added' },
   { id: 'evt-3', catalyst: 'Retro Arcade', label: 'Proof of Support milestone', detail: '200 valid Boost records reached' },
 ];

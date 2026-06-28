@@ -54,7 +54,7 @@ export default function AppRouter() {
               title="About KAIRO"
               body={[
                 'KAIRO Phase 0 is a community signal and bounty discovery platform for dormant token ecosystems.',
-                'Catalysts help communities publish concrete missions, builders submit working demos, supporters Boost promising work, and KAIRO records Funding Status, Reward Records, and Proof of Support without presenting any financial-service promise.',
+                'Catalysts help communities publish concrete missions, builders submit working demos, supporters Boost promising work, and KAIRO records External Reward Evidence, Reward Evidence Records, and Support Proof without presenting any financial-service promise.',
               ]}
             />
           }
@@ -65,8 +65,8 @@ export default function AppRouter() {
             <StaticInfoPage
               title="How It Works"
               body={[
-                'Communities publish Catalysts with a builder brief and public Funding Status.',
-                'Builders submit product demos, supporters Boost the strongest work, and KAIRO surfaces Momentum, leaderboards, Reward Records, and public proof so the comeback story stays legible.',
+                'Communities publish Catalysts with a builder brief and public External Reward Evidence.',
+                'Builders submit product demos, supporters Boost the strongest work, and KAIRO surfaces Momentum, leaderboards, Reward Evidence Records, and public proof so the comeback story stays legible.',
               ]}
             />
           }
@@ -89,7 +89,7 @@ export default function AppRouter() {
             <StaticInfoPage
               title="For Communities"
               body={[
-                'Publish a Catalyst, describe the product need clearly, and keep Funding Status updated in public.',
+                'Publish a Catalyst, describe the product need clearly, and keep External Reward Evidence updated in public.',
                 'KAIRO helps communities attract builders and supporters around real product work rather than speculation.',
               ]}
             />
@@ -102,7 +102,7 @@ export default function AppRouter() {
               title="Submit Token"
               body={[
                 'Use the Catalyst flow to introduce a dormant project, explain the community context, and invite builder submissions.',
-                'KAIRO reviews public reward information and can add Reward Records while keeping Phase 0 focused on discovery, contribution records, and community signal.',
+                'KAIRO reviews public reward information and can add Reward Evidence Records while keeping Phase 0 focused on discovery, contribution records, and community signal.',
               ]}
             />
           }
@@ -114,7 +114,7 @@ export default function AppRouter() {
               title="Disclaimer"
               body={[
                 'Boost is not an investment. KAIRO does not guarantee rewards or airdrops.',
-                'Funding Status is a public coordination label for sponsor reward information. KAIRO Phase 0 is a community signal and bounty discovery platform.',
+                'External Reward Evidence is a public coordination label for sponsor reward information. KAIRO Phase 0 is a community signal and bounty discovery platform.',
               ]}
             />
           }
