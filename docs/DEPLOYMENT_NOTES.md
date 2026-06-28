@@ -114,3 +114,27 @@ Task: KAIRO Production Deploy & Smoke Test V1
 - Do not run remote seed again unless the production dataset needs to be regenerated intentionally.
 - Before real beta data is imported, capture a D1 backup/export so seed overwrite or content mistakes can be recovered.
 - Latest recorded pre-import backup during this blocker pass: `backups/d1/kairo-prod-snapshot-2026-06-27T09-35-34-518Z.json`
+
+## Frontend Visual Refresh Acceptance & Launch Blocker Audit V1
+
+Date: 2026-06-28
+Task: Frontend Visual Refresh Audit & Blocker Pass
+
+### Summary of Audit Results
+
+- **Production Bundle Verification**: Confirmed that the live production Pages deployment (`https://kairo.cfd`) serves the latest visual refresh assets:
+  - JS bundle (`index-DiSeiIW2.js`) contains selectors: `kairo-root`, `glow-text-primary`, `kairo-marquee-track`, `kairo-shell`, and the logo asset `kairo-logo-dark.png`.
+  - CSS stylesheet (`index-Bo6WZXSI.css`) contains the visual tokens: `--kairo-canvas`, `--kairo-gold`, `momentum-bar`, and `pulse-bg`.
+- **No Financial Semantics**: Fully audited the client routes. All references to forbidden phrases (such as `APY`, `invest`, `swap`, `buy`, etc.) and visual investment hints (trading charts, buy/sell components) are absent.
+- **Verification Scripts**:
+  - `npm run lint`: Passed
+  - `npm run build`: Passed
+  - `npm run verify:copy`: Passed
+  - `npm run verify:routes`: Passed
+  - `npm run verify:production`: Passed (All endpoints and database records healthy)
+  - `npm run verify:beta:go-live`: Passed (With environment variables `CI=true` and `WRANGLER_SEND_METRICS=false` to bypass Wrangler telemetry prompts)
+  - `npm run verify:operations`: Failed ONLY on `Real beta import` (As expected due to pending real beta content approval; not a block for Private Beta or Technical launch).
+- **Production Smoke Test**:
+  - Tested routes `/`, `/catalysts`, `/dormant-giants`, `/leaderboard`, `/proof`, `/admin`, `/beta`, `/feedback`, and `/disclaimer`. All returned correct HTTP statuses and resolved successfully.
+  - Deployed bundle requests APIs correctly via same-origin (`/api`) with zero localhost leaks.
+
