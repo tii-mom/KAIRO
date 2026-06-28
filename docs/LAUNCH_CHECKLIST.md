@@ -173,6 +173,10 @@ Note: the current app also exposes Catalyst creation at `/catalysts/create`; ver
 - `ADMIN_API_TOKEN="..." npm run verify:beta:go-live` passes on `https://kairo.cfd` (verified under V2 secrets).
 - `npm run verify:operations` passes once operator ownership and real beta content readiness are recorded.
 - `npm run db:backup:remote` is run and the snapshot filename is recorded before importing real beta data or rerunning seed (captured under V2 secrets on 2026-06-28).
+- Content Intake & Import Readiness:
+  - Refer to [REAL_BETA_CONTENT_INTAKE_TEMPLATE.md](file:///Users/yudeyou/Desktop/KAIRO/KAIRO/docs/REAL_BETA_CONTENT_INTAKE_TEMPLATE.md) for compiling real data.
+  - Apply [REAL_BETA_CONTENT_REVIEW_CHECKLIST.md](file:///Users/yudeyou/Desktop/KAIRO/KAIRO/docs/REAL_BETA_CONTENT_REVIEW_CHECKLIST.md) to audit public descriptions.
+  - Follow [REVIEWED_REAL_JSON_GUIDE.md](file:///Users/yudeyou/Desktop/KAIRO/KAIRO/docs/REVIEWED_REAL_JSON_GUIDE.md) to execute the dry-run, backup, and apply workflow.
 - `node scripts/verify-beta-import.mjs content/<reviewed-file>.json` passes for the reviewed import JSON.
 - Real beta content SQL is generated from reviewed JSON and reviewed before apply.
 - `npm run content:beta:import -- --help` has been reviewed by the operator if they are using the scripted import path.

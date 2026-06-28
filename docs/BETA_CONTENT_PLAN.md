@@ -98,12 +98,17 @@ Use `content/beta-import.template.json` as the working template for real beta co
 
 Do not apply `content/beta-import.example.json` or `content/beta-import.reviewed-2026-06-27.json` to production. Both remain placeholder/example content and are not approved operating data.
 
+Approval and Preparation Tools:
+- Use [REAL_BETA_CONTENT_INTAKE_TEMPLATE.md](file:///Users/yudeyou/Desktop/KAIRO/KAIRO/docs/REAL_BETA_CONTENT_INTAKE_TEMPLATE.md) to collect data from project/token teams.
+- Use [REAL_BETA_CONTENT_REVIEW_CHECKLIST.md](file:///Users/yudeyou/Desktop/KAIRO/KAIRO/docs/REAL_BETA_CONTENT_REVIEW_CHECKLIST.md) to check compliance and safety of all input.
+- Refer to [REVIEWED_REAL_JSON_GUIDE.md](file:///Users/yudeyou/Desktop/KAIRO/KAIRO/docs/REVIEWED_REAL_JSON_GUIDE.md) for step-by-step instructions on JSON creation and remote import gates.
+
 Approval rule:
 
 - Real beta content must be approved by the project owner or the assigned content reviewer before `--apply`.
 - The approval source should be recorded in the reviewed JSON metadata or the operator notes.
 - If approved real content is not available, stop before apply and keep the operations launch blocked.
-- Checked on 2026-06-28: No approved real beta content was provided, so no reviewed-real JSON was created and the import workflow remains blocked.
+- Checked on 2026-06-28: No approved real beta content was provided, so no reviewed-real JSON was created and the import workflow remains blocked. Currently in content preparation phase; no approved content means no apply.
 
 JSON shape reference:
 
