@@ -29,14 +29,14 @@ export default function RuntimeV2Shell() {
         <div className="kairo-shell py-4">
           <div className="glass-panel flex flex-col gap-4 px-4 py-4 lg:flex-row lg:items-center lg:justify-between lg:px-5">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:gap-6">
-              <Link to="/" className="flex items-center gap-3">
+              <Link to="/" className="flex items-center gap-3 group">
                 <img
                   src="/kairo-logo-dark.png"
                   alt="KAIRO"
-                  className="h-12 w-12 rounded-lg object-cover drop-shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+                  className="h-12 w-12 rounded-full border border-white/10 bg-[#050608] object-cover p-[3px] transition-all duration-500 group-hover:border-[#ffb95f]/30 group-hover:scale-105 shadow-[0_0_15px_rgba(255,185,95,0.05)] group-hover:shadow-[0_0_20px_rgba(255,185,95,0.15)]"
                 />
                 <div>
-                  <div className="font-mono text-lg font-bold tracking-[0.25em] text-[#ffb95f]">KAIRO</div>
+                  <div className="font-mono text-lg font-bold tracking-[0.25em] text-[#ffb95f] transition-colors duration-300 group-hover:text-[#ffc885]">KAIRO</div>
                   <div className="mt-0.5 text-[9px] uppercase font-mono tracking-[0.2em] text-white/40">Resurrection Platform</div>
                 </div>
               </Link>
@@ -72,13 +72,13 @@ export default function RuntimeV2Shell() {
       </main>
       <footer className="w-full border-t border-white/5 bg-[#0c0e14]/90 py-10 mt-12">
         <div className="kairo-shell flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 group">
             <img
               src="/kairo-logo-dark.png"
               alt="KAIRO"
-              className="h-8 w-8 rounded-lg object-cover opacity-90"
+              className="h-8 w-8 rounded-full border border-white/10 bg-[#050608] object-cover p-[2px] opacity-90 transition-all duration-500 group-hover:border-[#ffb95f]/30 group-hover:scale-105"
             />
-            <div className="text-xl font-bold font-sans tracking-tight text-[#ffb95f]">KAIRO</div>
+            <div className="text-xl font-bold font-sans tracking-tight text-[#ffb95f] group-hover:text-[#ffc885] transition-colors duration-300">KAIRO</div>
           </div>
           <div className="text-white/40 font-mono text-[10px] uppercase tracking-widest text-center">
             © 2026 KAIRO Protocol. Reignite the Dormant.
