@@ -53,5 +53,5 @@ database_id = "${databaseId}"
 
 run(
   'npx',
-  ['wrangler', 'pages', 'deploy', 'dist', '--project-name', projectName, '--commit-dirty', commitDirty, '--cwd', tmpRoot],
+  ['wrangler', 'pages', 'deploy', 'dist', '--project-name', projectName, '--branch', 'main', '--commit-dirty', commitDirty, '--cwd', tmpRoot],
 );

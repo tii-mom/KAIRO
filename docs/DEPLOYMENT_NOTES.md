@@ -138,3 +138,37 @@ Task: Frontend Visual Refresh Audit & Blocker Pass
   - Tested routes `/`, `/catalysts`, `/dormant-giants`, `/leaderboard`, `/proof`, `/admin`, `/beta`, `/feedback`, and `/disclaimer`. All returned correct HTTP statuses and resolved successfully.
   - Deployed bundle requests APIs correctly via same-origin (`/api`) with zero localhost leaks.
 
+## KAIRO Formal Operations Launch Gate V1
+
+Date: 2026-06-28
+Task: KAIRO Formal Operations Launch Gate V1
+
+### Token Rotation
+- Rotated `ADMIN_API_TOKEN` for both standalone Cloudflare Worker (`kairo-worker-prod`) and Cloudflare Pages project (`kairo`).
+- Verified old token rejected with `403` status.
+- Verified request without token rejected with `403` status.
+- Verified new token accepted with `200` status.
+- Token value is redacted and not committed to Git.
+
+### Data Backup
+- Captured a new remote D1 backup: `backups/d1/kairo-prod-snapshot-2026-06-28T04-07-58-383Z.json`.
+- Row counts at backup:
+  - `users`: 5
+  - `tokens`: 8
+  - `bounties`: 8
+  - `submissions`: 8
+  - `boosts`: 20
+  - `support_points`: 5
+  - `support_events`: 10
+  - `builder_scores`: 3
+  - `referrals`: 0
+  - `escrow_events`: 4
+  - `curated_items`: 8
+  - `admin_actions`: 0
+
+### Content Status
+- Formal operations launch remains blocked due to "approved real beta content missing".
+- No mock content was applied to the production database.
+- `verify:operations` fails only on `Real beta import` check.
+
+

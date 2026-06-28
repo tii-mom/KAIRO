@@ -194,6 +194,7 @@ Note: the current app also exposes Catalyst creation at `/catalysts/create`; ver
 
    ```bash
    npx wrangler secret put ADMIN_API_TOKEN --env production
+   npx wrangler pages secret put ADMIN_API_TOKEN --project-name kairo
    ```
 
 6. Deploy Worker:
