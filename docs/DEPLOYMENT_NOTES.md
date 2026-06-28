@@ -151,7 +151,7 @@ Task: KAIRO Formal Operations Launch Gate V1
 - Token value is redacted and not committed to Git.
 
 ### Data Backup
-- Captured a new remote D1 backup: `backups/d1/kairo-prod-snapshot-2026-06-28T04-07-58-383Z.json`.
+- Captured a new remote D1 backup: `backups/d1/kairo-prod-snapshot-2026-06-28T05-51-18-104Z.json`.
 - Row counts at backup:
   - `users`: 5
   - `tokens`: 8
@@ -170,5 +170,11 @@ Task: KAIRO Formal Operations Launch Gate V1
 - Formal operations launch remains blocked due to "approved real beta content missing".
 - No mock content was applied to the production database.
 - `verify:operations` fails only on `Real beta import` check.
+- Production security gates verified:
+  - Admin Gate: PASS (No token => 403, Bad token => 403, Valid token => 200)
+  - Beta Write Gate: PASS (No token => 403, Bad token => 403, Valid token => 200)
+  - Public PATCH Blocked: PASS (PATCH /api/bounties/:id => 403, PATCH /api/submissions/:id => 403)
+  - Write-check state: PASS (does not mutate database state)
+
 
 
