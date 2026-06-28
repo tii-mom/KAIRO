@@ -176,5 +176,26 @@ Task: KAIRO Formal Operations Launch Gate V1
   - Public PATCH Blocked: PASS (PATCH /api/bounties/:id => 403, PATCH /api/submissions/:id => 403)
   - Write-check state: PASS (does not mutate database state)
 
+## KAIRO Secret Rotation V2 & Operations Audit
+
+Date: 2026-06-28 (14:53)
+Task: KAIRO Remaining Launch Work V1 —— Secret Rotation, Approved Real Content Import, Formal Operations Gate
+
+### Secret Rotation V2
+- A complete second rotation of both `ADMIN_API_TOKEN` and `KAIRO_BETA_WRITE_TOKEN` was executed due to potential token exposure in execution logs.
+- New high-strength 32-byte secrets generated.
+- Secrets updated on local `.env` (not committed) and configured via Wrangler on both Pages (`kairo`) and standalone Worker (`kairo-worker-prod`).
+- Old secrets explicitly verified to be rejected with `403` Forbidden on all gates.
+- New secrets verified to return `200` OK on respective gates (Admin stats endpoint and Beta write-check endpoint).
+- Public PATCH operations verified to be blocked (`403`).
+- All token values remain redacted.
+
+### Pre-Import Operations
+- Pre-import snapshot database backup created at `backups/d1/kairo-prod-snapshot-2026-06-28T06-50-05-124Z.json`.
+- Row counts are identical to previous baseline counts.
+- `verify:beta:go-live` gate is now passing successfully under the new secrets.
+- `verify:operations` remains blocked ONLY by `approved real beta content missing`.
+
+
 
 

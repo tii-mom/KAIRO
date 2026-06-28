@@ -101,6 +101,7 @@ Before importing real content:
 | --- | --- | --- | --- | --- |
 | 2026-06-27 | kairo-prod-snapshot-2026-06-27T09-35-34-518Z.json | beta-import.template.json (not applied) | tii-mom | No approved real beta content batch is available in-repo; template and operator docs were updated, and live apply remains blocked pending project-owner or content-reviewer approval. |
 | 2026-06-28 | kairo-prod-snapshot-2026-06-28T05-51-18-104Z.json | N/A | tii-mom | blocked (approved real beta content missing) |
+| 2026-06-28 | kairo-prod-snapshot-2026-06-28T06-50-05-124Z.json | N/A | tii-mom | blocked (secret rotation completed, approved real beta content missing) |
 
 ## Exit Criteria For Private Beta
 

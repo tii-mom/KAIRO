@@ -103,6 +103,7 @@ Approval rule:
 - Real beta content must be approved by the project owner or the assigned content reviewer before `--apply`.
 - The approval source should be recorded in the reviewed JSON metadata or the operator notes.
 - If approved real content is not available, stop before apply and keep the operations launch blocked.
+- Checked on 2026-06-28: No approved real beta content was provided, so no reviewed-real JSON was created and the import workflow remains blocked.
 
 JSON shape reference:
 

@@ -167,12 +167,12 @@ Note: the current app also exposes Catalyst creation at `/catalysts/create`; ver
 - `docs/BETA_COHORT_OPERATIONS.md` is current.
 - `docs/BETA_CONTENT_PLAN.md` is current.
 - Admin operators understand that demo header/session logic is not final production auth.
-- `ADMIN_API_TOKEN` is set as a production Worker secret before inviting operators.
+- `ADMIN_API_TOKEN` is set as a production Worker secret before inviting operators (rotated to V2 on 2026-06-28).
 - Admin API returns `403` without the token and `200` with the token.
 - `ADMIN_API_TOKEN="..." npm run verify:production` passes.
-- `ADMIN_API_TOKEN="..." npm run verify:beta:go-live` passes on `https://kairo.cfd`.
+- `ADMIN_API_TOKEN="..." npm run verify:beta:go-live` passes on `https://kairo.cfd` (verified under V2 secrets).
 - `npm run verify:operations` passes once operator ownership and real beta content readiness are recorded.
-- `npm run db:backup:remote` is run and the snapshot filename is recorded before importing real beta data or rerunning seed.
+- `npm run db:backup:remote` is run and the snapshot filename is recorded before importing real beta data or rerunning seed (captured under V2 secrets on 2026-06-28).
 - `node scripts/verify-beta-import.mjs content/<reviewed-file>.json` passes for the reviewed import JSON.
 - Real beta content SQL is generated from reviewed JSON and reviewed before apply.
 - `npm run content:beta:import -- --help` has been reviewed by the operator if they are using the scripted import path.

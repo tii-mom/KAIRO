@@ -202,4 +202,5 @@ Operator guidance:
 - Share the token only with the 1-2 beta operators.
 - Enter the token in `/admin`; it is stored only in browser `sessionStorage`.
 - Rotate the token if it is shared in the wrong channel.
+- A second rotation (Secret Rotation V2) was executed on 2026-06-28 to replace credentials that may have been exposed in execution logs. Both Pages and Workers secrets were rotated successfully.
 - Replace this shared-token gate with stronger operator auth before open beta or public launch.
