@@ -16,6 +16,9 @@ import { EmptyPanel, Panel, StatusChip, AnimatedCounter, PointerGlowCard } from 
 import { ErrorState, LoadingState } from './pageUtils';
 import { useI18n } from '../i18n/useI18n';
 
+import { getRevivalState, getRevivalStateTone, getRevivalStateLabel } from '../lib/revivalState';
+import ShareButton from '../components/ShareButton';
+
 export default function RuntimeHomePage() {
   const { t, locale } = useI18n();
   const [catalysts, setCatalysts] = useState<BountyRecord[]>([]);
@@ -57,6 +60,7 @@ export default function RuntimeHomePage() {
 
   return (
     <div className="space-y-8 pb-12">
+
       {/* Visual Hero Block */}
       <section className="glass-panel p-6 sm:p-10 xl:p-12 relative overflow-hidden pulse-bg">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0c0e14]/50 to-[#0c0e14] z-0 pointer-events-none" />
@@ -66,23 +70,23 @@ export default function RuntimeHomePage() {
           <div className="lg:col-span-7 text-left space-y-6">
             <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded border border-[#EE1C25]/30 bg-[#EE1C25]/5 backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-[#EE1C25] shadow-[0_0_5px_rgba(238,28,37,0.8)] animate-ping" />
-              <h2 className="font-mono text-[10px] text-[#EE1C25] tracking-[0.25em] uppercase font-bold">{t('home.eyebrow')}</h2>
+              <h2 className="font-mono text-[10px] text-[#EE1C25] tracking-[0.25em] uppercase font-bold">{t('beta.arenaTitle')}</h2>
             </div>
             <h1 className="font-sans text-3xl sm:text-5xl xl:text-6xl font-bold tracking-tight text-white leading-tight">
-              {t('home.titleText')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ffb95f] via-[#ffd285] to-[#ffb95f] glow-text-primary">{t('home.titleHighlight')}</span>
+              {t('beta.arenaHeader')}
             </h1>
             <p className="font-sans text-sm sm:text-base text-[#c4c7c7] leading-relaxed max-w-xl">
-              {t('home.description')}
+              {t('beta.arenaDesc')}
             </p>
             <div className="flex flex-wrap gap-3 items-center">
               <Link to="/catalysts" className="btn-primary px-6 py-3 text-xs uppercase tracking-widest font-bold w-full sm:w-auto text-center">
-                {t('home.exploreCatalysts')}
+                {t('beta.btnBoostToken')}
               </Link>
               <Link to="/create-catalyst" className="btn-ignite px-6 py-3 text-xs uppercase tracking-widest font-bold w-full sm:w-auto text-center">
-                {t('home.igniteCatalyst')}
+                {t('beta.btnSubmitDeadToken')}
               </Link>
-              <Link to="/leaderboard" className="btn-ghost px-6 py-3 text-xs uppercase tracking-widest font-bold w-full sm:w-auto text-center">
-                {t('home.exploreGrid')}
+              <Link to="/proof" className="btn-ghost px-6 py-3 text-xs uppercase tracking-widest font-bold w-full sm:w-auto text-center">
+                {t('beta.btnClaimProof')}
               </Link>
             </div>
           </div>
@@ -136,6 +140,45 @@ export default function RuntimeHomePage() {
         </div>
       </section>
 
+      {/* Role Cards Section */}
+      <section className="grid gap-6 md:grid-cols-3">
+        <PointerGlowCard className="glass-panel p-6 bg-[#0c0e14]/40 hover:border-[#ffb95f]/30 transition-all flex flex-col justify-between">
+          <div>
+            <span className="text-[10px] font-mono text-[#ffb95f] uppercase tracking-widest">[01] {t('beta.roleHolderTitle')}</span>
+            <p className="text-xs text-white/60 leading-relaxed mt-2">
+              {t('beta.roleHolderDesc')}
+            </p>
+          </div>
+          <Link to="/catalysts" className="btn-primary mt-4 py-2 text-center text-xs font-bold uppercase tracking-wider">
+            {t('beta.roleHolderAction')}
+          </Link>
+        </PointerGlowCard>
+
+        <PointerGlowCard className="glass-panel p-6 bg-[#0c0e14]/40 hover:border-[#ffb95f]/30 transition-all flex flex-col justify-between">
+          <div>
+            <span className="text-[10px] font-mono text-[#ffb95f] uppercase tracking-widest">[02] {t('beta.roleOwnerTitle')}</span>
+            <p className="text-xs text-white/60 leading-relaxed mt-2">
+              {t('beta.roleOwnerDesc')}
+            </p>
+          </div>
+          <Link to="/create-catalyst" className="btn-ignite mt-4 py-2 text-center text-xs font-bold uppercase tracking-wider">
+            {t('beta.roleOwnerAction')}
+          </Link>
+        </PointerGlowCard>
+
+        <PointerGlowCard className="glass-panel p-6 bg-[#0c0e14]/40 hover:border-[#ffb95f]/30 transition-all flex flex-col justify-between">
+          <div>
+            <span className="text-[10px] font-mono text-[#ffb95f] uppercase tracking-widest">[03] {t('home.roleBuilderTitle')}</span>
+            <p className="text-xs text-white/60 leading-relaxed mt-2">
+              {t('beta.roleBuilderDesc')}
+            </p>
+          </div>
+          <Link to="/catalysts" className="btn-ghost mt-4 py-2 text-center text-xs font-bold uppercase tracking-wider">
+            {t('beta.roleBuilderAction')}
+          </Link>
+        </PointerGlowCard>
+      </section>
+
       {/* Operational Panels */}
       <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
         
@@ -149,13 +192,16 @@ export default function RuntimeHomePage() {
           <div className="grid gap-3">
             {(featured.length ? featured : curatedItems.slice(0, 3)).map((item) => {
               const cRec = catalysts.find((c) => String(c.id) === String(item.targetId));
+              const rState = cRec ? getRevivalState(cRec) : 'sleeping';
               return (
                 <PointerGlowCard key={item.id} className="glass-panel p-4 hover:border-[#ffb95f]/30 transition-all duration-300 bg-[#050608]/50 kairo-tilt">
                   <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-bold text-white">{item.title}</span>
-                        <StatusChip tone="gold">{(item.itemType ?? 'curated').replace(/_/g, ' ')}</StatusChip>
+                        <StatusChip tone={getRevivalStateTone(rState)}>
+                          {getRevivalStateLabel(rState, locale)}
+                        </StatusChip>
                       </div>
                       <p className="text-xs text-white/50 mt-1 max-w-xl">{item.description ?? t('home.curatedEcosystemLane')}</p>
                     </div>
@@ -185,9 +231,14 @@ export default function RuntimeHomePage() {
                           {t('home.targetDetailsLoading')}
                         </div>
                       )}
-                      <Link to={cRec ? `/catalysts/${cRec.id}` : '/catalysts'} className="btn-ghost px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider shrink-0">
-                        {t('catalysts.viewDetails')}
-                      </Link>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Link to={cRec ? `/catalysts/${cRec.id}` : '/catalysts'} className="btn-ghost px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider">
+                          {t('catalysts.viewDetails')}
+                        </Link>
+                        {cRec && (
+                          <ShareButton id={cRec.id} type="catalyst" title={cRec.title} variant="inline" />
+                        )}
+                      </div>
                     </div>
                   </div>
                 </PointerGlowCard>
@@ -235,7 +286,7 @@ export default function RuntimeHomePage() {
                         <div className="text-[8px] text-white/30 uppercase">MOMENTUM</div>
                       </div>
                       <StatusChip tone={index === 0 ? 'red' : 'slate'}>
-                        {index === 0 ? 'ignited' : 'active'}
+                        {index === 0 ? t('home.signalIgnitedRunner') : t('catalysts.filterActive')}
                       </StatusChip>
                     </div>
                   </Link>

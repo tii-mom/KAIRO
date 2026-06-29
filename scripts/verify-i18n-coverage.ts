@@ -26,7 +26,8 @@ const ALLOWLIST = new Set([
   'arbitrum', 'ethereum', 'solana', 'base', 'sol', 'eth', 'untitled', 'arena',
   'catalyst', 'catalysts', 'builderhub', 'unable', 'load', 'details', 'giants',
   'watchlist', 'record', 'solution', 'submission', 'data', 'profile', 'create',
-  'leaderboard', 'of', 'support', 'runtime'
+  'leaderboard', 'of', 'support', 'runtime', 'title', 'sleeping', 'warming', 'building',
+  'emerald', 'sky', 'gold', 'red', 'rose', 'slate', 'verified'
 ]);
 
 function isCssClass(str: string): boolean {

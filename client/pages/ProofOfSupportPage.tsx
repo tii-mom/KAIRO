@@ -6,6 +6,8 @@ import { ActionButton, DataRow, EmptyPanel, PageHero, Panel, StatusChip, Momentu
 import { ErrorState, LoadingState } from './pageUtils';
 import { useI18n } from '../i18n/useI18n';
 
+import ShareButton from '../components/ShareButton';
+
 export default function ProofOfSupportPage() {
   const { userId } = useParams();
   const { t, locale } = useI18n();
@@ -63,10 +65,15 @@ export default function ProofOfSupportPage() {
         title={t('proof.title')}
         description={t('proof.description')}
         actions={
-          <ActionButton onClick={() => void handleCopy()} tone="primary" className="text-xs uppercase tracking-widest font-bold cursor-pointer">
-            <Copy className="h-4 w-4 mr-1.5 inline" />
-            {copyMessage ? t('proof.copiedSummary') : t('proof.copySummary')}
-          </ActionButton>
+          <div className="flex flex-wrap items-center gap-3">
+            <ActionButton onClick={() => void handleCopy()} tone="secondary" className="text-xs uppercase tracking-wider font-bold cursor-pointer">
+              <Copy className="h-4 w-4 mr-1.5 inline" />
+              {copyMessage ? t('proof.copiedSummary') : t('proof.copySummary')}
+            </ActionButton>
+            {proof && (
+              <ShareButton id={proof.user.id} type="proof" title={`${t('beta.proofSupportFor')} ${proof.user.id}`} variant="full" referrerId={proof.user.id} />
+            )}
+          </div>
         }
         stats={[
           { label: t('proof.totalSupportPoints'), value: proof?.points.totalPoints ?? 0, detail: t('proof.totalSupportPointsDesc') },
@@ -88,6 +95,7 @@ export default function ProofOfSupportPage() {
           </Panel>
         }
       />
+
 
       {/* Supporter Impact Summary Modules */}
       {proof && (
@@ -134,6 +142,28 @@ export default function ProofOfSupportPage() {
           </PointerGlowCard>
         </section>
       )}
+
+      {/* Referral System Section */}
+      {proof && (
+        <section className="glass-panel p-6 bg-[#050608]/50 border-white/5 space-y-4">
+          <h3 className="text-sm font-bold text-white font-mono uppercase tracking-wider">
+            [REFERRAL_TRACKING_AND_COORDINATION]
+          </h3>
+          <p className="text-xs text-white/60 leading-relaxed max-w-xl">
+            {t('beta.inviteLinkDisclaimer')}
+          </p>
+          <div className="flex flex-wrap items-center gap-4 bg-[#0c0e14] p-4 rounded border border-white/5 text-xs font-mono">
+            <div>
+              <span className="text-white/40 block">{t('beta.inviteLinkTitle')}</span>
+              <span className="text-white font-bold text-[11px] truncate select-all">{window.location.origin}/?ref={proof.user.id}</span>
+            </div>
+            <div className="ml-auto flex items-center gap-2">
+              <ShareButton id={proof.user.id} type="home" title={t('beta.joinMeOnKairo')} variant="inline" referrerId={proof.user.id} />
+            </div>
+          </div>
+        </section>
+      )}
+
 
       {/* Boosted Catalysts & Submissions lists */}
       <div className="grid gap-6 xl:grid-cols-2">

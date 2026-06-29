@@ -7,6 +7,20 @@ import { fallbackText, formatDate, formatFundingStatusLabel, formatMomentumCount
 import { ActionButton, ActionLink, DataRow, EmptyPanel, MomentumBar, PageHero, Panel, StatusChip, AnimatedCounter, PointerGlowCard } from '../components/runtimeUi';
 import { EmptyState, ErrorState, LoadingState } from './pageUtils';
 import { useI18n } from '../i18n/useI18n';
+import { getRevivalState, getRevivalStateLabel, getRevivalStateTone } from '../lib/revivalState';
+import ShareButton from '../components/ShareButton';
+
+function getStoredReferralContext() {
+  if (typeof window === 'undefined' || !window.sessionStorage) {
+    return { referrerId: undefined, source: 'direct' as const };
+  }
+
+  const referrerId = window.sessionStorage.getItem('kairo-referrer-id')?.trim() || undefined;
+  return {
+    referrerId,
+    source: referrerId ? ('referral' as const) : ('direct' as const),
+  };
+}
 
 type ApiBounty = PublicBountyRecord & {
   tokenSymbol?: string | null;
@@ -57,8 +71,9 @@ export function CatalystDetailPage() {
 
   const handleBoost = async () => {
     try {
-      const result = await boostBounty(id);
-      setBoostMessage(result.duplicate ? t('submissionDetail.boostSuccess') : t('catalysts.boostSuccessDelta', { delta: String(result.pointsDelta ?? 0) }));
+      const { referrerId, source } = getStoredReferralContext();
+      const result = await boostBounty(id, referrerId, source);
+      setBoostMessage(result.duplicate ? t('catalysts.boostSuccess') : t('catalysts.boostSuccessDelta', { delta: String(result.pointsDelta ?? 0) }));
       if (!result.duplicate) {
         setBoostSuccess(true);
         setTimeout(() => setBoostSuccess(false), 700);
@@ -89,11 +104,19 @@ export function CatalystDetailPage() {
           <span className="inline-flex rounded border border-[#ffb95f]/20 bg-[#ffb95f]/5 px-2 py-0.5 text-[9px] font-mono font-semibold uppercase tracking-wider text-[#ffb95f]">
             {t('catalysts.activeCatalystLanes')}
           </span>
-          <span className="text-white/40 font-mono text-[9px] uppercase tracking-wider">{t('catalysts.detailEyebrow')}: Discovery Mode</span>
+          <StatusChip tone={getRevivalStateTone(getRevivalState(catalyst))}>
+            {getRevivalStateLabel(getRevivalState(catalyst), locale)}
+          </StatusChip>
         </div>
-        <h1 className="font-sans text-3xl sm:text-5xl font-bold tracking-tight text-white mb-3">{catalyst.title}</h1>
-        <p className="font-sans text-[#c4c7c7] text-sm sm:text-base max-w-3xl leading-relaxed">{catalyst.description}</p>
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+          <h1 className="font-sans text-3xl sm:text-5xl font-bold tracking-tight text-white">{catalyst.title}</h1>
+          <div className="shrink-0">
+            <ShareButton id={catalyst.id} type="catalyst" title={catalyst.title} variant="full" />
+          </div>
+        </div>
+        <p className="font-sans text-[#c4c7c7] text-sm sm:text-base max-w-3xl leading-relaxed mt-3">{catalyst.description}</p>
       </div>
+
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Details, Objectives, Milestones */}
@@ -255,12 +278,26 @@ export function CatalystDetailPage() {
                 {t('catalysts.boostButton')}
               </ActionButton>
               {boostMessage ? (
-                <div className="mt-4 w-full rounded border border-white/5 bg-white/[0.02] p-3 text-[11px] font-mono text-[#ffb95f]">
-                  {boostMessage}
+                <div className="mt-4 w-full text-left rounded border border-white/5 bg-white/[0.02] p-4 space-y-3 font-mono">
+                  <div className="text-[11px] text-[#ffb95f]">
+                    {boostMessage}
+                  </div>
+                  <div className="border-t border-white/5 pt-3 space-y-2 text-[10px]">
+                    <div className="text-white/40 font-bold uppercase">{t('beta.nextActionsTitle')}</div>
+                    <div className="flex flex-col gap-1.5">
+                      <Link to="/proof" className="text-[#ffb95f] hover:underline flex items-center gap-1">
+                        {t('beta.nextViewProof')}
+                      </Link>
+                      <Link to="/catalysts" className="text-white/60 hover:text-white transition-colors">
+                        {t('beta.nextBoostAnother')}
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               ) : null}
             </div>
           </section>
+
 
           {/* Builder Bounty */}
           <section className="glass-panel rounded-lg p-6">

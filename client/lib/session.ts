@@ -37,6 +37,14 @@ export function getSessionHeaders(identity: DemoIdentity = DEFAULT_DEMO_IDENTITY
     'x-kairo-role': identity.role,
   };
   if (identity.adminToken) headers['x-kairo-admin-token'] = identity.adminToken;
+  
+  if (typeof window !== 'undefined' && window.sessionStorage) {
+    const betaToken = window.sessionStorage.getItem('x-kairo-beta-token');
+    if (betaToken) {
+      headers['x-kairo-beta-token'] = betaToken;
+    }
+  }
+  
   return headers;
 }
 

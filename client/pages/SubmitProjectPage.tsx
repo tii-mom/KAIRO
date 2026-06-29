@@ -6,6 +6,7 @@ import type { BountyRecord } from '../../shared/domain';
 import { ErrorState, LoadingState } from './pageUtils';
 import { FormField, FormTextArea, ActionButton } from '../components/runtimeUi';
 import { useI18n } from '../i18n/useI18n';
+import BetaAccessGate from '../components/BetaAccessGate';
 
 export default function SubmitProjectPage() {
   const { id } = useParams();
@@ -15,6 +16,13 @@ export default function SubmitProjectPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const hasBetaWriteToken = typeof window !== 'undefined' && 
+    window.sessionStorage && 
+    Boolean(window.sessionStorage.getItem('x-kairo-beta-token'));
+
+  const [hasWriteAccess, setHasWriteAccess] = useState(hasBetaWriteToken);
+
 
   useEffect(() => {
     if (!id) return;
@@ -66,6 +74,26 @@ export default function SubmitProjectPage() {
       setIsSubmitting(false);
     }
   };
+
+  if (!hasWriteAccess) {
+    return (
+      <div className="max-w-4xl mx-auto py-12 space-y-8">
+        <section className="glass-panel p-6 sm:p-8">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-[#ffb95f]">
+            <Send className="h-4 w-4 text-[#EE1C25] animate-pulse" />
+            {t('submitProject.eyebrow')}
+          </div>
+          <h1 className="mt-4 text-3xl font-bold tracking-tight text-white leading-none">
+            {t('submitProject.title', { title: catalyst?.title ?? 'Catalyst' })}
+          </h1>
+          <p className="mt-2 text-xs text-white/50 leading-5">
+            {t('submitProject.description')}
+          </p>
+        </section>
+        <BetaAccessGate onSuccess={() => setHasWriteAccess(true)} />
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto pb-12">
@@ -141,3 +169,4 @@ export default function SubmitProjectPage() {
     </form>
   );
 }
+

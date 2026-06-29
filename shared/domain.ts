@@ -268,3 +268,17 @@ export const fundingStatusLabels: Record<'en-US' | 'zh-CN' | 'ko-KR', Record<(ty
     cancelled: '외부에서 취소한 보상',
   }
 };
+
+export const shareEventSchema = z.object({
+  targetType: z.enum(['catalyst', 'submission', 'proof', 'home']),
+  targetId: z.string().optional(),
+  channel: z.enum(['copy', 'x', 'telegram']),
+  referrerId: z.string().optional(),
+  source: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+export type ShareEventInput = z.infer<typeof shareEventSchema>;
+
+export type RevivalState = 'sleeping' | 'warming' | 'ignited' | 'building' | 'verified' | 'comeback' | 'hall_of_revival';
+

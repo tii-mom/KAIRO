@@ -1,4 +1,5 @@
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Activity, Award, FlaskConical, HeartHandshake, MessageSquare, ShieldCheck, Sparkles, Trophy, Plus } from 'lucide-react';
 import { SignalTicker, cx } from './components/runtimeUi';
 import { useI18n } from './i18n/useI18n';
@@ -6,6 +7,16 @@ import LanguageSwitcher from './i18n/LanguageSwitcher';
 
 export default function RuntimeV2Shell() {
   const { t } = useI18n();
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const refVal = params.get('ref');
+    if (refVal && typeof window !== 'undefined' && window.sessionStorage) {
+      window.sessionStorage.setItem('kairo-referrer-id', refVal);
+    }
+  }, [location]);
+
 
   const navItems = [
     { to: '/', label: t('nav.home'), icon: Sparkles },

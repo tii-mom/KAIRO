@@ -10,4 +10,5 @@ content/*.generated.sql
 backups/
 design-reference/
 .ai-bridge/
+.wrangler/
 

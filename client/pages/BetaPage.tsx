@@ -1,6 +1,7 @@
 import { CheckCircle2, FlaskConical, ShieldAlert } from 'lucide-react';
 import { ActionLink, EmptyPanel, PageHero, Panel } from '../components/runtimeUi';
 import { useI18n } from '../i18n/useI18n';
+import BetaAccessGate from '../components/BetaAccessGate';
 
 export default function BetaPage() {
   const { t } = useI18n();
@@ -23,11 +24,14 @@ export default function BetaPage() {
           { label: t('beta.boundary'), value: t('beta.boundaryValue'), detail: t('beta.boundaryDetail'), tone: 'emerald' },
         ]}
         aside={
-          <Panel eyebrow={t('beta.limitsEyebrow')} title={t('beta.limitsTitle')} icon={FlaskConical}>
-            <div className="rounded border border-white/5 bg-[#050608] p-4 text-xs leading-5 text-white/50">
-              {t('beta.limitsDesc')}
-            </div>
-          </Panel>
+          <div className="space-y-6">
+            <Panel eyebrow={t('beta.limitsEyebrow')} title={t('beta.limitsTitle')} icon={FlaskConical}>
+              <div className="rounded border border-white/5 bg-[#050608] p-4 text-xs leading-5 text-white/50">
+                {t('beta.limitsDesc')}
+              </div>
+            </Panel>
+            <BetaAccessGate />
+          </div>
         }
       />
 

@@ -7,6 +7,20 @@ import { ErrorState, LoadingState } from './pageUtils';
 import { ActionButton, StatusChip } from '../components/runtimeUi';
 import { useI18n } from '../i18n/useI18n';
 
+import ShareButton from '../components/ShareButton';
+
+function getStoredReferralContext() {
+  if (typeof window === 'undefined' || !window.sessionStorage) {
+    return { referrerId: undefined, source: 'direct' as const };
+  }
+
+  const referrerId = window.sessionStorage.getItem('kairo-referrer-id')?.trim() || undefined;
+  return {
+    referrerId,
+    source: referrerId ? ('referral' as const) : ('direct' as const),
+  };
+}
+
 export default function SubmissionDetailPage() {
   const { id } = useParams();
   const { t } = useI18n();
@@ -40,7 +54,8 @@ export default function SubmissionDetailPage() {
 
   const handleBoost = async () => {
     try {
-      const result = await boostSubmission(submission.id, submission.bountyId);
+      const { referrerId, source } = getStoredReferralContext();
+      const result = await boostSubmission(submission.id, submission.bountyId, referrerId, source);
       setBoostMessage(result.duplicate ? t('submissionDetail.boostDuplicate') : t('submissionDetail.boostSuccessDelta', { delta: String(result.pointsDelta ?? 0) }));
       await load();
     } catch (boostError) {
@@ -50,9 +65,12 @@ export default function SubmissionDetailPage() {
 
   return (
     <article className="glass-panel p-6 sm:p-8 max-w-4xl mx-auto space-y-6 pb-12">
-      <Link to={`/catalysts/${submission.bountyId}`} className="text-xs font-mono font-bold uppercase tracking-wider text-[#ffb95f] hover:underline">
-        ← {t('submissionDetail.backToCatalyst')}
-      </Link>
+      <div className="flex justify-between items-center">
+        <Link to={`/catalysts/${submission.bountyId}`} className="text-xs font-mono font-bold uppercase tracking-wider text-[#ffb95f] hover:underline">
+          ← {t('submissionDetail.backToCatalyst')}
+        </Link>
+        <ShareButton id={submission.id} type="submission" title={submission.name} variant="compact" />
+      </div>
       
       <div className="border-b border-white/5 pb-4">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">{submission.name}</h1>
@@ -94,8 +112,21 @@ export default function SubmissionDetailPage() {
       </div>
 
       {boostMessage ? (
-        <div className="rounded border border-white/5 bg-[#050608] p-3 text-xs font-mono text-[#ffb95f] mt-4">
-          {boostMessage}
+        <div className="rounded border border-white/5 bg-[#050608] p-4 space-y-3 font-mono">
+          <div className="text-xs text-[#ffb95f]">
+            {boostMessage}
+          </div>
+          <div className="border-t border-white/5 pt-3 space-y-2 text-[10px]">
+            <div className="text-white/40 font-bold uppercase">{t('beta.nextActionsTitle')}</div>
+            <div className="flex flex-col gap-1.5">
+              <Link to="/proof" className="text-[#ffb95f] hover:underline">
+                {t('beta.nextViewProof')}
+              </Link>
+              <Link to={`/catalysts/${submission.bountyId}`} className="text-white/60 hover:text-white transition-colors">
+                {t('beta.nextBackToCatalyst')}
+              </Link>
+            </div>
+          </div>
         </div>
       ) : null}
     </article>
