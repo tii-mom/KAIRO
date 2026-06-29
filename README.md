@@ -196,6 +196,12 @@ Operational notes:
 - `GET /api/support/proof/:userId`
 - `GET /api/proof-of-support`
 
+### Share Events & Referrals
+
+- `POST /api/share-events`
+- `GET /api/share-events/me`
+- `GET /api/referral/me`
+
 ### Curated Runtime
 
 - `GET /api/curated-items`

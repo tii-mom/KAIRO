@@ -185,21 +185,54 @@ export async function createSubmission(input: CreateSubmissionInput, options?: A
   return normalizePublicRecord<SubmissionRecord>(response.data);
 }
 
-export async function boostBounty(bountyId: string, options?: ApiClientOptions): Promise<BoostResponse> {
+export interface RecordShareInput {
+  targetType: 'catalyst' | 'submission' | 'proof' | 'home';
+  targetId?: string;
+  channel: 'copy' | 'x' | 'telegram';
+  referrerId?: string;
+  source?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface ReferralSummary {
+  userId: string;
+  referralCode: string;
+  shareCount: number;
+  referralCount: number;
+  sharePoints: number;
+  referralPoints: number;
+}
+
+export async function recordShareEvent(input: RecordShareInput, options?: ApiClientOptions): Promise<{ id: string; pointsDelta: number; duplicate: boolean; message: string }> {
+  const response = await requestJson<ApiEnvelope<{ id: string; pointsDelta: number; duplicate: boolean; message: string }>>('/api/share-events', jsonInit('POST', input), options);
+  return response.data;
+}
+
+export async function getReferralSummary(options?: ApiClientOptions): Promise<ReferralSummary> {
+  const response = await requestJson<ApiEnvelope<ReferralSummary>>('/api/referral/me', undefined, options);
+  return response.data;
+}
+
+export async function listMyShareEvents(options?: ApiClientOptions): Promise<Array<Record<string, unknown>>> {
+  const response = await requestJson<ApiEnvelope<Array<Record<string, unknown>>>>('/api/share-events/me', undefined, options);
+  return response.data;
+}
+
+export async function boostBounty(bountyId: string, referralId?: string, source = 'direct', options?: ApiClientOptions): Promise<BoostResponse> {
   const identity = options?.identity ?? DEFAULT_DEMO_IDENTITY;
   const response = await requestJson<ApiEnvelope<BoostResponse>>(
     '/api/boosts',
-    jsonInit('POST', { bountyId, userId: identity.id, source: 'direct' }),
+    jsonInit('POST', { bountyId, userId: identity.id, referrerId: referralId, source }),
     { ...options, identity },
   );
   return response.data;
 }
 
-export async function boostSubmission(submissionId: string, bountyId?: string, options?: ApiClientOptions): Promise<BoostResponse> {
+export async function boostSubmission(submissionId: string, bountyId?: string, referralId?: string, source = 'direct', options?: ApiClientOptions): Promise<BoostResponse> {
   const identity = options?.identity ?? DEFAULT_DEMO_IDENTITY;
   const response = await requestJson<ApiEnvelope<BoostResponse>>(
     '/api/boosts',
-    jsonInit('POST', { bountyId, submissionId, userId: identity.id, source: 'direct' }),
+    jsonInit('POST', { bountyId, submissionId, userId: identity.id, referrerId: referralId, source }),
     { ...options, identity },
   );
   return response.data;
@@ -209,6 +242,7 @@ export async function getLeaderboard(options?: ApiClientOptions): Promise<Leader
   const response = await requestJson<ApiEnvelope<LeaderboardResponse>>('/api/leaderboard', undefined, options);
   return response.data;
 }
+
 
 export async function getLeaderboardCategory<T = Array<Record<string, unknown>>>(category: string, options?: ApiClientOptions): Promise<T> {
   const response = await requestJson<ApiEnvelope<T>>(`/api/leaderboard/${category}`, undefined, options);

@@ -204,3 +204,12 @@ Operator guidance:
 - Rotate the token if it is shared in the wrong channel.
 - A second rotation (Secret Rotation V2) was executed on 2026-06-28 to replace credentials that may have been exposed in execution logs. Both Pages and Workers secrets were rotated successfully.
 - Replace this shared-token gate with stronger operator auth before open beta or public launch.
+
+## Multi-lingual UI Support
+
+As of KAIRO I18N V1, the front-end has complete translation coverage (>99% visible strings) for:
+- English (en-US, default)
+- Simplified Chinese (zh-CN)
+- Korean (ko-KR)
+
+Users can toggle languages via the Language Switcher in the top navigation header. All static UI text, error messages, and form labels adapt to the selected language. Dynamic entity content (like token symbols, external proof URLs, or builder submissions) remains in its original language.

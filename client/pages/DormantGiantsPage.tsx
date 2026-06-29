@@ -4,8 +4,10 @@ import { listCuratedItemsByType } from '../lib/api';
 import type { CuratedItemRecord } from '../../shared/domain';
 import { DataRow, EmptyPanel, PageHero, Panel, StatusChip } from '../components/runtimeUi';
 import { ErrorState, LoadingState } from './pageUtils';
+import { useI18n } from '../i18n/useI18n';
 
 export default function DormantGiantsPage() {
+  const { t } = useI18n();
   const [giants, setGiants] = useState<CuratedItemRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,30 +29,30 @@ export default function DormantGiantsPage() {
     void load();
   }, []);
 
-  if (isLoading) return <LoadingState label="Loading Dormant Giants telemetry watchlist..." />;
+  if (isLoading) return <LoadingState label={t('dormantGiants.loading')} />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
 
   return (
     <div className="space-y-8 pb-12">
       <PageHero
-        eyebrow="Giant Watchlist"
-        title="Dormant Giant Token watchlist and metrics"
-        description="A registry dashboard tracking high-potential legacy tokens with established communities, historical scale, and high comeback potential."
+        eyebrow={t('dormantGiants.giantWatchlist')}
+        title={t('dormantGiants.watchlistTitle')}
+        description={t('dormantGiants.watchlistDesc')}
         stats={[
-          { label: 'Ecosystems Tracked', value: giants.length, detail: 'Dormant Giant records verified' },
-          { label: 'Lane Type', value: 'Editorial', detail: 'Curated by community operations', tone: 'sky' },
-          { label: 'Target Focus', value: 'Comeback', detail: 'Reactivating developer attention pipelines', tone: 'emerald' },
+          { label: t('dormantGiants.ecosystemsTracked'), value: giants.length, detail: t('dormantGiants.recordsVerified') },
+          { label: t('dormantGiants.laneType'), value: t('dormantGiants.editorial'), detail: t('dormantGiants.curatedByOps'), tone: 'sky' },
+          { label: t('dormantGiants.targetFocus'), value: t('dormantGiants.comeback'), detail: t('dormantGiants.reactivatingPipelines'), tone: 'emerald' },
         ]}
         aside={
-          <Panel eyebrow="Platform boundary" title="Watchlist Disclaimer" icon={Radar}>
+          <Panel eyebrow={t('dormantGiants.boundaryEyebrow')} title={t('dormantGiants.boundaryTitle')} icon={Radar}>
             <p className="text-xs leading-5 text-white/50">
-              Giant Watchlist is for community signal and coordination tracking, containing zero buy/sell metrics or trading services.
+              {t('dormantGiants.boundaryDesc')}
             </p>
           </Panel>
         }
       />
 
-      <Panel eyebrow="Telemetry logs" title="Dormant Giant watchlist records" icon={Orbit}>
+      <Panel eyebrow={t('dormantGiants.telemetryLogs')} title={t('dormantGiants.watchlistRecords')} icon={Orbit}>
         {giants.length ? (
           <div className="grid gap-3">
             {giants.map((item, index) => (
@@ -66,8 +68,8 @@ export default function DormantGiantsPage() {
           </div>
         ) : (
           <EmptyPanel
-            title="Watchlist registry is empty"
-            description="Giant logs will stream here once operators verify ecosystem records."
+            title={t('dormantGiants.noGiants')}
+            description={t('dormantGiants.noGiantsDesc')}
           />
         )}
       </Panel>

@@ -109,9 +109,10 @@ const usesSearchParams = leaderboardSource.includes('useSearchParams') && leader
 check(usesSearchParams, 'Leaderboard uses active searchParams tab states instead of fake mock tabs');
 
 // 6. Illustrative disclaimers
+const localesSource = readFileSync(path.join(root, 'client/i18n/locales.ts'), 'utf8');
 const catalystsSource = readFileSync(path.join(root, 'client/pages/CatalystsPage.tsx'), 'utf8');
-const hasTelemetryDisclaimer = catalystsSource.includes('Illustrative preview — not chain, market, or reward data.');
-check(hasTelemetryDisclaimer, 'Static telemetry shows illustrative warnings');
+const hasTelemetryDisclaimer = localesSource.includes("'Illustrative preview — not chain, market, or reward data.'") && catalystsSource.includes("t('common.telemetryDisclaimer')");
+check(hasTelemetryDisclaimer, 'Static telemetry shows illustrative warnings via translation provider');
 
 // 7. Admin action audit reasons
 const hasAdminReasonLog = indexSource.includes('JSON.stringify(noteObj)') && indexSource.includes('reason:');

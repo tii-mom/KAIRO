@@ -4,7 +4,6 @@ import {
   Activity,
   ArrowRight,
   HeartHandshake,
-  Radar,
   ShieldCheck,
   Sparkles,
   Trophy,
@@ -13,10 +12,15 @@ import {
 import { getLeaderboard, listBounties, listCuratedItemsByPlacement, type LeaderboardResponse } from '../lib/api';
 import type { BountyRecord, CuratedItemRecord } from '../../shared/domain';
 import { formatFundingStatusLabel, formatMomentumCount } from '../lib/formatters';
-import { ActionLink, EmptyPanel, Panel, StatusChip, AnimatedCounter, PointerGlowCard } from '../components/runtimeUi';
+import { EmptyPanel, Panel, StatusChip, AnimatedCounter, PointerGlowCard } from '../components/runtimeUi';
 import { ErrorState, LoadingState } from './pageUtils';
+import { useI18n } from '../i18n/useI18n';
+
+import { getRevivalState, getRevivalStateTone, getRevivalStateLabel } from '../lib/revivalState';
+import ShareButton from '../components/ShareButton';
 
 export default function RuntimeHomePage() {
+  const { t, locale } = useI18n();
   const [catalysts, setCatalysts] = useState<BountyRecord[]>([]);
   const [curatedItems, setCuratedItems] = useState<CuratedItemRecord[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardResponse | null>(null);
@@ -46,7 +50,7 @@ export default function RuntimeHomePage() {
     void load();
   }, []);
 
-  if (isLoading) return <LoadingState label="Loading KAIRO console..." />;
+  if (isLoading) return <LoadingState label={t('common.loading')} />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
 
   const featured = curatedItems.filter((item) => item.itemType === 'featured_catalyst').slice(0, 3);
@@ -56,6 +60,7 @@ export default function RuntimeHomePage() {
 
   return (
     <div className="space-y-8 pb-12">
+
       {/* Visual Hero Block */}
       <section className="glass-panel p-6 sm:p-10 xl:p-12 relative overflow-hidden pulse-bg">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0c0e14]/50 to-[#0c0e14] z-0 pointer-events-none" />
@@ -65,23 +70,23 @@ export default function RuntimeHomePage() {
           <div className="lg:col-span-7 text-left space-y-6">
             <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded border border-[#EE1C25]/30 bg-[#EE1C25]/5 backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-[#EE1C25] shadow-[0_0_5px_rgba(238,28,37,0.8)] animate-ping" />
-              <h2 className="font-mono text-[10px] text-[#EE1C25] tracking-[0.25em] uppercase font-bold">喚醒沉睡的代幣</h2>
+              <h2 className="font-mono text-[10px] text-[#EE1C25] tracking-[0.25em] uppercase font-bold">{t('beta.arenaTitle')}</h2>
             </div>
             <h1 className="font-sans text-3xl sm:text-5xl xl:text-6xl font-bold tracking-tight text-white leading-tight">
-              Reignite the <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ffb95f] via-[#ffd285] to-[#ffb95f] glow-text-primary">Dormant</span>
+              {t('beta.arenaHeader')}
             </h1>
             <p className="font-sans text-sm sm:text-base text-[#c4c7c7] leading-relaxed max-w-xl">
-              The institutional resurrection platform for legacy tokens. Revitalize dormant token ecosystems through community coordination, builder solutions, and proof-supported momentum.
+              {t('beta.arenaDesc')}
             </p>
             <div className="flex flex-wrap gap-3 items-center">
               <Link to="/catalysts" className="btn-primary px-6 py-3 text-xs uppercase tracking-widest font-bold w-full sm:w-auto text-center">
-                Explore Catalysts
+                {t('beta.btnBoostToken')}
               </Link>
               <Link to="/create-catalyst" className="btn-ignite px-6 py-3 text-xs uppercase tracking-widest font-bold w-full sm:w-auto text-center">
-                Ignite a Catalyst
+                {t('beta.btnSubmitDeadToken')}
               </Link>
-              <Link to="/leaderboard" className="btn-ghost px-6 py-3 text-xs uppercase tracking-widest font-bold w-full sm:w-auto text-center">
-                Explore The Grid
+              <Link to="/proof" className="btn-ghost px-6 py-3 text-xs uppercase tracking-widest font-bold w-full sm:w-auto text-center">
+                {t('beta.btnClaimProof')}
               </Link>
             </div>
           </div>
@@ -94,40 +99,40 @@ export default function RuntimeHomePage() {
               <div className="flex justify-between items-center border-b border-white/5 pb-3 mb-4 z-10 relative">
                 <span className="text-[10px] font-mono text-white/50 uppercase tracking-widest flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#EE1C25] animate-pulse" />
-                  Live Telemetry
+                  {t('home.liveTelemetry')}
                 </span>
                 <span className="text-[9px] font-mono text-[#ffb95f] bg-[#ffb95f]/10 border border-[#ffb95f]/20 px-2 py-0.5 rounded">
-                  CONSOLE V2
+                  {t('home.consoleV2')}
                 </span>
               </div>
 
               <div className="space-y-4 z-10 relative">
                 <div className="flex justify-between items-center py-2 border-b border-white/5">
-                  <span className="text-[10px] font-mono text-white/40 uppercase">ACTIVE CATALYSTS</span>
+                  <span className="text-[10px] font-mono text-white/40 uppercase">{t('home.activeCatalysts')}</span>
                   <span className="font-mono text-sm font-bold text-white">
                     <AnimatedCounter value={catalysts.length} />
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-white/5">
-                  <span className="text-[10px] font-mono text-white/40 uppercase">SUPPORT PROOFS</span>
+                  <span className="text-[10px] font-mono text-white/40 uppercase">{t('home.supportProofs')}</span>
                   <span className="font-mono text-sm font-bold text-white">
                     <AnimatedCounter value={leaderboard?.mostBoostedSubmissions.length ?? 0} />
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-white/5">
-                  <span className="text-[10px] font-mono text-white/40 uppercase">SIGNAL LANES</span>
+                  <span className="text-[10px] font-mono text-white/40 uppercase">{t('home.signalLanes')}</span>
                   <span className="font-mono text-sm font-bold text-white">
                     <AnimatedCounter value={curatedItems.length} />
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-[10px] font-mono text-white/40 uppercase">NETWORK STATE</span>
+                  <span className="text-[10px] font-mono text-white/40 uppercase">{t('home.networkState')}</span>
                   <span className="text-[9px] font-mono text-[#4ade80] uppercase tracking-wider font-semibold">
-                    ONLINE // SECURE
+                    {t('home.onlineSecure')}
                   </span>
                 </div>
                 <div className="text-[8px] font-mono text-white/30 mt-3 pt-2 border-t border-white/5 leading-snug">
-                  Derived from valid Boosts, submissions, and reviewed evidence. Not financial telemetry.
+                  {t('home.telemetryDesc')}
                 </div>
               </div>
             </PointerGlowCard>
@@ -135,28 +140,70 @@ export default function RuntimeHomePage() {
         </div>
       </section>
 
+      {/* Role Cards Section */}
+      <section className="grid gap-6 md:grid-cols-3">
+        <PointerGlowCard className="glass-panel p-6 bg-[#0c0e14]/40 hover:border-[#ffb95f]/30 transition-all flex flex-col justify-between">
+          <div>
+            <span className="text-[10px] font-mono text-[#ffb95f] uppercase tracking-widest">[01] {t('beta.roleHolderTitle')}</span>
+            <p className="text-xs text-white/60 leading-relaxed mt-2">
+              {t('beta.roleHolderDesc')}
+            </p>
+          </div>
+          <Link to="/catalysts" className="btn-primary mt-4 py-2 text-center text-xs font-bold uppercase tracking-wider">
+            {t('beta.roleHolderAction')}
+          </Link>
+        </PointerGlowCard>
+
+        <PointerGlowCard className="glass-panel p-6 bg-[#0c0e14]/40 hover:border-[#ffb95f]/30 transition-all flex flex-col justify-between">
+          <div>
+            <span className="text-[10px] font-mono text-[#ffb95f] uppercase tracking-widest">[02] {t('beta.roleOwnerTitle')}</span>
+            <p className="text-xs text-white/60 leading-relaxed mt-2">
+              {t('beta.roleOwnerDesc')}
+            </p>
+          </div>
+          <Link to="/create-catalyst" className="btn-ignite mt-4 py-2 text-center text-xs font-bold uppercase tracking-wider">
+            {t('beta.roleOwnerAction')}
+          </Link>
+        </PointerGlowCard>
+
+        <PointerGlowCard className="glass-panel p-6 bg-[#0c0e14]/40 hover:border-[#ffb95f]/30 transition-all flex flex-col justify-between">
+          <div>
+            <span className="text-[10px] font-mono text-[#ffb95f] uppercase tracking-widest">[03] {t('home.roleBuilderTitle')}</span>
+            <p className="text-xs text-white/60 leading-relaxed mt-2">
+              {t('beta.roleBuilderDesc')}
+            </p>
+          </div>
+          <Link to="/catalysts" className="btn-ghost mt-4 py-2 text-center text-xs font-bold uppercase tracking-wider">
+            {t('beta.roleBuilderAction')}
+          </Link>
+        </PointerGlowCard>
+      </section>
+
       {/* Operational Panels */}
       <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
         
         {/* Protocol Signal Board */}
         <Panel
-          eyebrow="Momentum Board"
-          title="Featured Catalyst Lanes"
-          description="Curated high-stakes resurrection briefs resolve into the general board."
+          eyebrow={t('home.momentumBoard')}
+          title={t('home.featuredCatalysts')}
+          description={t('home.featuredDesc')}
           icon={Sparkles}
         >
           <div className="grid gap-3">
             {(featured.length ? featured : curatedItems.slice(0, 3)).map((item) => {
               const cRec = catalysts.find((c) => String(c.id) === String(item.targetId));
+              const rState = cRec ? getRevivalState(cRec) : 'sleeping';
               return (
                 <PointerGlowCard key={item.id} className="glass-panel p-4 hover:border-[#ffb95f]/30 transition-all duration-300 bg-[#050608]/50 kairo-tilt">
                   <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-bold text-white">{item.title}</span>
-                        <StatusChip tone="gold">{(item.itemType ?? 'curated').replace(/_/g, ' ')}</StatusChip>
+                        <StatusChip tone={getRevivalStateTone(rState)}>
+                          {getRevivalStateLabel(rState, locale)}
+                        </StatusChip>
                       </div>
-                      <p className="text-xs text-white/50 mt-1 max-w-xl">{item.description ?? 'Curated ecosystem lane'}</p>
+                      <p className="text-xs text-white/50 mt-1 max-w-xl">{item.description ?? t('home.curatedEcosystemLane')}</p>
                     </div>
                     
                     <div className="flex flex-wrap gap-4 items-center text-xs font-mono">
@@ -176,17 +223,22 @@ export default function RuntimeHomePage() {
                           </div>
                           <div className="text-left min-w-[70px]">
                             <div className="text-[8px] text-white/30 uppercase">STATUS</div>
-                            <div className="text-[#4ade80] font-semibold">{formatFundingStatusLabel(cRec.fundingStatus)}</div>
+                            <div className="text-[#4ade80] font-semibold">{formatFundingStatusLabel(cRec.fundingStatus, locale)}</div>
                           </div>
                         </>
                       ) : (
                         <div className="text-left text-white/30 italic text-[10px]">
-                          Target details loading...
+                          {t('home.targetDetailsLoading')}
                         </div>
                       )}
-                      <Link to={cRec ? `/catalysts/${cRec.id}` : '/catalysts'} className="btn-ghost px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider shrink-0">
-                        View Lane
-                      </Link>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Link to={cRec ? `/catalysts/${cRec.id}` : '/catalysts'} className="btn-ghost px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider">
+                          {t('catalysts.viewDetails')}
+                        </Link>
+                        {cRec && (
+                          <ShareButton id={cRec.id} type="catalyst" title={cRec.title} variant="inline" />
+                        )}
+                      </div>
                     </div>
                   </div>
                 </PointerGlowCard>
@@ -194,8 +246,8 @@ export default function RuntimeHomePage() {
             })}
             {!featured.length && !curatedItems.length ? (
               <EmptyPanel
-                title="No curated lanes published"
-                description="Ecosystem curators haven't designated homepage lanes yet."
+                title={t('home.noCuratedLanesTitle')}
+                description={t('home.noCuratedLanesDesc')}
               />
             ) : null}
           </div>
@@ -203,9 +255,9 @@ export default function RuntimeHomePage() {
 
         {/* High Density Activity Stream */}
         <Panel
-          eyebrow="Activity Feed"
-          title="Hot Catalyst Stream"
-          description="Live momentum rankings driven by support boosts and active developer submissions."
+          eyebrow={t('home.activityFeed')}
+          title={t('home.hotCatalystStream')}
+          description={t('home.hotCatalystStreamDesc')}
           icon={Activity}
         >
           <div className="grid gap-3">
@@ -224,7 +276,7 @@ export default function RuntimeHomePage() {
                       <div className="min-w-0">
                         <div className="truncate text-white font-semibold">{String(row.title ?? 'Untitled Catalyst')}</div>
                         <div className="text-[9px] text-white/30 mt-0.5 uppercase">
-                          SIGNAL: {index === 0 ? 'IGNITED_RUNNER' : 'CATALYST_LANE'}
+                          SIGNAL: {index === 0 ? t('home.signalIgnitedRunner') : t('home.signalCatalystLane')}
                         </div>
                       </div>
                     </div>
@@ -234,14 +286,14 @@ export default function RuntimeHomePage() {
                         <div className="text-[8px] text-white/30 uppercase">MOMENTUM</div>
                       </div>
                       <StatusChip tone={index === 0 ? 'red' : 'slate'}>
-                        {index === 0 ? 'ignited' : 'active'}
+                        {index === 0 ? t('home.signalIgnitedRunner') : t('catalysts.filterActive')}
                       </StatusChip>
                     </div>
                   </Link>
                 ))}
               </div>
             ) : (
-              <EmptyPanel title="Awaiting stream signal" description="Lanes will populate here as booster actions happen." />
+              <EmptyPanel title={t('home.awaitingStreamSignal')} description={t('home.awaitingStreamSignalDesc')} />
             )}
           </div>
         </Panel>
@@ -251,11 +303,11 @@ export default function RuntimeHomePage() {
         
         {/* Reward telemetry */}
         <Panel
-          eyebrow="Reward Telemetry"
-          title="Confirmed External Reward Evidence Records"
-          description="External coordination labels summarizing token rewards without asset control transfers."
+          eyebrow={t('home.rewardTelemetry')}
+          title={t('home.confirmedEvidenceTitle')}
+          description={t('home.confirmedEvidenceDesc')}
           icon={ShieldCheck}
-          action={<Link className="btn-ghost px-4 py-1.5 text-[10px]" to="/catalysts">View All Catalysts</Link>}
+          action={<Link className="btn-ghost px-4 py-1.5 text-[10px]" to="/catalysts">{t('home.viewAllCatalysts')}</Link>}
         >
           <div className="grid gap-3">
             {confirmed.length ? (
@@ -264,7 +316,7 @@ export default function RuntimeHomePage() {
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs font-bold text-white">{item.title}</span>
-                      <StatusChip tone="emerald">{formatFundingStatusLabel(item.fundingStatus)}</StatusChip>
+                      <StatusChip tone="emerald">{formatFundingStatusLabel(item.fundingStatus, locale)}</StatusChip>
                     </div>
                     <p className="text-xs text-white/50 mt-1 max-w-xl">{item.description}</p>
                   </div>
@@ -274,15 +326,15 @@ export default function RuntimeHomePage() {
                       <div className="text-white font-bold">{formatMomentumCount(item.momentumScore)}</div>
                     </div>
                     <Link to={`/catalysts/${item.id}`} className="btn-ghost px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider">
-                      Open Detail
+                      {t('catalysts.viewDetails')}
                     </Link>
                   </div>
                 </div>
               ))
             ) : (
               <EmptyPanel
-                title="No confirmed reward records logged"
-                description="Operator-reviewed entries will appear here once public proofs are recorded."
+                title={t('home.noConfirmedEvidenceTitle')}
+                description={t('home.noConfirmedEvidenceDesc')}
               />
             )}
           </div>
@@ -290,11 +342,11 @@ export default function RuntimeHomePage() {
 
         {/* Proof Trail */}
         <Panel
-          eyebrow="Proof Trail"
-          title="Most Boosted Solution Feed"
-          description="Previews which builder solutions are attracting the strongest support momentum."
+          eyebrow={t('home.proofTrail')}
+          title={t('home.mostBoostedSolutionsTitle')}
+          description={t('home.mostBoostedSolutionsDesc')}
           icon={HeartHandshake}
-          action={<Link className="btn-ghost px-4 py-1.5 text-[10px]" to="/leaderboard">Open Leaderboards</Link>}
+          action={<Link className="btn-ghost px-4 py-1.5 text-[10px]" to="/leaderboard">{t('leaderboard.title')}</Link>}
         >
           <div className="grid gap-3">
             {mostBoosted.length ? (
@@ -305,7 +357,7 @@ export default function RuntimeHomePage() {
                       <span className="text-xs font-bold text-white">{String(row.name ?? 'Untitled Solution')}</span>
                       <StatusChip tone="sky">proof event</StatusChip>
                     </div>
-                    <p className="text-xs text-white/50 mt-1">Builder Reference ID: <strong className="text-white">{String(row.builder_name ?? row.builder_id ?? 'unknown')}</strong></p>
+                    <p className="text-xs text-white/50 mt-1">{t('home.builderReferenceId')} <strong className="text-white">{String(row.builder_name ?? row.builder_id ?? 'unknown')}</strong></p>
                   </div>
                   <div className="flex flex-wrap gap-4 items-center text-xs font-mono">
                     <div className="text-left">
@@ -313,15 +365,15 @@ export default function RuntimeHomePage() {
                       <div className="text-white font-bold">{String(row.boost_count ?? 0)}</div>
                     </div>
                     <Link to={`/submissions/${String(row.id)}`} className="btn-ghost px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider">
-                      View Solution
+                      {t('submissionDetail.viewSolution')}
                     </Link>
                   </div>
                 </div>
               ))
             ) : (
               <EmptyPanel
-                title="No boosted solutions submitted"
-                description="Solutions will appear here as builders deliver code and supporters boost their files."
+                title={t('home.noBoostedSolutionsTitle')}
+                description={t('home.noBoostedSolutionsDesc')}
               />
             )}
           </div>
@@ -331,40 +383,40 @@ export default function RuntimeHomePage() {
       <div className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
         {/* Protocol Links */}
         <Panel
-          eyebrow="Protocol Links"
-          title="Consoles & Fast Paths"
-          description="Fast command panel switches to navigate key components of the resurrection cycle."
+          eyebrow={t('home.protocolLinks')}
+          title={t('home.fastPathsTitle')}
+          description={t('home.fastPathsDesc')}
           icon={Waves}
         >
           <div className="grid gap-3 sm:grid-cols-2">
             <QuickLink
               to="/builder"
-              title="Builder Board"
-              body="Monitor rank, deliverables, and KAIRO score."
+              title={t('nav.builderBoard')}
+              body={t('home.quickLinkBuilderDesc')}
             />
             <QuickLink
               to="/proof"
-              title="Proof of Support"
-              body="Verify community referral boosts and support records."
+              title={t('nav.supportProof')}
+              body={t('home.quickLinkProofDesc')}
             />
             <QuickLink
               to="/beta"
-              title="Private Beta Lanes"
-              body="Review test limits, active telemetry scopes, and parameters."
+              title={t('nav.beta')}
+              body={t('home.quickLinkBetaDesc')}
             />
             <QuickLink
               to="/feedback"
-              title="Feedback Intake"
-              body="File system blockers, visual glitches, and code suggestions."
+              title={t('nav.feedback')}
+              body={t('home.quickLinkFeedbackDesc')}
             />
           </div>
         </Panel>
 
         {/* Comeback highlights */}
         <Panel
-          eyebrow="Resurrection Stories"
-          title="Comeback Pulse"
-          description="Operator reviews highlighting project revivals and historical dormant giant catalysts."
+          eyebrow={t('home.resurrectionStories')}
+          title={t('home.comebackPulseTitle')}
+          description={t('home.comebackPulseDesc')}
           icon={Trophy}
         >
           <div className="grid gap-3 md:grid-cols-2">
@@ -379,19 +431,19 @@ export default function RuntimeHomePage() {
                   </div>
                   <h3 className="mt-4 text-sm font-bold text-white tracking-tight leading-snug">{item.title}</h3>
                   <p className="mt-2 text-xs leading-5 text-white/50">
-                    {item.description ?? 'Curated comeback highlight item.'}
+                    {item.description ?? t('home.curatedComebackHighlightItem')}
                   </p>
                 </div>
                 <div className="mt-4 font-mono text-[9px] uppercase tracking-wider text-white/30">
-                  Sector: {item.placement}
+                  {t('home.sector')} {item.placement}
                 </div>
               </article>
             ))}
             {!curatedItems.length ? (
               <div className="md:col-span-2">
                 <EmptyPanel
-                  title="Resurrection stream empty"
-                  description="Curated highlights will populate once operators catalog live highlights."
+                  title={t('home.resurrectionStreamEmptyTitle')}
+                  description={t('home.resurrectionStreamEmptyDesc')}
                 />
               </div>
             ) : null}

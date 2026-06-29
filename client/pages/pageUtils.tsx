@@ -1,39 +1,43 @@
 import type { ReactNode } from 'react';
 import { AlertTriangle, Loader2, RefreshCw } from 'lucide-react';
 import { EmptyPanel, Panel } from '../components/runtimeUi';
+import { useI18n } from '../i18n/useI18n';
 
 export function PageShell({ children }: { children: ReactNode }) {
   return <main className="space-y-6 text-white">{children}</main>;
 }
 
-export function LoadingState({ label = 'Loading...' }: { label?: string }) {
+export function LoadingState({ label }: { label?: string }) {
+  const { t } = useI18n();
+  const displayLabel = label || t('common.loading');
   return (
-    <Panel title="Loading runtime surface" eyebrow="System" description={label}>
+    <Panel title={t('common.loadingTitle')} eyebrow={t('common.system')} description={displayLabel}>
       <div className="flex items-center gap-3 rounded-[1.35rem] border border-white/10 bg-white/[0.03] px-5 py-5 text-sm text-white/65">
         <Loader2 className="h-4 w-4 animate-spin text-[#ffd285]" />
-        {label}
+        {displayLabel}
       </div>
     </Panel>
   );
 }
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  const { t } = useI18n();
   return (
-    <Panel title="Runtime request issue" eyebrow="Error" tone="accent">
+    <Panel title={t('common.errorTitle')} eyebrow={t('common.error')} tone="accent">
       <div className="rounded-[1.35rem] border border-rose-400/18 bg-rose-400/10 p-5 text-rose-100">
         <div className="flex items-start gap-3">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
           <div className="flex-1">
-            <div className="font-semibold">API error</div>
+            <div className="font-semibold">{t('common.apiError')}</div>
             <div className="mt-1 text-sm text-rose-100/88">{message}</div>
             {onRetry ? (
               <button
                 type="button"
                 onClick={onRetry}
-                className="mt-4 inline-flex items-center gap-2 rounded-full border border-rose-200/30 px-4 py-2 text-sm font-semibold text-rose-50"
+                className="mt-4 inline-flex items-center gap-2 rounded-full border border-rose-200/30 px-4 py-2 text-sm font-semibold text-rose-50 cursor-pointer"
               >
                 <RefreshCw className="h-4 w-4" />
-                Retry
+                {t('common.retry')}
               </button>
             ) : null}
           </div>

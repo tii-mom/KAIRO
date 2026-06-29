@@ -11,6 +11,7 @@ const forbidden = [
   '代币兑换',
   '闪兑',
   '买入',
+  '卖出',
   '投资者',
   '投资与治理',
   '收益',
@@ -18,6 +19,24 @@ const forbidden = [
   '资金托管',
   'escrowed by KAIRO',
   'custody',
+  // Required Chinese terms
+  '投资收益',
+  '保证收益',
+  '质押收益',
+  '托管资金',
+  '空投保证',
+  '确认付款',
+  '已支付奖励',
+  // Required Korean terms
+  '투자 수익 보장',
+  '수익 보장',
+  '매수',
+  '매도',
+  '예치',
+  '스테이킹 수익',
+  '에어드롭 보장',
+  '지급 보장',
+  '결제 확인',
 ];
 
 function walk(dir, files = []) {

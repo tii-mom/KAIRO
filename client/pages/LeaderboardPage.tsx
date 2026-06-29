@@ -5,10 +5,12 @@ import { getLeaderboard, type LeaderboardResponse } from '../lib/api';
 import { formatMomentumCount } from '../lib/formatters';
 import { DataRow, EmptyPanel, PageHero, Panel, StatusChip, AnimatedCounter, PointerGlowCard, cx } from '../components/runtimeUi';
 import { ErrorState, LoadingState } from './pageUtils';
+import { useI18n } from '../i18n/useI18n';
 
 type LeaderboardRow = Record<string, unknown>;
 
 export default function LeaderboardPage() {
+  const { t } = useI18n();
   const [leaderboard, setLeaderboard] = useState<LeaderboardResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,7 +34,7 @@ export default function LeaderboardPage() {
     void load();
   }, []);
 
-  if (isLoading) return <LoadingState label="Connecting to KAIRO Grid telemetry..." />;
+  if (isLoading) return <LoadingState label={t('leaderboard.loading')} />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
 
   const hottest = (leaderboard?.hottestCatalysts ?? []) as LeaderboardRow[];
@@ -44,25 +46,25 @@ export default function LeaderboardPage() {
     <div className="space-y-8 pb-12">
       {/* Grid Hero */}
       <PageHero
-        eyebrow="The Grid Registry"
-        title="Ecosystem Momentum & Rankings Console"
-        description="Verify Catalyst activity, builder delivery indicators, support signals, and comeback milestones on a shared telemetry board."
+        eyebrow={t('leaderboard.eyebrow')}
+        title={t('leaderboard.title')}
+        description={t('leaderboard.description')}
         stats={[
-          { label: 'Hottest Lanes', value: hottest.length, detail: 'Catalysts ranked by momentum' },
-          { label: 'Active Builders', value: builders.length, detail: 'Score-based output ranks', tone: 'sky' },
-          { label: 'Reward Evidence', value: rewardVisible.length, detail: 'Recorded reward evidence', tone: 'emerald' },
+          { label: t('leaderboard.hottestLanes'), value: hottest.length, detail: t('leaderboard.hottestLanesDetail') },
+          { label: t('leaderboard.activeBuilders'), value: builders.length, detail: t('leaderboard.activeBuildersDetail'), tone: 'sky' },
+          { label: t('leaderboard.rewardEvidence'), value: rewardVisible.length, detail: t('leaderboard.rewardEvidenceDetail'), tone: 'emerald' },
         ]}
         aside={
-          <Panel eyebrow="Platform Leader" title="Front Runner" icon={Crown}>
+          <Panel eyebrow={t('leaderboard.platformLeader')} title={t('leaderboard.frontRunner')} icon={Crown}>
             <div className="glass-panel p-4 border-[#ffb95f]/30 relative overflow-hidden">
               <div className="absolute inset-0 bg-[#ffb95f]/5 blur-[20px] pointer-events-none" />
               <div className="relative z-10">
-                <div className="text-[9px] font-mono uppercase tracking-widest text-[#ffb95f]">Current Leaderboard Lane</div>
+                <div className="text-[9px] font-mono uppercase tracking-widest text-[#ffb95f]">{t('leaderboard.currentLeaderboardLane')}</div>
                 <div className="mt-2 text-base font-bold text-white tracking-tight leading-tight">
-                  {String(hottest[0]?.title ?? 'Awaiting telemetry')}
+                  {String(hottest[0]?.title ?? t('leaderboard.awaitingTelemetry'))}
                 </div>
                 <div className="mt-1 font-mono text-xs text-[#ffb95f]">
-                  Momentum: {formatMomentumCount(Number(hottest[0]?.momentum_score ?? 0))} PTS
+                  {t('leaderboard.momentum')}: {formatMomentumCount(Number(hottest[0]?.momentum_score ?? 0))} PTS
                 </div>
               </div>
             </div>
@@ -80,7 +82,7 @@ export default function LeaderboardPage() {
               activeTab === 'builders' ? "text-[#ffb95f] border-[#ffb95f]" : "hover:text-white cursor-pointer"
             )}
           >
-            Top Builders
+            {t('leaderboard.tabTopBuilders')}
           </button>
           <button
             onClick={() => setSearchParams({ tab: 'catalysts' })}
@@ -89,7 +91,7 @@ export default function LeaderboardPage() {
               activeTab === 'catalysts' ? "text-[#ffb95f] border-[#ffb95f]" : "hover:text-white cursor-pointer"
             )}
           >
-            Hottest Catalysts
+            {t('leaderboard.tabHottest')}
           </button>
           <button
             onClick={() => setSearchParams({ tab: 'dormant' })}
@@ -98,7 +100,7 @@ export default function LeaderboardPage() {
               activeTab === 'dormant' ? "text-[#ffb95f] border-[#ffb95f]" : "hover:text-white cursor-pointer"
             )}
           >
-            Dormant Giants & Breakouts
+            {t('leaderboard.tabDormantGiants')}
           </button>
           <button
             onClick={() => setSearchParams({ tab: 'comeback' })}
@@ -107,14 +109,14 @@ export default function LeaderboardPage() {
               activeTab === 'comeback' ? "text-[#ffb95f] border-[#ffb95f]" : "hover:text-white cursor-pointer"
             )}
           >
-            Comeback Hall & Genesis
+            {t('leaderboard.tabComebackHall')}
           </button>
         </div>
       </div>
 
       {/* Main lists */}
       {activeTab === 'builders' && (
-        <Panel eyebrow="Builder Board" title="Top Builders" description="Reputation scores earned by shipping functional solutions." icon={Users}>
+        <Panel eyebrow={t('leaderboard.tabTopBuilders')} title={t('leaderboard.tabTopBuilders')} description={t('leaderboard.topBuildersDesc')} icon={Users}>
           <RankList
             rows={builders}
             labelKey="builder_name"
@@ -129,10 +131,10 @@ export default function LeaderboardPage() {
 
       {activeTab === 'catalysts' && (
         <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-          <Panel eyebrow="Heat Map" title="Hottest Catalysts" description="Lanes sorted by support injections and builder actions.">
+          <Panel eyebrow={t('leaderboard.heatMap')} title={t('leaderboard.tabHottest')} description={t('leaderboard.heatMapDesc')}>
             <RankList rows={hottest} labelKey="title" valueKey="momentum_score" valueFormatter={formatCompactValue} tone="gold" />
           </Panel>
-          <Panel eyebrow="Support Surges" title="Most Boosted Solutions" description="Top-supported builder proposals ranked by total boosts." icon={Trophy}>
+          <Panel eyebrow={t('leaderboard.supportSurges')} title={t('leaderboard.tabMostBoosted')} description={t('leaderboard.supportSurgesDesc')} icon={Trophy}>
             <RankList
               rows={boosted}
               labelKey="name"
@@ -148,23 +150,23 @@ export default function LeaderboardPage() {
 
       {activeTab === 'dormant' && (
         <div className="grid gap-6">
-          <Panel eyebrow="Comeback Tracks" title="Dormant Giants & Breakout Stories" icon={Orbit}>
+          <Panel eyebrow={t('leaderboard.comebackTracks')} title={t('leaderboard.tabDormantGiants')} icon={Orbit}>
             <div className="grid gap-4 sm:grid-cols-2">
               <MiniRankPanel
-                title="Dormant Giants"
+                title={t('leaderboard.dormantGiants')}
                 rows={(leaderboard?.dormantGiants ?? []) as LeaderboardRow[]}
                 labelKey="title"
                 valueKey="sort_order"
               />
               <MiniRankPanel
-                title="Breakout Stories"
+                title={t('leaderboard.breakoutStories')}
                 rows={(leaderboard?.breakoutStories ?? []) as LeaderboardRow[]}
                 labelKey="title"
                 valueKey="sort_order"
               />
             </div>
           </Panel>
-          <Panel eyebrow="Public Evidence" title="Catalysts with External Evidence" description="Catalyst lanes with verified coordination evidence." icon={Radar}>
+          <Panel eyebrow={t('leaderboard.publicEvidence')} title={t('leaderboard.catalystsWithExternalEvidence')} description={t('leaderboard.catalystLanesWithVerifiedCoordination')} icon={Radar}>
             <RankList
               rows={rewardVisible}
               labelKey="title"
@@ -179,16 +181,16 @@ export default function LeaderboardPage() {
       )}
 
       {activeTab === 'comeback' && (
-        <Panel eyebrow="Ecosystem Highlights" title="Comeback Hall & Genesis Candidates" icon={Trophy}>
+        <Panel eyebrow={t('leaderboard.ecosystemHighlights')} title={t('leaderboard.tabComebackHall')} icon={Trophy}>
           <div className="grid gap-4 sm:grid-cols-2">
             <MiniRankPanel
-              title="Comeback Hall"
+              title={t('leaderboard.comebackHallTitle')}
               rows={(leaderboard?.comebackHall ?? []) as LeaderboardRow[]}
               labelKey="title"
               valueKey="sort_order"
             />
             <MiniRankPanel
-              title="Genesis Candidates"
+              title={t('leaderboard.genesisCandidatesTitle')}
               rows={(leaderboard?.genesisCandidates ?? []) as LeaderboardRow[]}
               labelKey="title"
               valueKey="sort_order"
@@ -217,8 +219,9 @@ const RankList: FC<{
   valueFormatter,
   tone,
 }) => {
+  const { t } = useI18n();
   if (!rows.length) {
-    return <EmptyPanel title="Awaiting ranking metrics" description="Telemetries will stream here once platform actions occur." />;
+    return <EmptyPanel title={t('leaderboard.awaitingMetrics')} description={t('leaderboard.awaitingMetricsDesc')} />;
   }
 
   return (
@@ -250,12 +253,12 @@ const RankList: FC<{
                 {subtitleValue ? (
                   <p className="text-xs text-white/50 mt-1 uppercase font-mono">{subtitleLabel ?? subtitleKey}: {subtitleValue}</p>
                 ) : (
-                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">Ranked Core Runner</p>
+                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">{t('leaderboard.rankedCoreRunner')}</p>
                 )}
               </div>
               <div className="flex flex-col items-end gap-1.5 min-w-[150px] z-10 font-mono text-xs mt-3 sm:mt-0">
                 <div className="flex justify-between w-full">
-                  <span className="text-white/40">SCORE</span>
+                  <span className="text-white/40">{t('leaderboard.scoreLabel')}</span>
                   <span className="text-[#EE1C25] font-bold">
                     <AnimatedCounter value={valNum} formatter={valueFormatter} />
                   </span>
@@ -284,12 +287,12 @@ const RankList: FC<{
                 {subtitleValue ? (
                   <p className="text-xs text-white/50 mt-1 uppercase font-mono">{subtitleLabel ?? subtitleKey}: {subtitleValue}</p>
                 ) : (
-                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">Ranked Contributor</p>
+                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">{t('leaderboard.rankedContributor')}</p>
                 )}
               </div>
               <div className="flex flex-col items-end gap-1.5 min-w-[150px] font-mono text-xs mt-3 sm:mt-0">
                 <div className="flex justify-between w-full">
-                  <span className="text-white/40">SCORE</span>
+                  <span className="text-white/40">{t('leaderboard.scoreLabel')}</span>
                   <span className="text-white font-bold">
                     <AnimatedCounter value={valNum} formatter={valueFormatter} />
                   </span>
@@ -318,12 +321,12 @@ const RankList: FC<{
                 {subtitleValue ? (
                   <p className="text-xs text-white/50 mt-1 uppercase font-mono">{subtitleLabel ?? subtitleKey}: {subtitleValue}</p>
                 ) : (
-                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">Ranked Contributor</p>
+                  <p className="text-xs text-white/50 mt-1 uppercase font-mono">{t('leaderboard.rankedContributor')}</p>
                 )}
               </div>
               <div className="flex flex-col items-end gap-1.5 min-w-[150px] font-mono text-xs mt-3 sm:mt-0">
                 <div className="flex justify-between w-full">
-                  <span className="text-white/40">SCORE</span>
+                  <span className="text-white/40">{t('leaderboard.scoreLabel')}</span>
                   <span className="text-white font-bold">
                     <AnimatedCounter value={valNum} formatter={valueFormatter} />
                   </span>
@@ -369,6 +372,7 @@ const MiniRankPanel: FC<{
   labelKey,
   valueKey,
 }) => {
+  const { t } = useI18n();
   return (
     <div className="glass-panel p-4 flex flex-col justify-between bg-[#0c0e14]/40">
       <div className="text-[10px] font-mono uppercase tracking-widest text-white/40 mb-3 border-b border-white/5 pb-2">{title}</div>
@@ -384,7 +388,7 @@ const MiniRankPanel: FC<{
             />
           ))
         ) : (
-          <EmptyPanel title={`No ${title}`} description="Tracking queue is currently empty." />
+          <EmptyPanel title={t('leaderboard.noResultsTitle', { title })} description={t('leaderboard.noResultsDesc')} />
         )}
       </div>
     </div>

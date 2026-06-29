@@ -35,9 +35,11 @@ import {
   getTopBuilders,
 } from './services/leaderboard';
 import { getProofOfSupport, getSupportEvents, getSupportPoints, resolveCurrentSupportUser } from './services/support';
+import { createShareEvent, listShareEventsByUser, getReferralSummary } from './services/share-events';
 import { createSubmission, getSubmission, listSubmissions, patchSubmission } from './services/submissions';
 import type { Env } from './db/d1';
 import { getCurrentUserFromHeaders, requireAdmin, requireBetaWriteAccess, safeJsonError } from './lib/http';
+
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -139,7 +141,25 @@ app.post('/api/submissions/:id/boost', async (c) => {
   );
 });
 
+app.post('/api/share-events', async (c) => {
+  const user = getCurrentUserFromHeaders(c);
+  const body = await c.req.json();
+  const res = await createShareEvent(c.env, user.id, body);
+  return c.json({ data: res }, 201);
+});
+
+app.get('/api/share-events/me', async (c) => {
+  const user = getCurrentUserFromHeaders(c);
+  return c.json({ data: await listShareEventsByUser(c.env, user.id) });
+});
+
+app.get('/api/referral/me', async (c) => {
+  const user = getCurrentUserFromHeaders(c);
+  return c.json({ data: await getReferralSummary(c.env, user.id) });
+});
+
 app.post('/api/boosts', async (c) => {
+
   const user = requireBetaWriteAccess(c);
   const body = await c.req.json();
   return c.json({ data: await createBoost(c.env, { ...body, userId: user.id }) }, 201);
