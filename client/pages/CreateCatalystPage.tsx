@@ -93,7 +93,13 @@ export default function CreateCatalystPage() {
     setError(null);
 
     try {
-      const fullDescription = `${description}\n\n### External Reward Evidence Specifications\n- **Sponsor / Source**: ${sponsorSource || 'N/A'}\n- **Evidence URL**: ${evidenceUrl || 'N/A'}\n- **Fund Controller**: ${whoControlsFunds || 'Externally Managed'}\n- **Dispute Contact**: ${disputeContact || 'N/A'}\n- **KAIRO Asset Control**: Strictly No`;
+      const fullDescription = `${description}\n\n` +
+        `${t('createCatalyst.specHeader')}\n` +
+        `${t('createCatalyst.specSponsorSource', { value: sponsorSource || t('createCatalyst.specNa') })}\n` +
+        `${t('createCatalyst.specEvidenceUrl', { value: evidenceUrl || t('createCatalyst.specNa') })}\n` +
+        `${t('createCatalyst.specFundController', { value: whoControlsFunds || t('createCatalyst.specExternallyManaged') })}\n` +
+        `${t('createCatalyst.specDisputeContact', { value: disputeContact || t('createCatalyst.specNa') })}\n` +
+        `${t('createCatalyst.specAssetControl', { value: t('createCatalyst.specStrictlyNo') })}`;
 
       const catalyst = await createBounty({
         tokenName,

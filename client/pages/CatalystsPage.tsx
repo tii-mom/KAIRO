@@ -58,14 +58,14 @@ export function CatalystDetailPage() {
   const handleBoost = async () => {
     try {
       const result = await boostBounty(id);
-      setBoostMessage(result.duplicate ? t('submissionDetail.boostSuccess') : `Boost recorded: +${result.pointsDelta ?? 0} support points.`);
+      setBoostMessage(result.duplicate ? t('submissionDetail.boostSuccess') : t('catalysts.boostSuccessDelta', { delta: String(result.pointsDelta ?? 0) }));
       if (!result.duplicate) {
         setBoostSuccess(true);
         setTimeout(() => setBoostSuccess(false), 700);
       }
       await load();
     } catch (boostError) {
-      setBoostMessage(boostError instanceof Error ? boostError.message : 'Unable to record Boost.');
+      setBoostMessage(boostError instanceof Error ? boostError.message : t('catalysts.boostError'));
     }
   };
 
@@ -324,7 +324,7 @@ export function CatalystDetailPage() {
                     <div>
                       <h4 className="text-sm font-bold text-white tracking-tight">{submission.name}</h4>
                       <p className="text-[10px] font-mono text-white/40 mt-1 uppercase">
-                        BUILDER: {submission.builderName || submission.builderId || 'Unknown'}
+                        {t('catalysts.builderLabel', { name: submission.builderName || submission.builderId || t('catalysts.unknown') })}
                       </p>
                     </div>
                     <Link to={`/submissions/${submission.id}`} className="text-white/30 hover:text-[#ffb95f] transition-colors shrink-0" title={t('catalysts.solutionDetails')}>
@@ -355,7 +355,7 @@ export function CatalystDetailPage() {
                   </StatusChip>
                   <div className="text-right">
                     <span className="font-mono text-xs text-[#ffb95f] font-bold">{t('catalysts.boostsCount', { count: submission.boostCount })}</span>
-                    <div className="text-[9px] font-mono text-white/30 mt-0.5">{formatDate(submission.createdAt)}</div>
+                    <div className="text-[9px] font-mono text-white/30 mt-0.5">{formatDate(submission.createdAt, locale)}</div>
                   </div>
                 </div>
               </div>
@@ -379,7 +379,7 @@ export function CatalystDetailPage() {
                   key={event.id}
                   title={event.amountText ?? t('catalysts.rewardConfirmationNote')}
                   subtitle={event.note ?? t('catalysts.verifiedByCommunity')}
-                  meta={formatDate(event.createdAt)}
+                  meta={formatDate(event.createdAt, locale)}
                   badge={<StatusChip tone="emerald">recorded</StatusChip>}
                 />
               ))
@@ -468,8 +468,8 @@ export default function CatalystsPage() {
                   to={`/catalysts/${catalyst.id}`}
                   title={catalyst.title}
                   subtitle={catalyst.description}
-                  value={formatMomentumCount(catalyst.momentumScore)}
-                  meta={`Boosts: ${catalyst.boostCount}  Solutions: ${catalyst.submissionCount}`}
+                  value={formatMomentumCount(catalyst.momentumScore, locale)}
+                  meta={t('catalysts.statsMeta', { boosts: catalyst.boostCount, solutions: catalyst.submissionCount })}
                   badge={<StatusChip tone="gold">{formatFundingStatusLabel(catalyst.fundingStatus, locale)}</StatusChip>}
                 />
               ))}
@@ -509,7 +509,7 @@ export default function CatalystsPage() {
                       <p className="mt-2 text-xs leading-5 text-white/50">{catalyst.description}</p>
                     </div>
                     <div className="mt-4 flex flex-wrap gap-3 border-t border-white/5 pt-3 font-mono text-[9px] uppercase tracking-wider text-white/30">
-                      <span>Momentum: {formatMomentumCount(catalyst.momentumScore)}</span>
+                      <span>Momentum: {formatMomentumCount(catalyst.momentumScore, locale)}</span>
                       <span>Boosts: {catalyst.boostCount}</span>
                     </div>
                   </article>

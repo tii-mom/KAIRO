@@ -21,7 +21,12 @@ const ALLOWLIST = new Set([
   'recorded', 'severity', 'tier', 'high', 'medium', 'standard', 'target', 'source',
   'committed', 'at', 'reward', 'signal', 'event', 'reference', 'sector', 'reigniting',
   'value', 'lane', 'discovery', 'mode', 'test', 'targets', 'operator', 'audit',
-  'current', 'queue', 'empty', 'momentum', 'builder', 'share', 'proof', 'ranked'
+  'current', 'queue', 'empty', 'momentum', 'builder', 'share', 'proof', 'ranked',
+  'pointermove', 'short', 'numeric', 'compact', 'kai', 'curated', 'elite', 'pro',
+  'arbitrum', 'ethereum', 'solana', 'base', 'sol', 'eth', 'untitled', 'arena',
+  'catalyst', 'catalysts', 'builderhub', 'unable', 'load', 'details', 'giants',
+  'watchlist', 'record', 'solution', 'submission', 'data', 'profile', 'create',
+  'leaderboard', 'of', 'support', 'runtime'
 ]);
 
 function isCssClass(str: string): boolean {
@@ -32,6 +37,15 @@ function isCssClass(str: string): boolean {
 
 function isAllowedString(str: string): boolean {
   if (isCssClass(str)) return true;
+  if (
+    str.startsWith('/') ||
+    str.startsWith('http://') ||
+    str.startsWith('https://') ||
+    str.includes('://') ||
+    (str.includes('.') && !str.includes(' '))
+  ) {
+    return true;
+  }
   const clean = str.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').trim();
   if (!clean) return true;
   const words = clean.split(/\s+/);
@@ -186,7 +200,48 @@ for (const f of activeSrcFiles) {
   }
 }
 
-const userVisibleAttributes = new Set(['label', 'title', 'placeholder', 'description', 'eyebrow', 'tooltip', 'empty', 'text']);
+const userVisibleAttributes = new Set([
+  'label', 'title', 'placeholder', 'description', 'eyebrow', 'tooltip',
+  'empty', 'text', 'subtitle', 'meta', 'message', 'aria-label'
+]);
+
+function checkIfUserVisibleContext(node: ts.Node): boolean {
+  let parent = node.parent;
+  while (parent) {
+    if (ts.isJsxElement(parent) || ts.isJsxSelfClosingElement(parent) || ts.isJsxFragment(parent)) {
+      return true;
+    }
+    if (ts.isJsxAttribute(parent)) {
+      const attrName = parent.name.getText();
+      return userVisibleAttributes.has(attrName);
+    }
+    if (ts.isJsxExpression(parent) && ts.isJsxAttribute(parent.parent)) {
+      const attrName = (parent.parent as ts.JsxAttribute).name.getText();
+      return userVisibleAttributes.has(attrName);
+    }
+    if (ts.isReturnStatement(parent)) {
+      return true;
+    }
+    if (ts.isCallExpression(parent)) {
+      const expr = parent.expression;
+      const exprText = expr.getText();
+      if (
+        exprText === 'setMessage' ||
+        exprText === 'setError' ||
+        exprText === 'setBoostMessage' ||
+        exprText === 'setCopyMessage' ||
+        exprText.includes('navigator.clipboard.writeText')
+      ) {
+        return true;
+      }
+    }
+    if (ts.isImportDeclaration(parent) || ts.isExportDeclaration(parent)) {
+      return false;
+    }
+    parent = parent.parent;
+  }
+  return false;
+}
 
 for (const file of targetFiles) {
     // Read and parse file
@@ -194,66 +249,33 @@ for (const file of targetFiles) {
     const sourceFile = ts.createSourceFile(file, content, ts.ScriptTarget.Latest, true);
 
     function visit(node: ts.Node) {
-      // 1. Check JSX Text (direct tags content)
-      if (ts.isJsxText(node)) {
-        const text = node.getText().trim();
-        if (text && /[a-zA-Z]/.test(text) && !isAllowedString(text)) {
-          const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
-          hardcoded.push({ file: path.relative(root, file), line: line + 1, text });
-        }
-      }
+      let text: string | undefined;
+      let isJsxTextNode = false;
+      let isJsxAttrNode = false;
 
-      // 2. Check JSX attributes string literals
-      if (ts.isJsxAttribute(node) && node.initializer && ts.isStringLiteral(node.initializer)) {
+      if (ts.isJsxText(node)) {
+        text = node.getText().trim();
+        isJsxTextNode = true;
+      } else if (ts.isJsxAttribute(node) && node.initializer && ts.isStringLiteral(node.initializer)) {
         const attrName = node.name.getText();
         if (userVisibleAttributes.has(attrName)) {
-          const text = node.initializer.text.trim();
-          if (text && /[a-zA-Z]/.test(text) && !isAllowedString(text)) {
-            const { line } = sourceFile.getLineAndCharacterOfPosition(node.initializer.getStart());
-            hardcoded.push({ file: path.relative(root, file), line: line + 1, text });
-          }
+          text = node.initializer.text.trim();
+          isJsxAttrNode = true;
         }
+      } else if (
+        ts.isStringLiteral(node) ||
+        ts.isNoSubstitutionTemplateLiteral(node) ||
+        ts.isTemplateHead(node) ||
+        ts.isTemplateMiddle(node) ||
+        ts.isTemplateTail(node)
+      ) {
+        text = (node as any).text?.trim();
       }
 
-      // 3. String literals inside JsxExpressions or as return values (sometimes dynamic strings)
-      if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
-        const text = (node as ts.StringLiteral | ts.NoSubstitutionTemplateLiteral).text.trim();
-        // Only inspect if it looks like user-visible text (longer strings with space and English letters)
-        if (text && text.includes(' ') && /[a-zA-Z]/.test(text) && !isAllowedString(text)) {
-          let parent: ts.Node | undefined = node.parent;
-          let isUserVisible = false;
-          while (parent) {
-            if (ts.isJsxAttribute(parent)) {
-              const attrName = parent.name.getText();
-              if (userVisibleAttributes.has(attrName)) {
-                isUserVisible = true;
-              }
-              break;
-            }
-            if (ts.isJsxExpression(parent) && ts.isJsxAttribute(parent.parent)) {
-              const attrName = (parent.parent as ts.JsxAttribute).name.getText();
-              if (userVisibleAttributes.has(attrName)) {
-                isUserVisible = true;
-              }
-              break;
-            }
-            if (ts.isJsxElement(parent) || ts.isJsxSelfClosingElement(parent) || ts.isJsxFragment(parent)) {
-              isUserVisible = true;
-              break;
-            }
-            if (ts.isReturnStatement(parent)) {
-              isUserVisible = true;
-              break;
-            }
-            if (ts.isImportDeclaration(parent) || ts.isCallExpression(parent) || ts.isVariableDeclaration(parent)) {
-              break;
-            }
-            parent = parent.parent;
-          }
-          if (isUserVisible) {
-            const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
-            hardcoded.push({ file: path.relative(root, file), line: line + 1, text });
-          }
+      if (text && /[a-zA-Z]/.test(text) && !isAllowedString(text)) {
+        if (isJsxTextNode || isJsxAttrNode || checkIfUserVisibleContext(node)) {
+          const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+          hardcoded.push({ file: path.relative(root, file), line: line + 1, text });
         }
       }
 

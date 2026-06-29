@@ -35,7 +35,17 @@ export default function SubmitProjectPage() {
     setError(null);
 
     try {
-      const fullDescription = `${form.get('description')}\n\n### Quality Proof & Specifications\n- **GitHub Ownership Proof**: ${form.get('githubProof')}\n- **What was built**: ${form.get('whatWasBuilt')}\n- **Requirements Satisfied**: ${form.get('requirementsSatisfied')}\n- **Test Instructions**: ${form.get('testInstructions')}\n- **Known Limitations**: ${form.get('limitations')}\n- **License**: ${form.get('license')}\n- **Deployment Status**: ${form.get('deploymentStatus')}\n- **Maintenance Commitment**: ${form.get('maintenanceCommitment')}\n- **Security Notes**: ${form.get('disclaimerContact') || 'None'}`;
+      const fullDescription = `${form.get('description')}\n\n` +
+        `${t('submitProject.specHeader')}\n` +
+        `${t('submitProject.specGithubProof', { value: String(form.get('githubProof') ?? '') || t('submitProject.specNone') })}\n` +
+        `${t('submitProject.specWhatWasBuilt', { value: String(form.get('whatWasBuilt') ?? '') || t('submitProject.specNone') })}\n` +
+        `${t('submitProject.specRequirementsSatisfied', { value: String(form.get('requirementsSatisfied') ?? '') || t('submitProject.specNone') })}\n` +
+        `${t('submitProject.specTestInstructions', { value: String(form.get('testInstructions') ?? '') || t('submitProject.specNone') })}\n` +
+        `${t('submitProject.specKnownLimitations', { value: String(form.get('limitations') ?? '') || t('submitProject.specNone') })}\n` +
+        `${t('submitProject.specLicense', { value: String(form.get('license') ?? '') || t('submitProject.specNone') })}\n` +
+        `${t('submitProject.specDeploymentStatus', { value: String(form.get('deploymentStatus') ?? '') || t('submitProject.specNone') })}\n` +
+        `${t('submitProject.specMaintenanceCommitment', { value: String(form.get('maintenanceCommitment') ?? '') || t('submitProject.specNone') })}\n` +
+        `${t('submitProject.specSecurityNotes', { value: String(form.get('disclaimerContact') ?? '') || t('submitProject.specNone') })}`;
 
       const submission = await createSubmission({
         bountyId: id,

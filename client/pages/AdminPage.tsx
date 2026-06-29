@@ -180,7 +180,7 @@ export default function AdminPage() {
               <AdminRow
                 key={String(bounty.id)}
                 title={String(bounty.title)}
-                subtitle={`Status: ${String(bounty.status)} · Funding: ${String(bounty.funding_status)}`}
+                subtitle={`${t('admin.statusColon', { value: String(bounty.status) })} · ${t('admin.fundingColon', { value: String(bounty.funding_status) })}`}
                 actions={[
                   {
                     label: t('admin.markActive'),
@@ -188,7 +188,7 @@ export default function AdminPage() {
                       t('admin.markActive'),
                       false,
                       (audit) => patchAdminBountyStatus(String(bounty.id), 'active', audit, options),
-                      'Catalyst marked active.'
+                      t('admin.catalystMarkedActive')
                     ),
                   },
                   {
@@ -197,7 +197,7 @@ export default function AdminPage() {
                       t('admin.recordCompletion'),
                       true,
                       (audit) => patchAdminBountyFundingStatus(String(bounty.id), 'paid', audit, options),
-                      'External completion recorded.'
+                      t('admin.externalCompletionRecorded')
                     ),
                   },
                   {
@@ -272,7 +272,7 @@ export default function AdminPage() {
           <AdminRow
             key={String(submission.id)}
             title={String(submission.name)}
-            subtitle={`Status: ${String(submission.status)} · Delivery: ${String(submission.delivery_status)}`}
+            subtitle={`${t('admin.statusColon', { value: String(submission.status) })} · ${t('admin.deliveryColon', { value: String(submission.delivery_status) })}`}
             actions={[
               {
                 label: t('admin.markWinner'),
@@ -303,8 +303,8 @@ export default function AdminPage() {
           {boosts.slice(0, 10).map((boost) => (
             <AdminRow
               key={String(boost.id)}
-              title={`Boost ID: ${String(boost.id).slice(0, 8)}...`}
-              subtitle={`Status: ${String(boost.validity_status)} · Source: ${String(boost.source)}`}
+              title={t('admin.boostId', { id: String(boost.id).slice(0, 8) })}
+              subtitle={`${t('admin.statusColon', { value: String(boost.validity_status) })} · ${t('admin.sourceColon', { value: String(boost.source) })}`}
               actions={[
                 {
                   label: t('admin.valid'),
@@ -344,7 +344,7 @@ export default function AdminPage() {
             <AdminRow
               key={String(event.id)}
               title={String(event.event_type)}
-              subtitle={`Status: ${String(event.validity_status)} · User: ${String(event.user_id).slice(0, 8)}...`}
+              subtitle={`${t('admin.statusColon', { value: String(event.validity_status) })} · ${t('admin.userColon', { value: String(event.user_id).slice(0, 8) })}`}
               actions={[
                 {
                   label: t('admin.valid'),
@@ -384,7 +384,7 @@ export default function AdminPage() {
             <AdminRow
               key={String(item.id)}
               title={String(item.title)}
-              subtitle={`Type: ${String(item.item_type)} · Status: ${String(item.status)}`}
+              subtitle={`${t('admin.typeColon', { value: String(item.item_type) })} · ${t('admin.statusColon', { value: String(item.status) })}`}
               actions={[
                 {
                   label: String(item.status) === 'hidden' ? t('admin.unhide') : t('admin.hide'),
@@ -515,7 +515,7 @@ function GridSection({ title, children }: { title: string; children: ReactNode }
   return (
     <Panel eyebrow={t('admin.operatorAudit')} title={title}>
       <div className="grid gap-3">
-        {children || <EmptyPanel title={`No ${title.toLowerCase()} recorded`} description={t('admin.emptyAuditQueue')} />}
+        {children || <EmptyPanel title={t('admin.noRecordedItems', { title: title.toLowerCase() })} description={t('admin.emptyAuditQueue')} />}
       </div>
     </Panel>
   );

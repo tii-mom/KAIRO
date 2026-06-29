@@ -44,7 +44,7 @@ export default function SubmissionDetailPage() {
       setBoostMessage(result.duplicate ? t('submissionDetail.boostDuplicate') : t('submissionDetail.boostSuccessDelta', { delta: String(result.pointsDelta ?? 0) }));
       await load();
     } catch (boostError) {
-      setBoostMessage(boostError instanceof Error ? boostError.message : 'Unable to record Boost.');
+      setBoostMessage(boostError instanceof Error ? boostError.message : t('submissionDetail.boostError'));
     }
   };
 

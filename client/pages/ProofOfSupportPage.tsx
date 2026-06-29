@@ -8,7 +8,7 @@ import { useI18n } from '../i18n/useI18n';
 
 export default function ProofOfSupportPage() {
   const { userId } = useParams();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [proof, setProof] = useState<ProofOfSupport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,7 +38,12 @@ export default function ProofOfSupportPage() {
 
   const handleCopy = async () => {
     if (!proof) return;
-    const copy = `KAIRO Proof of Support\nUser: ${proof.user.id}\nLevel: ${proof.supporterLevel}\nSupport Points: ${proof.points.totalPoints}\nValid Boosts: ${proof.validBoostCount}`;
+    const copy = t('proof.copyTemplate', {
+      userId: proof.user.id,
+      level: proof.supporterLevel,
+      points: proof.points.totalPoints,
+      boosts: proof.validBoostCount
+    });
     await navigator.clipboard.writeText(copy);
     setCopyMessage(t('proof.copiedToast'));
     setTimeout(() => setCopyMessage(null), 2000);
@@ -174,7 +179,7 @@ export default function ProofOfSupportPage() {
                     </div>
                   </div>
                   <div className="text-[9px] font-mono text-white/30 mt-2">
-                    {t('proof.committedAt')} {formatDate(event.createdAt)}
+                    {t('proof.committedAt')} {formatDate(event.createdAt, locale)}
                   </div>
                 </div>
               </div>
@@ -231,8 +236,8 @@ function formatEventType(eventType: string) {
   return eventType.replace(/_/g, ' ').replace(/^\w/, (letter) => letter.toUpperCase());
 }
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat(undefined, {
+function formatDate(value: string, locale = 'en-US') {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(value));
